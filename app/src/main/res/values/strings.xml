@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">VS_pascalo_ChatApp</string>
+    <string name="settings">Settings</string>
+    <string name="notification_sound_check_box">Sound</string>
+    <string name="notification_vibration_check_box">Vibration</string>
+    <string name="show_key">Show Key</string>
+    <string name="add_chat">Add Chat</string>
+    <string name="go_offline">Go Offline</string>
+    <string name="open_network_configuraion">Open Network Configuration</string>
+</resources>

@@ -1,0 +1,52 @@
+1. Create MainActivity with clickable list of chats
+    OK - Pascal - 21.11.2016
+
+2. Order chats by most recent activity
+
+3. each chat preview should display the name of the chat partner and
+    the number of unread messages
+
+4. add overflow menu with "Preferences", "Show Key", "Add Chat", "Go Offline",
+    "Open Network Configuration" (in MainActivity)
+    no function implemented - Pascal - 21.11.2016
+
+5. implement a service that handles message state, addressbook state, receiving messages
+    including decryption and notification handling
+
+6. the service has to be started on app start if it is not running
+
+7. store chat content, address book and own keys in files
+    (to store them when the service is shut down)
+
+8. create ChatActivity that holds the chat window
+
+9. align messages left (chat partner) right (me) in the chat window
+
+10. messages are ordered and displayed descening in age
+
+11. add overflow menu with "Show Key", "Forget User" (ChatActivity)
+
+12. allow displaying Barcodes/QR-codes by using ZXing library
+
+13. allow scanning Barcodes/QR-codes by using the ZXing library
+
+14. create an activity to generate a public-private key pair with java.crypto
+    and to enter the username
+
+15. create a preference activity with two options to toggle sound and vibration for notification
+    and an option to generate a new key
+
+
+
+
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+
+
+store all chat partners (addressbook in a file) in order of most recent message
+addressbook, we need one in any case
+
+store chat messages per chat in a file named "cat_[chat partner name].???"
+a little overhead but I think it's a lot easier to store and find them even we
+have more overhead
