@@ -15,7 +15,7 @@
         android:orderInCategory="2" />
 
     <item android:id="@+id/go_offline"
-        android:title="@string/show_key"
+        android:title="@string/go_offline"
         android:orderInCategory="2" />
 
     <item android:id="@+id/open_network_configuration"
