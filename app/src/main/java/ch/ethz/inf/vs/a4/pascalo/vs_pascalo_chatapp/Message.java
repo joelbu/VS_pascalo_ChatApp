@@ -2,10 +2,6 @@ package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
 import java.sql.Timestamp;
 
-/**
- * Created by pascal on 22.11.16
- */
-
 public class Message {
 
     private String author;

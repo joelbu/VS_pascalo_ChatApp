@@ -1,11 +1,8 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
 import java.util.LinkedList;
-import java.util.List;
 
-/**
- * Created by pascal on 22.11.16.
- */
+
 
 public class Chat {
 
@@ -17,9 +14,10 @@ public class Chat {
 
 
 
-    public Chat(String cPN, String cPPK, List<Message> mL) {
+    public Chat(String cPN, String cPPK, LinkedList<Message> mL) {
         chatPartnerName =cPN;
         chatPartnerPublicKey = cPPK;
+        messageList = mL;
     }
 
     /*
@@ -44,7 +42,7 @@ public class Chat {
         return chatPartnerPublicKey;
     }
 
-    public List<Message> getMessageList() {
+    public LinkedList<Message> getMessageList() {
         return messageList;
     }
 

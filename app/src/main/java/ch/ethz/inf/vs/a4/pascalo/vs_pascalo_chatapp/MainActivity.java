@@ -11,15 +11,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
 import java.util.LinkedList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
 
-    private LinkedList<Chat> chatList = new LinkedList<Chat>();
+    private LinkedList<Chat> chatList = new LinkedList<>();
 
 
     @Override
@@ -57,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // list of messages
                 // messages has text and a tag which indicates if the message is mine or not (has to be displayed at the left or the right)
 
-        ArrayAdapter<Chat> chatArrayAdapter = new ArrayAdapter<Chat>(this,
+        ArrayAdapter<Chat> chatArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1,
                 chatList);
 
