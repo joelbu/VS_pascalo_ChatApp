@@ -3,7 +3,7 @@ package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class Chat extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

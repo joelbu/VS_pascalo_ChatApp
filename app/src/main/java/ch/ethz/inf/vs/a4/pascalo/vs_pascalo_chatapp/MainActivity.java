@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // TODO: set chats to list
         // store all chat partners (addressbook in a file) in order of most recent message
-        // addressbook, we need one in any case
+        // we need an addressbook in any case
 
         // store chat messages per chat in a file named "cat_[chat partner name].???"
         // a little overhead but I think it's a lot easier to store and find them even we
@@ -41,14 +42,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // idea copy most of the code from sensor app
 
-        /*
-        SensorArrayAdapter<Sensor> array_adapter = new SensorArrayAdapter<Sensor>(this,
+        // idea create a class chat that has objects with multiple fields:
+            // name of the chat partner
+            // number of unread messages
+            // list of messages
+                // messages has text and a tag which indicates if the message is mine or not (has to be displayed at the left or the right)
+
+        /*ArrayAdapter<Chat> chatArrayAdapter = new ArrayAdapter<Chat>(this,
                 android.R.layout.simple_list_item_1,
-                sensors);
+                chats);
 
-        list_view.setAdapter(array_adapter);
-        */
-
+        chatListView.setAdapter(chatArrayAdapter);*/
 
 
     }
@@ -59,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // get chat at clicked item
 
         // start new activity with clicked chat data
-        Intent chatIntent = new Intent(this, Chat.class);
+        Intent chatIntent = new Intent(this, ChatActivity.class);
         this.startActivity(chatIntent);
     }
 
