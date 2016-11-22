@@ -2,40 +2,74 @@ package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.res.Configuration;
+import android.content.SharedPreferences;
+import android.os.Binder;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
-public class ChatBackgroundService extends Service {
-    public ChatBackgroundService() {
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.UUID;
+
+public class ChatBackgroundService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+
     }
+
+    public class LocalBinder extends Binder {
+        ChatBackgroundService getService() {
+            return ChatBackgroundService.this;
+        }
+    }
+
+    private final IBinder mBinder = new LocalBinder();
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    public void onCreate() {
-        // TODO: set flag that app knows that the service is running and does not start it again
+        return mBinder;
     }
 
     @Override
-    public void onStart(Intent intent, int startId) {
-        // TODO:
+    public void onCreate() {
+        // TODO: Load address book from file etc
+
+        // Since notifications must come from the service I moved this here
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                .registerOnSharedPreferenceChangeListener(this);
+
+        // TODO: Maybe read preferences into member fields
+
+        // TODO: set chats to list
+        UUID uuid = UUID.randomUUID();
+        Chat temp = new Chat(uuid, "Hans Muster", "", new LinkedList<Message>());
+        mChats.put(uuid, temp);
+
     }
 
-    public void onResume() {
-        // TODO:
+    private HashMap<UUID, Chat> mChats = new HashMap<UUID, Chat>();
+
+    public HashMap<UUID, Chat> getChats() { return mChats; }
+
+    private void addMessage(UUID uuid, Message message) {
+        mChats.get(uuid).addMessage(message);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("LocalService", "Received start id " + startId + ": " + intent);
+
+        // Sticky ensures that the Android system keeps the service around for us
+        return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         // TODO: destroy the service to go offline
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        // TODO:
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                .unregisterOnSharedPreferenceChangeListener(this);
     }
 
 

@@ -8,20 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="ch.ethz.inf.vs.a4.pascalo.chatapp.chatapp.Chat">
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/chatView"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
+    tools:context="ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ChatActivity">
 
     <EditText
         android:layout_width="match_parent"
@@ -31,8 +18,18 @@
         android:layout_alignParentBottom="true"
         android:id="@+id/editMessage"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:textSize="18sp" />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/messageList"
+        android:layout_above="@+id/editMessage"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 
 </RelativeLayout>

@@ -7,4 +7,6 @@
     <string name="add_chat">Add Chat</string>
     <string name="go_offline">Go Offline</string>
     <string name="open_network_configuraion">Open Network Configuration</string>
+    <string name="local_service_connected">Connected to ChatApp Service</string>
+    <string name="local_service_disconnected">Disconnected from ChatApp Service</string>
 </resources>

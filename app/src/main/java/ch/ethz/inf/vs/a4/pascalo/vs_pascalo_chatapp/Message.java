@@ -4,14 +4,14 @@ import java.sql.Timestamp;
 
 public class Message {
 
-    private String author;
+    private boolean writtenByMe;
 
     private String msg;
 
     private Timestamp timestamp;
 
-    public Message(String a, String m, Timestamp t) {
-        author = a;
+    public Message(boolean w, String m, Timestamp t) {
+        writtenByMe = w;
         msg = m;
         timestamp = t;
     }
@@ -34,8 +34,8 @@ public class Message {
 
 
     // getter functions
-    public String getAuthor(){
-        return author;
+    public boolean getWrittenByus(){
+        return writtenByMe;
     }
 
     public String getMsg() {

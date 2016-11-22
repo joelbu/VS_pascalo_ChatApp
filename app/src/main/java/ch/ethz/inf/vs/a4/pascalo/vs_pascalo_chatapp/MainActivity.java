@@ -1,7 +1,9 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
+import android.content.ComponentName;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,14 +13,15 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import java.util.LinkedList;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+import java.util.Collection;
 
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    private LinkedList<Chat> chatList = new LinkedList<>();
-
+    private ChatBackgroundService mBoundService;
+    private ArrayAdapter<Chat> mChatArrayAdapter;
+    private boolean mServiceIsBound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,14 +33,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         chatListView.setOnItemClickListener(this);
 
         // overflow menu
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
+        PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.preferences, false);
+
+        // First start the service to make it's lifetime independent of the activity, if it's
+        // already running this triggers onStartCommand, but no second instance
+        startService(new Intent(getApplicationContext(), ChatBackgroundService.class));
+        // Then bind to it so we can call functions in it
+        mServiceIsBound = bindService(new Intent(getApplicationContext(), ChatBackgroundService.class), mConnection,
+                getApplicationContext().BIND_AUTO_CREATE);
+        // The service object will become available in onServiceConnected(...) so further setup is
+        // done there
 
 
-        // TODO: set chats to list
-        Chat temp = new Chat("Hans Muster", "", new LinkedList<Message>());
-        chatList.add(temp);
+
+
+
+
         // store all chat partners (addressbook in a file) in order of most recent message
         // we need an addressbook in any case
 
@@ -55,16 +66,46 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // list of messages
                 // messages has text and a tag which indicates if the message is mine or not (has to be displayed at the left or the right)
 
-        ArrayAdapter<Chat> chatArrayAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1,
-                chatList);
 
-        // chatArrayAdapter.sort( -----order function----- );
-
-        chatListView.setAdapter(chatArrayAdapter);
 
 
     }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // This is called when the connection with the service has been
+            // established, giving us the service object we can use to
+            // interact with the service.  Because we have bound to a explicit
+            // service that we know is running in our own process, we can
+            // cast its IBinder to a concrete class and directly access it.
+            mBoundService = ((ChatBackgroundService.LocalBinder)service).getService();
+
+            // Tell the user about this for our demo.
+            Toast.makeText(MainActivity.this, R.string.local_service_connected,
+                    Toast.LENGTH_SHORT).show();
+
+            // Create adapter here onto the data structure of the service
+            Collection<Chat> chats = mBoundService.getChats().values();
+            mChatArrayAdapter = new ArrayAdapter<Chat>(MainActivity.this,
+                    android.R.layout.simple_list_item_1,
+                    chats.toArray(new Chat[chats.size()]));
+
+            // chatArrayAdapter.sort( -----order function----- );
+            ListView chatListView = (ListView) findViewById(R.id.chatList);
+            chatListView.setAdapter(mChatArrayAdapter);
+
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            // This is called when the connection with the service has been
+            // unexpectedly disconnected -- that is, its process crashed.
+            // Because it is running in our same process, we should never
+            // see this happen.
+            mBoundService = null;
+            Toast.makeText(MainActivity.this, R.string.local_service_disconnected,
+                    Toast.LENGTH_SHORT).show();
+        }
+    };
 
 
     @Override
@@ -73,12 +114,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // start new activity with clicked chat data
         Intent chatIntent = new Intent(this, ChatActivity.class);
+        Chat selectedChat = (Chat) parent.getItemAtPosition(position);
+        chatIntent.putExtra("userid", selectedChat.getChatPatnerID());
         this.startActivity(chatIntent);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
     }
 
     @Override
@@ -94,8 +132,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Intent myIntent = new Intent(this, SettingsActivity.class);
                 this.startActivity(myIntent);
                 break;
+            default:
+                return false;
         }
         return true;
     }
 
+    @Override
+    public void onDestroy() {
+        if (mServiceIsBound) unbindService(mConnection);
+        super.onDestroy();
+    }
+
+
 }
+
+
