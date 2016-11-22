@@ -12,8 +12,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
+
+
+    private LinkedList<Chat> chatList = new LinkedList<Chat>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         // TODO: set chats to list
+        Chat temp = new Chat("Hans Muster", "", new LinkedList<Message>());
+        chatList.add(temp);
         // store all chat partners (addressbook in a file) in order of most recent message
         // we need an addressbook in any case
 
@@ -48,11 +57,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // list of messages
                 // messages has text and a tag which indicates if the message is mine or not (has to be displayed at the left or the right)
 
-        /*ArrayAdapter<Chat> chatArrayAdapter = new ArrayAdapter<Chat>(this,
+        ArrayAdapter<Chat> chatArrayAdapter = new ArrayAdapter<Chat>(this,
                 android.R.layout.simple_list_item_1,
-                chats);
+                chatList);
 
-        chatListView.setAdapter(chatArrayAdapter);*/
+        // chatArrayAdapter.sort( -----order function----- );
+
+        chatListView.setAdapter(chatArrayAdapter);
 
 
     }

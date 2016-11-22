@@ -14,6 +14,13 @@ public class Message {
 
     private Timestamp timestamp;
 
+    public Message(String a, String m, Timestamp t) {
+        author = a;
+        msg = m;
+        timestamp = t;
+    }
+
+    /*
     // setter functions
     public void setAuthor(String s) {
         author = s;
@@ -26,6 +33,7 @@ public class Message {
     public void setTimestamp(Timestamp t) {
         timestamp = t;
     }
+    */
 
 
 

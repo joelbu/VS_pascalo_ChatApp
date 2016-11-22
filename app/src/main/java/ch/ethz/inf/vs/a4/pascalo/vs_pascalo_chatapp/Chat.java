@@ -1,5 +1,6 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -12,9 +13,16 @@ public class Chat {
 
     private String chatPartnerPublicKey;
 
-    private List<Message> messageList;
+    private LinkedList<Message> messageList;
 
 
+
+    public Chat(String cPN, String cPPK, List<Message> mL) {
+        chatPartnerName =cPN;
+        chatPartnerPublicKey = cPPK;
+    }
+
+    /*
     // setter functions
     public void setChatPartnerName(String name) {
         chatPartnerName = name;
@@ -23,6 +31,8 @@ public class Chat {
     public void setChatPartnerPublicKey(String key) {
         chatPartnerPublicKey = key;
     }
+    */
+
 
 
     // getter functions
