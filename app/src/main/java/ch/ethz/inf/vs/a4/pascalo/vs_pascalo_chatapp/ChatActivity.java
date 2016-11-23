@@ -87,6 +87,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                             .inflate(R.layout.message_row, parent, false);
                 }
 
+
                 TextView chatPartnerMessageView =
                         (TextView) convertView.findViewById(R.id.messagePartnerView);
                 TextView myMessagesView =
