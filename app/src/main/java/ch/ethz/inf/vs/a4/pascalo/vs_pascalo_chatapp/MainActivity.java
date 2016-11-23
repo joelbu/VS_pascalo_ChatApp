@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
@@ -43,31 +44,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 getApplicationContext().BIND_AUTO_CREATE);
         // The service object will become available in onServiceConnected(...) so further setup is
         // done there
-
-
-
-
-
-
-        // store all chat partners (addressbook in a file) in order of most recent message
-        // we need an addressbook in any case
-
-        // store chat messages per chat in a file named "cat_[chat partner name].???"
-        // a little overhead but I think it's a lot easier to store and find them even we
-        // have more overhead
-
-
-
-        // idea copy most of the code from sensor app
-
-        // idea create a class chat that has objects with multiple fields:
-            // name of the chat partner
-            // number of unread messages
-            // list of messages
-                // messages has text and a tag which indicates if the message is mine or not (has to be displayed at the left or the right)
-
-
-
 
     }
 

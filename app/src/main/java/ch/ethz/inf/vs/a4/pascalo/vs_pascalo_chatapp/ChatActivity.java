@@ -36,7 +36,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         Toast.makeText(ChatActivity.this, "Chat patner is: " + mChatPartnerID.toString(),
                 Toast.LENGTH_SHORT).show();
 
-        mServiceIsBound = bindService(new Intent(getApplicationContext(), ChatBackgroundService.class), mConnection,
+        mServiceIsBound = bindService(new Intent(getApplicationContext(),
+                ChatBackgroundService.class), mConnection,
                 getApplicationContext().BIND_AUTO_CREATE);
 
         // register listener on chatList

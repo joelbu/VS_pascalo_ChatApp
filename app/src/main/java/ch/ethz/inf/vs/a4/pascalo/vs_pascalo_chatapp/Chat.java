@@ -23,16 +23,6 @@ public class Chat {
         messageList = mL;
     }
 
-    /*
-    // setter functions
-    public void setChatPartnerName(String name) {
-        chatPartnerName = name;
-    }
-
-    public void setChatPartnerPublicKey(String key) {
-        chatPartnerPublicKey = key;
-    }
-    */
 
 
 

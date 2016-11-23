@@ -16,22 +16,6 @@ public class Message {
         timestamp = t;
     }
 
-    /*
-    // setter functions
-    public void setAuthor(String s) {
-        author = s;
-    }
-
-    public void setMsg(String s) {
-        msg = s;
-    }
-
-    public void setTimestamp(Timestamp t) {
-        timestamp = t;
-    }
-    */
-
-
 
     // getter functions
     public boolean getWrittenByus(){
