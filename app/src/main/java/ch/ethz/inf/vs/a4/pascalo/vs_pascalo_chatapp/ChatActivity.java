@@ -10,12 +10,17 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.UUID;
 
 public class ChatActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
@@ -43,6 +48,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         // register listener on chatList
         ListView chatListView = (ListView) findViewById(R.id.messageList);
         chatListView.setOnItemClickListener(this);
+            // why we need a listener on chatListView???
 
         // read information out of intent
 
@@ -55,6 +61,44 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         // Register a broadcast receiver that allows us to react in the UI when the service says
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .registerReceiver(mBroadcastReceiver, new IntentFilter("update-message-list"));
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // JUST FOR TESTING
+
+        // create adapter
+        Collection<Message> messages =
+                mBoundService.getChats().get(mChatPartnerID).getMessageList();
+
+        mMessageArrayAdapter = new ArrayAdapter<Message>(ChatActivity.this,
+                android.R.layout.simple_list_item_1,
+                messages.toArray(new Message[messages.size()])) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                Message message = getItem(position);
+
+                if (convertView == null) {
+                    convertView = LayoutInflater.from(getContext())
+                            .inflate(R.layout.message_row, parent, false);
+                }
+
+                TextView chatPartnerMessageView =
+                        (TextView) convertView.findViewById(R.id.messagePartnerView);
+                TextView myMessagesView =
+                        (TextView) convertView.findViewById(R.id.messageMeView);
+
+                if (mMessageArrayAdapter.getItem(0).getWrittenByMe()) {
+                    chatPartnerMessageView.setText(mMessageArrayAdapter.getItem(0).toString());
+                } else {
+                    myMessagesView.setText(mMessageArrayAdapter.getItem(0).toString());
+                }
+                return convertView;
+            }
+        };
+
+
 
     }
 

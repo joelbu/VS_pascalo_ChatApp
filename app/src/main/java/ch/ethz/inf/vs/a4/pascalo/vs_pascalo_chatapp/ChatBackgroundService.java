@@ -11,6 +11,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.UUID;
@@ -67,7 +68,12 @@ public class ChatBackgroundService extends Service implements SharedPreferences.
         Chat temp1 = new Chat(uuid1, "Max Problem", "", new LinkedList<Message>());
         mChats.put(uuid1, temp1);
 
-        mChats.get(uuid).updateRecentActivity();
+        temp.addMessage(new Message(false, "test", (GregorianCalendar) GregorianCalendar.getInstance()));
+        temp.addMessage(new Message(false, "ack", (GregorianCalendar) GregorianCalendar.getInstance()));
+
+        temp1.addMessage(new Message(false, "test", (GregorianCalendar) GregorianCalendar.getInstance()));
+        temp1.addMessage(new Message(false, "ack", (GregorianCalendar) GregorianCalendar.getInstance()));
+
     }
 
     private HashMap<UUID, Chat> mChats = new HashMap<UUID, Chat>();
