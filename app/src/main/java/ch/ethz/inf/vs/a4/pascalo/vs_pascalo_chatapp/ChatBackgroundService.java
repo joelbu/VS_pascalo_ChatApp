@@ -47,6 +47,11 @@ public class ChatBackgroundService extends Service implements SharedPreferences.
         Chat temp = new Chat(uuid, "Hans Muster", "", new LinkedList<Message>());
         mChats.put(uuid, temp);
 
+        UUID uuid1 = UUID.randomUUID();
+        Chat temp1 = new Chat(uuid1, "Max Problem", "", new LinkedList<Message>());
+        mChats.put(uuid1, temp1);
+
+        mChats.get(uuid).updateRecentActivity();
     }
 
     private HashMap<UUID, Chat> mChats = new HashMap<UUID, Chat>();

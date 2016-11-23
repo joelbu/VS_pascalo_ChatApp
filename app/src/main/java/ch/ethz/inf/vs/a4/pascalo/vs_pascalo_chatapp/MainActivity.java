@@ -19,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.Collection;
+import java.util.Comparator;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
@@ -90,7 +91,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             };
 
-            // chatArrayAdapter.sort( -----order function----- );
+            mChatArrayAdapter.sort(new Comparator<Chat>() {
+                @Override
+                public int compare(Chat chat1, Chat chat2) {
+                    return chat1.getRecentActivity().compareTo(chat2.getRecentActivity());
+                }
+            });
             ListView chatListView = (ListView) findViewById(R.id.chatList);
             chatListView.setAdapter(mChatArrayAdapter);
 
