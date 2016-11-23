@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,9 +69,11 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         ////////////////////////////////////////////////////////////////////////////////////////////
         // JUST FOR TESTING
 
+
         // create adapter
         Collection<Message> messages =
-                mBoundService.getChats().get(mChatPartnerID).getMessageList();
+                (Collection<Message>) mBoundService.getChats().get(mChatPartnerID).getMessageList().clone();
+
 
         mMessageArrayAdapter = new ArrayAdapter<Message>(ChatActivity.this,
                 android.R.layout.simple_list_item_1,
@@ -89,10 +92,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 TextView myMessagesView =
                         (TextView) convertView.findViewById(R.id.messageMeView);
 
-                if (mMessageArrayAdapter.getItem(0).getWrittenByMe()) {
-                    chatPartnerMessageView.setText(mMessageArrayAdapter.getItem(0).toString());
+                if (mMessageArrayAdapter.getItem(position).getWrittenByMe()) {
+                    chatPartnerMessageView.setText(mMessageArrayAdapter.getItem(position).toString());
                 } else {
-                    myMessagesView.setText(mMessageArrayAdapter.getItem(0).toString());
+                    myMessagesView.setText(mMessageArrayAdapter.getItem(position).toString());
                 }
                 return convertView;
             }
