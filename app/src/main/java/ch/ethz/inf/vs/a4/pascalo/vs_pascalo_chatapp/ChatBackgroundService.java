@@ -55,6 +55,7 @@ public class ChatBackgroundService extends Service implements SharedPreferences.
 
     private void addMessage(UUID uuid, Message message) {
         mChats.get(uuid).addMessage(message);
+        mChats.get(uuid).updateRecentActivity();
     }
 
     @Override

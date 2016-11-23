@@ -1,5 +1,7 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.UUID;
 
@@ -16,11 +18,14 @@ public class Chat {
 
     private int unreadMessages;
 
+    private Calendar recentActivity;
+
     public Chat(UUID cPID, String cPN, String cPPK, LinkedList<Message> mL) {
         chatPatnerID = cPID;
         chatPartnerName = cPN;
         chatPartnerPublicKey = cPPK;
         messageList = mL;
+        recentActivity = GregorianCalendar.getInstance();
         unreadMessages = 0;
     }
 
@@ -44,10 +49,16 @@ public class Chat {
         return messageList;
     }
 
-    public int getUnreadMessages() {
-        return unreadMessages;
-    }
+    public Calendar getRecentActivity() { return recentActivity; }
 
+    public int getUnreadMessages() { return unreadMessages; }
+
+
+
+
+    public void updateRecentActivity() {
+        recentActivity = GregorianCalendar.getInstance();
+    }
 
     // append a new message to the messageList
     public void addMessage(Message msg) {
