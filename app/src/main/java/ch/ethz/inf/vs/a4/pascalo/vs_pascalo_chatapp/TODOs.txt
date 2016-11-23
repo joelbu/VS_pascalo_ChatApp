@@ -16,7 +16,7 @@
     including decryption and notification handling
     PARTIALLY - Joel - 2016-11-22
 
-6. the service has to be started on app start if it is not running
+6. the service has to be started on app start if it is not running, destroy if GO OFFLINE
     TODO: 2016-11-24
 
 7. store chat content, address book and own keys in files
@@ -24,7 +24,7 @@
     TODO: 2016-11-24
 
 8. create ChatActivity that holds the chat window
-    OK - Pascal - 2016-11-21
+    PARTIALLY - Joel - 2016-11-22
 
 9. align messages left (chat partner) right (me) in the chat window
 
@@ -50,9 +50,11 @@
 ----------------------------------------------------------------------------------------------------
 
 
-store all chat partners (addressbook in a file) in order of most recent message
-addressbook, we need one in any case
-
 store chat messages per chat in a file named "cat_[chat partner name].???"
 a little overhead but I think it's a lot easier to store and find them even we
 have more overhead
+
+
+
+
+send button
