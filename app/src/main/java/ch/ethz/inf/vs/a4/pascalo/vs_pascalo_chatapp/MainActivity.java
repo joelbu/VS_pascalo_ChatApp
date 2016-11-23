@@ -14,9 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import java.util.Collection;
-import java.util.LinkedList;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
@@ -40,7 +38,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // already running this triggers onStartCommand, but no second instance
         startService(new Intent(getApplicationContext(), ChatBackgroundService.class));
         // Then bind to it so we can call functions in it
-        mServiceIsBound = bindService(new Intent(getApplicationContext(), ChatBackgroundService.class), mConnection,
+        mServiceIsBound = bindService(new Intent(getApplicationContext(),
+                ChatBackgroundService.class), mConnection,
                 getApplicationContext().BIND_AUTO_CREATE);
         // The service object will become available in onServiceConnected(...) so further setup is
         // done there
@@ -62,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             // Create adapter here onto the data structure of the service
             Collection<Chat> chats = mBoundService.getChats().values();
-            mChatArrayAdapter = new ArrayAdapter<Chat>(MainActivity.this,
+            mChatArrayAdapter = new ArrayAdapter<>(MainActivity.this,
                     android.R.layout.simple_list_item_1,
                     chats.toArray(new Chat[chats.size()]));
 

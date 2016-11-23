@@ -33,7 +33,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         Intent intent = getIntent();
         mChatPartnerID = (UUID) intent.getSerializableExtra("userid");
 
-        Toast.makeText(ChatActivity.this, "Chat patner is: " + mChatPartnerID.toString(),
+        Toast.makeText(ChatActivity.this, "Chat partner is: " + mChatPartnerID.toString(),
                 Toast.LENGTH_SHORT).show();
 
         mServiceIsBound = bindService(new Intent(getApplicationContext(),
@@ -80,7 +80,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             ListView messageListView = (ListView) findViewById(R.id.messageList);
             messageListView.setAdapter(mMessageArrayAdapter);
 
-            Toast.makeText(ChatActivity.this, "Chat patners name is: " + mBoundService.getChats()
+            Toast.makeText(ChatActivity.this, "Chat partners name is: " + mBoundService.getChats()
                     .get(mChatPartnerID).getChatPartnerName(), Toast.LENGTH_SHORT).show();
 
         }
