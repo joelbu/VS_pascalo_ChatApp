@@ -1,10 +1,11 @@
 1. Create MainActivity with clickable list of chats
-    OK - Pascal - 21.11.2016
+    OK - Pascal - 2016-11-21
 
 2. Order chats by most recent activity
 
 3. each chat preview should display the name of the chat partner and
     the number of unread messages
+    OK - Joel und Pascal 2016-11-23
 
 4. add overflow menu with "Preferences", "Show Key", "Add Chat", "Go Offline",
     "Open Network Configuration" (in MainActivity)
