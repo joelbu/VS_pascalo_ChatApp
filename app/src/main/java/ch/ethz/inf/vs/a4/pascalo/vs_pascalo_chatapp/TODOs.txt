@@ -22,6 +22,7 @@
 7. store chat content, address book and own keys in files
     (to store them when the service is shut down)
     TODO: 2016-11-24
+        address book maybe correct?
 
 8. create ChatActivity that holds the chat window (display messages, write message, send)
     PARTIALLY - Joel - 2016-11-22

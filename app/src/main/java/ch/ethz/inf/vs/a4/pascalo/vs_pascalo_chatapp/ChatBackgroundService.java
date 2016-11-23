@@ -8,11 +8,17 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.UUID;
 
 public class ChatBackgroundService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+
+    String filename = "address_book";
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
@@ -35,6 +41,16 @@ public class ChatBackgroundService extends Service implements SharedPreferences.
     @Override
     public void onCreate() {
         // TODO: Load address book from file etc
+
+        FileInputStream inputStream;
+        try {
+            inputStream = openFileInput(filename);
+            String address_bookIn = inputStream.toString();
+            inputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         // Since notifications must come from the service I moved this here
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
@@ -76,6 +92,18 @@ public class ChatBackgroundService extends Service implements SharedPreferences.
         // TODO: destroy the service to go offline
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
                 .unregisterOnSharedPreferenceChangeListener(this);
+
+
+        FileOutputStream outputStream;
+
+        try {
+            outputStream = openFileOutput(filename, this.getApplicationContext().MODE_PRIVATE);
+            outputStream.write("Test".getBytes("UTF-8"));
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 
