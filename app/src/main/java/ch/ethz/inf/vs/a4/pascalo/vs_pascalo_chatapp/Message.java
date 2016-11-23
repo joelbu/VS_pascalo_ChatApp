@@ -10,15 +10,21 @@ public class Message {
 
     private Timestamp timestamp;
 
+    private boolean acked = false;
+
     public Message(boolean w, String m, Timestamp t) {
         writtenByMe = w;
         msg = m;
         timestamp = t;
     }
 
+    public void setAcked() {
+        acked = true;
+    }
+
 
     // getter functions
-    public boolean getWrittenByus(){
+    public boolean getWrittenByus() {
         return writtenByMe;
     }
 
@@ -31,4 +37,7 @@ public class Message {
     }
 
 
+    public boolean isAcked() {
+        return acked;
+    }
 }
