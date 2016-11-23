@@ -23,7 +23,7 @@
     (to store them when the service is shut down)
     TODO: 2016-11-24
 
-8. create ChatActivity that holds the chat window
+8. create ChatActivity that holds the chat window (display messages, write message, send)
     PARTIALLY - Joel - 2016-11-22
 
 9. align messages left (chat partner) right (me) in the chat window
@@ -56,5 +56,3 @@ have more overhead
 
 
 
-
-send button
