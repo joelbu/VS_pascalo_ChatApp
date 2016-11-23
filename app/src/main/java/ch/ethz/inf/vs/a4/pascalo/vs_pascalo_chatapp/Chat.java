@@ -14,13 +14,14 @@ public class Chat {
 
     private LinkedList<Message> messageList;
 
-
+    private int unreadMessages;
 
     public Chat(UUID cPID, String cPN, String cPPK, LinkedList<Message> mL) {
         chatPatnerID = cPID;
         chatPartnerName = cPN;
         chatPartnerPublicKey = cPPK;
         messageList = mL;
+        unreadMessages = 0;
     }
 
 
@@ -41,6 +42,10 @@ public class Chat {
 
     public LinkedList<Message> getMessageList() {
         return messageList;
+    }
+
+    public int getUnreadMessages() {
+        return unreadMessages;
     }
 
 

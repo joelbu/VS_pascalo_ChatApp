@@ -3,16 +3,20 @@ package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import java.util.Collection;
 
@@ -61,9 +65,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             // Create adapter here onto the data structure of the service
             Collection<Chat> chats = mBoundService.getChats().values();
-            mChatArrayAdapter = new ArrayAdapter<>(MainActivity.this,
+            mChatArrayAdapter = new ArrayAdapter<Chat>(MainActivity.this,
                     android.R.layout.simple_list_item_1,
-                    chats.toArray(new Chat[chats.size()]));
+                    chats.toArray(new Chat[chats.size()])) {
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    Chat chat = getItem(position);
+
+                    if (convertView == null) {
+                        convertView = LayoutInflater.from(getContext())
+                                .inflate(R.layout.chat_row, parent, false);
+                    }
+
+                    TextView chatPartnerNameView =
+                            (TextView) convertView.findViewById(R.id.chatListPartnerName);
+                    TextView unreadMessagesView =
+                            (TextView) convertView.findViewById(R.id.chatListUnread);
+
+                    chatPartnerNameView.setText(chat.getChatPartnerName());
+                    unreadMessagesView.setText(Integer.toString(chat.getUnreadMessages()));
+
+
+                    return convertView;
+                }
+            };
 
             // chatArrayAdapter.sort( -----order function----- );
             ListView chatListView = (ListView) findViewById(R.id.chatList);
