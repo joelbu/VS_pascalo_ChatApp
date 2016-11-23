@@ -2,6 +2,7 @@
     OK - Pascal - 2016-11-21
 
 2. Order chats by most recent activity
+    OK - Pascal - 2016-11-23
 
 3. each chat preview should display the name of the chat partner and
     the number of unread messages
@@ -13,13 +14,17 @@
 
 5. implement a service that handles message state, addressbook state, receiving messages
     including decryption and notification handling
+    PARTIALLY - Joel - 2016-11-22
 
 6. the service has to be started on app start if it is not running
+    TODO: 2016-11-24
 
 7. store chat content, address book and own keys in files
     (to store them when the service is shut down)
+    TODO: 2016-11-24
 
 8. create ChatActivity that holds the chat window
+    OK - Pascal - 2016-11-21
 
 9. align messages left (chat partner) right (me) in the chat window
 
