@@ -70,37 +70,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         // JUST FOR TESTING
 
 
-        // create adapter
-        Collection<Message> messages =
-                (Collection<Message>) mBoundService.getChats().get(mChatPartnerID).getMessageList().clone();
 
 
-        mMessageArrayAdapter = new ArrayAdapter<Message>(ChatActivity.this,
-                android.R.layout.simple_list_item_1,
-                messages.toArray(new Message[messages.size()])) {
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                Message message = getItem(position);
-
-                if (convertView == null) {
-                    convertView = LayoutInflater.from(getContext())
-                            .inflate(R.layout.message_row, parent, false);
-                }
 
 
-                TextView chatPartnerMessageView =
-                        (TextView) convertView.findViewById(R.id.messagePartnerView);
-                TextView myMessagesView =
-                        (TextView) convertView.findViewById(R.id.messageMeView);
-
-                if (mMessageArrayAdapter.getItem(position).getWrittenByMe()) {
-                    chatPartnerMessageView.setText(mMessageArrayAdapter.getItem(position).toString());
-                } else {
-                    myMessagesView.setText(mMessageArrayAdapter.getItem(position).toString());
-                }
-                return convertView;
-            }
-        };
 
 
 
@@ -119,10 +92,40 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             Toast.makeText(ChatActivity.this, R.string.local_service_connected,
                     Toast.LENGTH_SHORT).show();
 
+            // create adapter
+            Collection<Message> messages =
+                    (Collection<Message>) mBoundService.getChats().get(mChatPartnerID)
+                            .getMessageList().clone();
+
             // Create adapter here directly onto the data structure of the service
             mMessageArrayAdapter = new ArrayAdapter<Message>(ChatActivity.this,
                     android.R.layout.simple_list_item_1,
-                    mBoundService.getChats().get(mChatPartnerID).getMessageList());
+                    messages.toArray(new Message[messages.size()])) {
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    Message message = getItem(position);
+
+                    if (convertView == null) {
+                        convertView = LayoutInflater.from(getContext())
+                                .inflate(R.layout.message_row, parent, false);
+                    }
+
+
+                    TextView chatPartnerMessageView =
+                            (TextView) convertView.findViewById(R.id.messagePartnerView);
+                    TextView myMessagesView =
+                            (TextView) convertView.findViewById(R.id.messageMeView);
+
+                    if (message.getWrittenByMe()) {
+                        myMessagesView.setText(message.getMessage());
+                        chatPartnerMessageView.setText("");
+                    } else {
+                        chatPartnerMessageView.setText(message.getMessage());
+                        myMessagesView.setText("");
+                    }
+                    return convertView;
+                }
+            };
 
             // chatArrayAdapter.sort( -----order function----- );
             ListView messageListView = (ListView) findViewById(R.id.messageList);

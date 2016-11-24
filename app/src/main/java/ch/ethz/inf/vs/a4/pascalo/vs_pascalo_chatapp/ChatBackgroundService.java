@@ -66,17 +66,14 @@ public class ChatBackgroundService extends Service implements SharedPreferences.
         UUID uuid1 = UUID.randomUUID();
         Chat temp1 = new Chat(uuid1, "Max Problem", "", new LinkedList<Message>());
 
-        temp1.addMessage(new Message(false, "test", (GregorianCalendar) GregorianCalendar.getInstance()));
-        temp1.addMessage(new Message(false, "ack", (GregorianCalendar) GregorianCalendar.getInstance()));
-
         mChats.put(uuid, temp);
         mChats.put(uuid1, temp1);
 
         addMessage(uuid, new Message(false, "test", (GregorianCalendar) GregorianCalendar.getInstance()));
-        addMessage(uuid, new Message(false, "ack", (GregorianCalendar) GregorianCalendar.getInstance()));
+        addMessage(uuid, new Message(true, "ack", (GregorianCalendar) GregorianCalendar.getInstance()));
 
         addMessage(uuid1, new Message(false, "test", (GregorianCalendar) GregorianCalendar.getInstance()));
-        addMessage(uuid1, new Message(false, "ack", (GregorianCalendar) GregorianCalendar.getInstance()));
+        addMessage(uuid1, new Message(true, "ack", (GregorianCalendar) GregorianCalendar.getInstance()));
     }
 
     private HashMap<UUID, Chat> mChats = new HashMap<UUID, Chat>();
