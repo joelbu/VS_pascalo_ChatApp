@@ -23,7 +23,7 @@ public class ChatBackgroundService extends Service implements SharedPreferences.
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-
+        // TODO: Make sure we react to configuration changes like vibration off
     }
 
     public class LocalBinder extends Binder {
@@ -69,11 +69,32 @@ public class ChatBackgroundService extends Service implements SharedPreferences.
         mChats.put(uuid, temp);
         mChats.put(uuid1, temp1);
 
-        addMessage(uuid, new Message(false, "test", (GregorianCalendar) GregorianCalendar.getInstance()));
-        addMessage(uuid, new Message(true, "ack", (GregorianCalendar) GregorianCalendar.getInstance()));
 
-        addMessage(uuid1, new Message(false, "test", (GregorianCalendar) GregorianCalendar.getInstance()));
-        addMessage(uuid1, new Message(true, "ack", (GregorianCalendar) GregorianCalendar.getInstance()));
+        addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
+                new VectorClock(1, 4), "Text?"));
+        addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
+                new VectorClock(5, 5), "Text6"));
+        addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
+                new VectorClock(7, 6), "Text8"));
+        addMessage(uuid, new Message(false, false, GregorianCalendar.getInstance(),
+                new VectorClock(2, 2), "Text3"));
+        addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
+                new VectorClock(1, 0), "Text2a"));
+        addMessage(uuid, new Message(false, false, GregorianCalendar.getInstance(),
+                new VectorClock(0, 1), "Text2b"));
+        addMessage(uuid, new Message(false, false, GregorianCalendar.getInstance(),
+                new VectorClock(3, 4), "Text4"));
+        addMessage(uuid, new Message(false, false, GregorianCalendar.getInstance(),
+                new VectorClock(5, 6), "Text7"));
+        addMessage(uuid, new Message(false, false, GregorianCalendar.getInstance(),
+                new VectorClock(0, 0), "Text1"));
+
+
+
+        addMessage(uuid1, new Message(false, false, GregorianCalendar.getInstance(),
+                new VectorClock(0, 0), "test"));
+        addMessage(uuid1, new Message(true, false, GregorianCalendar.getInstance(),
+                new VectorClock(1, 1), "ack"));
     }
 
     private HashMap<UUID, Chat> mChats = new HashMap<UUID, Chat>();

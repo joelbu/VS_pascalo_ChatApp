@@ -9,15 +9,33 @@ import java.util.UUID;
 
 public class MessageParserSerializer {
 
-    private UUID mMe;
-    private int mMagicNumber;
+    private UUID me;
+    private int magicNumber;
 
     private MessageParserSerializer(UUID me, int magicNumber) {
-        mMe = me;
-        mMagicNumber = magicNumber;
+        this.me = me;
+        this.magicNumber = magicNumber;
     }
 
-    // Initialise Message from a JSON String, that came from storage
+    // Serialize message to a JSON string, that is suitable for storage
+    public String serializeForStorage(Message message) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("writtenByMe", message.isWrittenByMe());
+            json.put("acked", message.isAcked());
+
+            json.put("timeWritten", message.getTimeWritten().getTimeInMillis());
+
+            json.put("clock", message.getClock().serializeForStorage());
+
+            json.put("text", message.getText());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json.toString();
+    }
+
+    // Initialise message from a JSON string, that came from storage
     public Message parseFromStorage(String string) {
         Message message = new Message();
         try {
@@ -31,8 +49,9 @@ public class MessageParserSerializer {
             calendar.setTimeInMillis(json.getLong("timeWritten"));
             message.setTimeWritten(calendar);
 
-            message.setMyVectorClock(json.getInt("myVectorClock"));
-            message.setTheirVectorClock(json.getInt("theirVectorClock"));
+            VectorClock clock = new VectorClock();
+            clock.parseFromStorage(json.getString("clock"));
+            message.setClock(clock);
 
             message.setText(json.getString("text"));
         } catch (JSONException e) {
@@ -42,47 +61,29 @@ public class MessageParserSerializer {
         return message;
     }
 
-    public JSONObject serializeForStorage(Message message) {
+    // Initialise message from a JSON string, that came from the network
+    public String serializeForNetwork(Message message) {
         JSONObject json = new JSONObject();
         try {
-            json.put("writtenByMe", message.isWrittenByMe());
-            json.put("acked", message.isAcked());
+            json.put("magic", magicNumber);
 
             json.put("timeWritten", message.getTimeWritten().getTimeInMillis());
+            json.put("clock", message.getClock().serializeForNetwork());
 
-            json.put("myVectorClock", message.getMyVectorClock());
-            json.put("theirVectorClock", message.getTheirVectorClock());
-
-            json.put("text", message.getText());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return json;
-    }
-
-    public JSONObject serializeForNetwork(Message message) {
-        JSONObject json = new JSONObject();
-        try {
-            json.put("magic", mMagicNumber);
-
-            json.put("timeWritten", message.getTimeWritten().getTimeInMillis());
-            json.put("senderClock", message.getMyVectorClock()); // I'm sender
-            json.put("receiverClock", message.getTheirVectorClock()); // They are receiver
-
-            json.put("sender", mMe.toString());
+            json.put("sender", me.toString());
             json.put("message", message);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return json;
+        return json.toString();
     }
 
-    // Parse given String, that came from network into given Message and sender.
+    // Parse given String, that came from network into given message and sender.
     public MessageParserReturnTriple parseFromNetwork(String string) {
         MessageParserReturnTriple ret = new MessageParserReturnTriple();
 
         // The magic number must be early in the string, if not don't bother trying JSON
-        if (!string.substring(0, 20).contains(Integer.toString(mMagicNumber))) ret.status = 1;
+        if (!string.substring(0, 20).contains(Integer.toString(magicNumber))) ret.status = 1;
 
         try {
             ret.message = new Message();
@@ -97,8 +98,9 @@ public class MessageParserSerializer {
             calendar.setTimeInMillis(json.getLong("timeWritten"));
             ret.message.setTimeWritten(calendar);
 
-            ret.message.setTheirVectorClock(json.getInt("senderClock")); // They are sender
-            ret.message.setMyVectorClock(json.getInt("receiverClock")); // I'm receiver
+            VectorClock clock = new VectorClock();
+            clock.parseFromNetwork(json.getString("clock"));
+            ret.message.setClock(clock);
 
             ret.sender = UUID.fromString(json.getString("sender"));
             ret.message.setText(json.getString("text"));

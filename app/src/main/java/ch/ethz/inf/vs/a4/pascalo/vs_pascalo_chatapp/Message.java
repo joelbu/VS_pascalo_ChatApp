@@ -10,22 +10,26 @@ import java.util.UUID;
 public class Message {
 
     private boolean writtenByMe;
-    private boolean acked = false;
+    private boolean acked;
 
     // For user display
     private Calendar timeWritten;
 
     // For ordering and acking
-    private int myVectorClock;
-    private int theirVectorClock;
+    private VectorClock clock;
 
     // Actual text written by user
     private String text;
 
-    public Message(boolean w, String t, Calendar s) {
-        writtenByMe = w;
-        text = t;
-        timeWritten = s;
+    public Message(boolean writtenByMe, boolean acked, Calendar timeWritten,
+                   VectorClock clock, String text) {
+
+        this.writtenByMe = writtenByMe;
+        this.acked = acked;
+        this.timeWritten = timeWritten;
+        this.clock = clock;
+        this.text = text;
+
     }
 
     // Create an empty Message to fill with one of the initialise methods
@@ -46,12 +50,8 @@ public class Message {
         return timeWritten;
     }
 
-    public int getMyVectorClock() {
-        return myVectorClock;
-    }
-
-    public int getTheirVectorClock() {
-        return theirVectorClock;
+    public VectorClock getClock() {
+        return clock;
     }
 
     public String getText() {
@@ -71,12 +71,8 @@ public class Message {
         this.timeWritten = timeWritten;
     }
 
-    public void setMyVectorClock(int myVectorClock) {
-        this.myVectorClock = myVectorClock;
-    }
-
-    public void setTheirVectorClock(int theirVectorClock) {
-        this.theirVectorClock = theirVectorClock;
+    public void setClock(VectorClock clock) {
+        this.clock = clock;
     }
 
     public void setText(String text) {

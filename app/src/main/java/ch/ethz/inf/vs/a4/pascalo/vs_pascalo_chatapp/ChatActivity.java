@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.UUID;
 
@@ -116,18 +117,29 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                     TextView myMessagesView =
                             (TextView) convertView.findViewById(R.id.messageMeView);
 
-                    if (message.getWrittenByMe()) {
-                        myMessagesView.setText(message.getMessage());
+                    if (message.isWrittenByMe()) {
+                        myMessagesView.setText(message.getText());
                         chatPartnerMessageView.setText("");
                     } else {
-                        chatPartnerMessageView.setText(message.getMessage());
+                        chatPartnerMessageView.setText(message.getText());
                         myMessagesView.setText("");
                     }
                     return convertView;
                 }
             };
 
-            // chatArrayAdapter.sort( -----order function----- );
+            mMessageArrayAdapter.sort(new Comparator<Message>() {
+            @Override
+            public int compare(Message message1, Message message2) {
+                if (message1.getClock().happenedBefore(message2.getClock())) {
+                    return -1;
+                } else if (message2.getClock().happenedBefore(message1.getClock())) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
             ListView messageListView = (ListView) findViewById(R.id.messageList);
             messageListView.setAdapter(mMessageArrayAdapter);
 
