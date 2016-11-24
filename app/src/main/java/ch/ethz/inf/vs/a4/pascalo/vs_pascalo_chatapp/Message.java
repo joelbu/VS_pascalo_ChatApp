@@ -19,125 +19,67 @@ public class Message {
     private int myVectorClock;
     private int theirVectorClock;
 
-    // Only populated during parsing
-    private UUID sender;
+    // Actual text written by user
+    private String text;
 
-    private String message;
-
-    public Message(boolean w, String m, Calendar s) {
+    public Message(boolean w, String t, Calendar s) {
         writtenByMe = w;
-        message = m;
+        text = t;
         timeWritten = s;
     }
 
-    public void setAcked() {
-        acked = true;
+    // Create an empty Message to fill with one of the initialise methods
+    public Message() {
     }
-
 
     // getter functions
-    public boolean getWrittenByMe() {
+
+    public boolean isWrittenByMe() {
         return writtenByMe;
     }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public Calendar getTimeSent() {
-        return timeWritten;
-    }
-
 
     public boolean isAcked() {
         return acked;
     }
 
-    public JSONObject getJsonForStorage() {
-        JSONObject json = new JSONObject();
-        try {
-            json.put("writtenByMe", writtenByMe);
-            json.put("acked", acked);
-            json.put("timeWritten", timeWritten.getTimeInMillis());
-            json.put("myVectorClock", myVectorClock);
-            json.put("theirVectorClock", theirVectorClock);
-            json.put("message", message);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return json;
+    public Calendar getTimeWritten() {
+        return timeWritten;
     }
 
-
-
-    // Create an empty Message to fill with one of the initialise methods
-    public Message(String string, boolean fromStorage) {
+    public int getMyVectorClock() {
+        return myVectorClock;
     }
 
-    // Initialise an empty Message from a JSON String, that came from storage
-    public void initialiseFromStorage(String string) {
-        try {
-            JSONObject json = new JSONObject(string);
-
-            writtenByMe = json.getBoolean("writtenByMe");
-            acked = json.getBoolean("acked");
-
-            timeWritten = new GregorianCalendar();
-            timeWritten.setTimeInMillis(json.getLong("timeWritten"));
-            myVectorClock = json.getInt("myVectorClock");
-            theirVectorClock = json.getInt("theirVectorClock");
-
-            message = json.getString("message");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public int getTheirVectorClock() {
+        return theirVectorClock;
     }
 
-    // Initialise an empty Message from a JSON String, that came from network. It returns:
-    // 0 if everything has worked,
-    // 1 if this message was not successfully decrypted
-    // 2 if the message was decrypted but is malformed
-    public int initialiseFromNetwork(String string, int magicNumber) {
-        // The magic number must be early in the string, if not don't bother trying JSON
-        if (!string.substring(0, 20).contains(Integer.toString(magicNumber))) return 1;
-
-        try {
-            //This information is not contained in the network message, but clear from circumstance
-            writtenByMe = false;
-            acked = false;
-
-            JSONObject json = new JSONObject(string);
-
-            timeWritten = new GregorianCalendar();
-            timeWritten.setTimeInMillis(json.getLong("timeWritten"));
-            theirVectorClock = json.getInt("senderClock"); // They are sender
-            myVectorClock = json.getInt("receiverClock"); // I'm receiver
-
-            sender = UUID.fromString(json.getString("sender"));
-            message = json.getString("message");
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return 2;
-        }
-        return 0;
+    public String getText() {
+        return text;
     }
 
-    public JSONObject getJsonForNetwork(UUID me, int magicNumber) {
-        JSONObject json = new JSONObject();
-        try {
-            json.put("magic", magicNumber);
-
-            json.put("timeWritten", timeWritten.getTimeInMillis());
-            json.put("senderClock", myVectorClock); // I'm sender
-            json.put("receiverClock", theirVectorClock); // They are receiver
-
-            json.put("sender", me.toString());
-            json.put("message", message);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return json;
+    // setter functions
+    public void setWrittenByMe(boolean writtenByMe) {
+        this.writtenByMe = writtenByMe;
     }
 
+    public void setAcked(boolean acked) {
+        this.acked = acked;
+    }
+
+    public void setTimeWritten(Calendar timeWritten) {
+        this.timeWritten = timeWritten;
+    }
+
+    public void setMyVectorClock(int myVectorClock) {
+        this.myVectorClock = myVectorClock;
+    }
+
+    public void setTheirVectorClock(int theirVectorClock) {
+        this.theirVectorClock = theirVectorClock;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
 }
