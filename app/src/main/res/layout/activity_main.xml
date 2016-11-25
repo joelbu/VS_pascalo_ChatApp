@@ -6,7 +6,7 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:paddingLeft="@dimen/activity_horizontal_margin"
 android:paddingRight="@dimen/activity_horizontal_margin"
-tools:context="ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.MainActivity">
+tools:context="ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.MainActivity">
 
     <ListView
         android:id="@+id/chatList"

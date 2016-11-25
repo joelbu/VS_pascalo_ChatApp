@@ -1,9 +1,8 @@
-package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
+package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI;
 
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -21,9 +20,13 @@ import android.widget.Toast;
 import java.util.Collection;
 import java.util.Comparator;
 
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Chat;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ChatService;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.R;
+
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    private ChatBackgroundService mBoundService;
+    private ChatService mBoundService;
     private ArrayAdapter<Chat> mChatArrayAdapter;
     private boolean mServiceIsBound;
 
@@ -41,10 +44,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // First start the service to make it's lifetime independent of the activity, if it's
         // already running this triggers onStartCommand, but no second instance
-        startService(new Intent(getApplicationContext(), ChatBackgroundService.class));
+        startService(new Intent(getApplicationContext(), ChatService.class));
         // Then bind to it so we can call functions in it
         mServiceIsBound = bindService(new Intent(getApplicationContext(),
-                ChatBackgroundService.class), mConnection,
+                ChatService.class), mConnection,
                 getApplicationContext().BIND_AUTO_CREATE);
         // The service object will become available in onServiceConnected(...) so further setup is
         // done there
@@ -58,14 +61,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // interact with the service.  Because we have bound to a explicit
             // service that we know is running in our own process, we can
             // cast its IBinder to a concrete class and directly access it.
-            mBoundService = ((ChatBackgroundService.LocalBinder)service).getService();
+            mBoundService = ((ChatService.LocalBinder)service).getService();
 
             // Tell the user about this for our demo.
             Toast.makeText(MainActivity.this, R.string.local_service_connected,
                     Toast.LENGTH_SHORT).show();
 
             // Create adapter here onto the data structure of the service
-            Collection<Chat> chats = mBoundService.getChats().values();
+            Collection<Chat> chats = mBoundService.getChats();
             mChatArrayAdapter = new ArrayAdapter<Chat>(MainActivity.this,
                     android.R.layout.simple_list_item_1,
                     chats.toArray(new Chat[chats.size()])) {

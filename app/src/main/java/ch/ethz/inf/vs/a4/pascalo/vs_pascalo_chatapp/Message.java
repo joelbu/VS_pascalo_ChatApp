@@ -21,6 +21,7 @@ public class Message {
     // Actual text written by user
     private String text;
 
+    // Used by serializer and for testing
     public Message(boolean writtenByMe, boolean acked, Calendar timeWritten,
                    VectorClock clock, String text) {
 

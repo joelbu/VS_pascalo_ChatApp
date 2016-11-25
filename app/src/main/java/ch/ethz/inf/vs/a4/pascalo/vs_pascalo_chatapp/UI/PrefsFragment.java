@@ -1,7 +1,9 @@
-package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
+package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.R;
 
 
 public class PrefsFragment extends PreferenceFragment {

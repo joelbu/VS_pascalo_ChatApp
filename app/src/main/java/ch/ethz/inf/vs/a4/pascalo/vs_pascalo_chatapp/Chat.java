@@ -29,8 +29,15 @@ public class Chat {
         unreadMessages = 0;
     }
 
+    public Chat(UUID cPID, String cPN, String cPPK, int uM, Calendar rA) {
+        chatPatnerID = cPID;
+        chatPartnerName = cPN;
+        chatPartnerPublicKey = cPPK;
+        unreadMessages = uM;
+        recentActivity = rA;
 
-
+        messageList = new LinkedList<>();
+    }
 
     // getter functions
     public UUID getChatPatnerID() {
