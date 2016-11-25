@@ -6,12 +6,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -36,6 +40,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        // overflow menu
+        PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.preferences, false);
 
         Intent intent = getIntent();
         mChatPartnerID = (UUID) intent.getSerializableExtra("userid");
@@ -63,19 +70,6 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         // Register a broadcast receiver that allows us to react in the UI when the service says
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .registerReceiver(mBroadcastReceiver, new IntentFilter("update-message-list"));
-
-
-
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        // JUST FOR TESTING
-
-
-
-
-
-
-
 
 
     }
@@ -120,9 +114,15 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                     if (message.isWrittenByMe()) {
                         myMessagesView.setText(message.getText());
                         chatPartnerMessageView.setText("");
+                        if (!message.isAcked()) {
+                            myMessagesView.setTextColor(Color.RED);
+                        } else {
+                            myMessagesView.setTextColor(Color.BLACK);
+                        }
                     } else {
                         chatPartnerMessageView.setText(message.getText());
                         myMessagesView.setText("");
+                        message.setAcked(true);
                     }
                     return convertView;
                 }
@@ -181,4 +181,31 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.overflow_chat, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        Intent myIntent;
+        switch (menuItem.getItemId()){
+            case R.id.settings :
+                myIntent = new Intent(this, SettingsActivity.class);
+                this.startActivity(myIntent);
+                break;
+            case R.id.show_partner_key :
+                myIntent = new Intent(this, ShowKeyActivity.class);
+                this.startActivity(myIntent);
+                break;
+            case R.id.forget_user :
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
 }

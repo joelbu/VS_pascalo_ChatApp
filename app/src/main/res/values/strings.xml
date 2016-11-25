@@ -9,4 +9,8 @@
     <string name="open_network_configuraion">Open Network Configuration</string>
     <string name="local_service_connected">Connected to ChatApp Service</string>
     <string name="local_service_disconnected">Disconnected from ChatApp Service</string>
+    <string name="forget_user">Forget User</string>
+    <string name="show_partner_key">Show Partner Key</string>
+    <string name="generate_new_key_btn">Generate new key</string>
+    <string name="edit_text_username">Username</string>
 </resources>

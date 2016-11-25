@@ -28,10 +28,13 @@
     PARTIALLY - Joel - 2016-11-22
 
 9. align messages left (chat partner) right (me) in the chat window
+    OK - Pascal - 2016-11-24
 
 10. messages are ordered and displayed descening in age
+    OK - Joel - 2016-11-24
 
-11. add overflow menu with "Show Key", "Forget User" (ChatActivity)
+11. add overflow menu with "Settings", "Show Key", "Forget User" (ChatActivity)
+    no function implemented - Pascal - 2016-11-25
 
 12. allow displaying Barcodes/QR-codes by using ZXing library
 
@@ -39,9 +42,12 @@
 
 14. create an activity to generate a public-private key pair with java.crypto
     and to enter the username
+    how to create a key? automaically? - Pascal - 2016-11-25
 
 15. create a preference activity with two options to toggle sound and vibration for notification
     and an option to generate a new key
+    no function implemented - Pascal - 2016-1-22
+    option to generate new key is missing
 
 
 

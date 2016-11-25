@@ -70,9 +70,9 @@ public class ChatBackgroundService extends Service implements SharedPreferences.
         mChats.put(uuid1, temp1);
 
 
-        addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
+        addMessage(uuid, new Message(true, true, GregorianCalendar.getInstance(),
                 new VectorClock(1, 4), "Text?"));
-        addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
+        addMessage(uuid, new Message(true, true, GregorianCalendar.getInstance(),
                 new VectorClock(5, 5), "Text6"));
         addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
                 new VectorClock(7, 6), "Text8"));

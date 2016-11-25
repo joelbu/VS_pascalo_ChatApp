@@ -21,7 +21,11 @@
         <service
             android:name=".ChatBackgroundService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name=".ShowKeyActivity" />
+        <activity android:name=".ScanKeyActivity" />
+        <activity android:name=".GenerateKeyActivity"></activity>
     </application>
 
 </manifest>

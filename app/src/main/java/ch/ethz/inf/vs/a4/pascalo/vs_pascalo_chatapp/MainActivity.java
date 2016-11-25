@@ -133,9 +133,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem){
+        Intent myIntent;
         switch (menuItem.getItemId()){
             case R.id.settings :
-                Intent myIntent = new Intent(this, SettingsActivity.class);
+                myIntent = new Intent(this, SettingsActivity.class);
+                this.startActivity(myIntent);
+                break;
+            case R.id.show_key :
+                myIntent = new Intent(this, ShowKeyActivity.class);
+                this.startActivity(myIntent);
+                break;
+            case R.id.add_chat :
+                myIntent = new Intent(this, ScanKeyActivity.class);
                 this.startActivity(myIntent);
                 break;
             default:

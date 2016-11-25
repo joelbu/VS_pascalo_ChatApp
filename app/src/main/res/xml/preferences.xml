@@ -13,6 +13,7 @@
             android:defaultValue="true"
             android:title="@string/notification_vibration_check_box"
             android:key="check_box_vibration" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
