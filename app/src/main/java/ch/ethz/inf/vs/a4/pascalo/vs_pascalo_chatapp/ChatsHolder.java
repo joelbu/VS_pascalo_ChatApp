@@ -39,6 +39,10 @@ public class ChatsHolder {
         return mChats.values();
     }
 
+    public Chat getChat(UUID id) {
+        return mChats.get(id);
+    }
+
     public LinkedList<Message> getPartnerMessages(UUID id) {
         return mChats.get(id).getMessageList();
     }
@@ -51,7 +55,7 @@ public class ChatsHolder {
         FileOutputStream outputStream;
 
         ChatParser parser = new ChatParser();
-        String addressBook = parser.serializeMapOfChats(mChats).toString();
+        String addressBook = parser.serializeCollectionOfChats(mChats.values()).toString();
 
         try {
             outputStream = context.openFileOutput(filename, context.getApplicationContext().MODE_PRIVATE);

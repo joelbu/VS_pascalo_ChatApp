@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,10 +17,10 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedChatMap;
 
 public class ChatParser {
 
-    public JSONObject serializeMapOfChats(Map<UUID,Chat> chats) {
+    public JSONObject serializeCollectionOfChats(Collection<Chat> chats) {
         JSONObject jsonObject = new JSONObject();
         JSONArray jsonArray = new JSONArray();
-        for (Chat chat : chats.values())
+        for (Chat chat : chats)
         {
             jsonArray.put(serializeSingleChat(chat));
         }
@@ -54,7 +55,7 @@ public class ChatParser {
             ret.chat = new HashMap<>(jsonArray.length());
 
             for (int i = 0; i < jsonArray.length(); i++) {
-                ParsedChat parsedChat = parseSingleChat((String) jsonArray.get(i));
+                ParsedChat parsedChat = parseSingleChat((JSONObject) jsonArray.get(i));
                 if (parsedChat.status == 0) {
                     ret.chat.put(parsedChat.chat.getChatPatnerID(), parsedChat.chat);
                 } else {
@@ -72,10 +73,9 @@ public class ChatParser {
         return ret;
     }
 
-    public ParsedChat parseSingleChat(String string) {
+    public ParsedChat parseSingleChat(JSONObject json) {
         ParsedChat ret = new ParsedChat();
         try {
-            JSONObject json = new JSONObject(string);
 
             Calendar recentActivity = new GregorianCalendar();
             recentActivity.setTimeInMillis(json.getLong("recentActivity"));
