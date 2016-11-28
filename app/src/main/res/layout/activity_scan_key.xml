@@ -42,13 +42,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/chat_partner_name_hint"
-        android:inputType="textPersonName"
         android:text=""
         android:ems="10"
         android:id="@+id/editText_partner_name"
         android:layout_below="@+id/button_scan_chat_partner_info"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:inputType="textPersonName" />
 
     <EditText
         android:layout_width="match_parent"
@@ -57,7 +57,7 @@
         android:ems="10"
         android:id="@+id/editText_public_key"
         android:hint="@string/public_key_hint"
-        android:inputType="textNoSuggestions|number"
+        android:inputType="textVisiblePassword"
         android:layout_below="@+id/editText_partner_name"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
