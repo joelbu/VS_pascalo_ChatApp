@@ -13,4 +13,9 @@
     <string name="show_partner_key">Show Partner Key</string>
     <string name="generate_new_key_btn">Generate new key</string>
     <string name="edit_text_username">Username</string>
+    <string name="scan_chat_partner_info">Scan Information</string>
+    <string name="public_key_hint">Public key...</string>
+    <string name="add_user">Add User</string>
+    <string name="chat_partner_name_hint">Chat partner name...</string>
+    <string name="scan_or_type_key">You can either scan your chat partners name and key or type them in manually.</string>
 </resources>
