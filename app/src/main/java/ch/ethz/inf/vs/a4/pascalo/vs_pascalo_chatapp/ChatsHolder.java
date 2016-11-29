@@ -24,6 +24,9 @@ public class ChatsHolder {
     public void addMessage(UUID uuid, Message message) {
         mChats.get(uuid).addMessage(message);
         mChats.get(uuid).updateRecentActivity();
+        if (!message.isAcked()) {
+            mChats.get(uuid).setUnreadMessages(mChats.get(uuid).getUnreadMessages() + 1);
+        }
     }
 
     // Returns 0 on success, 1 for UUID already in use

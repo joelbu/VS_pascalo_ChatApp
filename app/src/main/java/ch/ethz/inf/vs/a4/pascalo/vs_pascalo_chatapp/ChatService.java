@@ -34,6 +34,10 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         return mChats.getPartnerName(mCurrentChatPartner);
     }
 
+    public ChatsHolder getmChats() {
+        return mChats;
+    }
+
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
         // TODO: Make sure we react to configuration changes like vibration off
@@ -99,6 +103,9 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
                 new VectorClock(0, 0), "test"));
         mChats.addMessage(uuid1, new Message(true, false, GregorianCalendar.getInstance(),
                 new VectorClock(1, 1), "ack"));
+
+        mChats.addMessage(uuid, new Message(false, false, GregorianCalendar.getInstance(),
+                new VectorClock(0, 0), "Text1"));
     }
 
 

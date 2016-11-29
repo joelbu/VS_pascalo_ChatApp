@@ -149,6 +149,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             Toast.makeText(ChatActivity.this, "Chat partners name is: " +
                     mBoundService.getPartnerName(), Toast.LENGTH_SHORT).show();
 
+            mBoundService.getmChats().getChat(mChatPartnerID).setUnreadMessages(0);
+
         }
 
         public void onServiceDisconnected(ComponentName className) {

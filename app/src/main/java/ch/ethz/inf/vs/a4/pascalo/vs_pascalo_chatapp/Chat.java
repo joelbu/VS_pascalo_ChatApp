@@ -39,6 +39,11 @@ public class Chat {
         messageList = new LinkedList<>();
     }
 
+    // setter for unread messages
+    public void setUnreadMessages(int unreadMessages) {
+        this.unreadMessages = unreadMessages;
+    }
+
     // getter functions
     public UUID getChatPatnerID() {
         return chatPatnerID;
