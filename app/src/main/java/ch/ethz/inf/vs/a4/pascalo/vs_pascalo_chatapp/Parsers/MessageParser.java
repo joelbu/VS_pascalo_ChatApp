@@ -17,12 +17,12 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.VectorClock;
 
 public class MessageParser {
 
+    // Made with randomness from atmospheric noise provided by random.org
+    private static int magicNumber = -432185306;
     private UUID me;
-    private int magicNumber;
 
-    private MessageParser(UUID me, int magicNumber) {
+    private MessageParser(UUID me) {
         this.me = me;
-        this.magicNumber = magicNumber;
     }
 
     public static JSONObject serializeThreadForStorage(List<Message>messages) {
@@ -137,7 +137,10 @@ public class MessageParser {
         ParsedMessage ret = new ParsedMessage();
 
         // The magic number must be early in the string, if not don't bother trying JSON
-        if (!string.substring(0, 20).contains(Integer.toString(magicNumber))) ret.status = 2;
+        if (!string.substring(0, 25).contains(Integer.toString(magicNumber)))  {
+            ret.status = 2;
+            return ret;
+        }
 
         try {
             JSONObject json = new JSONObject(string);

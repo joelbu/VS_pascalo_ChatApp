@@ -7,7 +7,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.QRContentParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.R;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedQRContent;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ZXing.IntentIntegrator;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ZXing.IntentResult;
 
@@ -37,8 +39,19 @@ public class ScanKeyActivity extends AppCompatActivity{
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanResult != null) {
             // handle scan result
+
             EditText name = (EditText) findViewById(R.id.editText_partner_name);
-            name.setText(scanResult.getContents());
+            EditText key = (EditText) findViewById(R.id.editText_public_key);
+
+            ParsedQRContent ret = QRContentParser.parse(scanResult.getContents());
+            if (ret.status == 0) {
+                name.setText(ret.name);
+                key.setText(ret.key);
+            } else {
+                key.setText(scanResult.getContents());
+                name.setText("Parsing failed, status: " + ret.status);
+            }
+
         }
         // else continue with any other code you need in the method
 

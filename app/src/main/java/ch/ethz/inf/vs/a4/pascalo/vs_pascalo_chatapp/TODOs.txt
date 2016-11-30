@@ -45,8 +45,7 @@
 12. allow displaying Barcodes/QR-codes by using ZXing library
 
 13. allow scanning Barcodes/QR-codes by using the ZXing library
-    PARTIALLY - Joel - 2016-11-28
-    TODO: Small Serializer and Parser to throw name and key in a JSONObject
+    OK - Joel - 2016-11-30
 
 14. create an activity to generate a public-private key pair with java.crypto
     and to enter the username
