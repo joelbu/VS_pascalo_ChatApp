@@ -19,6 +19,7 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.ChatParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.MessageParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedChatMap;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedMessageThread;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.MainActivity;
 
 public class ChatsHolder {
     final String filename = "address_book";
@@ -50,7 +51,10 @@ public class ChatsHolder {
         return mChats.get(id);
     }
 
-
+    public void forget(UUID id) {
+        Log.d(ChatsHolder.class.getSimpleName(), "forgetting user: "+ id.toString());
+        mChats.remove(id);
+    }
 
     // Writing to filesystem
 

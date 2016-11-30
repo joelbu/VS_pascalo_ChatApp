@@ -19,6 +19,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
     private ChatsHolder mChats;
     private Chat mCurrentChat;
+    private boolean mChatsChanged;
 
     // For use in MainActivity only, ChatActivity is only supposed to interact with the current
     // chat through the methods below
@@ -36,6 +37,19 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
     public String getPartnerName() {
         return mCurrentChat.getChatPartnerName();
+    }
+
+    public void forgetUser() {
+        mChats.forget(mCurrentChat.getChatPatnerID());
+        mChatsChanged = true;
+    }
+
+    public boolean getChatsChanged() {
+        return mChatsChanged;
+    }
+
+    public void resetChatsChanged() {
+        mChatsChanged = false;
     }
 
     public void setUnreadMessages(int unreadMessages) {

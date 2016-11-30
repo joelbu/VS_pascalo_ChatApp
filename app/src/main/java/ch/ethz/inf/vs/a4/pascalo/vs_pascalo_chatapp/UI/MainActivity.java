@@ -60,8 +60,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     protected void onRestart() {
         super.onRestart();
-
         Log.d(MainActivity.class.getSimpleName(), "onRestart() called");
+
+        if (mBoundService.getChatsChanged()) {
+            mChatArrayAdapter.clear();
+            mChatArrayAdapter.addAll(mBoundService.getChats());
+            mBoundService.resetChatsChanged();
+        }
+
         mChatArrayAdapter.sort(mChatComparator);
 
     }
@@ -81,8 +87,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // Create adapter here onto the data structure of the service
             Collection<Chat> chats = mBoundService.getChats();
             mChatArrayAdapter = new ArrayAdapter<Chat>(MainActivity.this,
-                    android.R.layout.simple_list_item_1,
-                    chats.toArray(new Chat[chats.size()])) {
+                    android.R.layout.simple_list_item_1) {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     Chat chat = getItem(position);
@@ -105,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             };
 
+            mChatArrayAdapter.addAll(mBoundService.getChats());
             mChatArrayAdapter.sort(mChatComparator);
             ListView chatListView = (ListView) findViewById(R.id.chatList);
             chatListView.setAdapter(mChatArrayAdapter);

@@ -16,7 +16,7 @@
     no function implemented - Pascal - 21.11.2016
     Go Offline now works - Joel - 2016-11-30
 
-5. implement a service that handles message state, addressbook state, receiving messages
+5. implement a service that handles message state, address book state, receiving messages
     including decryption and notification handling
     PARTIALLY - Joel - 2016-11-22
     TODO: Encryption and decryption, method for sending messages
@@ -41,6 +41,7 @@
 
 11. add overflow menu with "Settings", "Show Key", "Forget User" (ChatActivity)
     no function implemented - Pascal - 2016-11-25
+    Forget User now works - Joel - 2016-11-30
 
 12. allow displaying Barcodes/QR-codes by using ZXing library
 

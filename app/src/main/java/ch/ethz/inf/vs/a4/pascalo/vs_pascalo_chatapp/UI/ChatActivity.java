@@ -213,6 +213,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 this.startActivity(myIntent);
                 break;
             case R.id.forget_user :
+                mBoundService.forgetUser();
+                finish();
                 break;
             default:
                 return false;
