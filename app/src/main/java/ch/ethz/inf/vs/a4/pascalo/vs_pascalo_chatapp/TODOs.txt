@@ -14,26 +14,29 @@
 4. add overflow menu with "Preferences", "Show Key", "Add Chat", "Go Offline",
     "Open Network Configuration" (in MainActivity)
     no function implemented - Pascal - 21.11.2016
+    Go Offline now works - Joel - 2016-11-30
 
 5. implement a service that handles message state, addressbook state, receiving messages
     including decryption and notification handling
     PARTIALLY - Joel - 2016-11-22
+    TODO: Encryption and decryption, method for sending messages
 
 6. the service has to be started on app start if it is not running, destroy if GO OFFLINE
-    TODO: 2016-11-24
+    OK - Joel - 2016-11-30
 
 7. store chat content, address book and own keys in files
     (to store them when the service is shut down)
-    TODO: 2016-11-24
-        address book maybe correct?
+    OK - Joel - 2016-11-30
+    TODO: Store when something changes, read only once the content is needed
 
 8. create ChatActivity that holds the chat window (display messages, write message, send)
     PARTIALLY - Joel - 2016-11-22
+    TODO: Missing send button
 
 9. align messages left (chat partner) right (me) in the chat window
     OK - Pascal - 2016-11-24
 
-10. messages are ordered and displayed descening in age
+10. messages are ordered and displayed descending in age
     OK - Joel - 2016-11-24
 
 11. add overflow menu with "Settings", "Show Key", "Forget User" (ChatActivity)
@@ -42,10 +45,12 @@
 12. allow displaying Barcodes/QR-codes by using ZXing library
 
 13. allow scanning Barcodes/QR-codes by using the ZXing library
+    PARTIALLY - Joel - 2016-11-28
+    TODO: Small Serializer and Parser to throw name and key in a JSONObject
 
 14. create an activity to generate a public-private key pair with java.crypto
     and to enter the username
-    how to create a key? automaically? - Pascal - 2016-11-25
+    how to create a key? automatically? - Pascal - 2016-11-25
 
 15. create a preference activity with two options to toggle sound and vibration for notification
     and an option to generate a new key
