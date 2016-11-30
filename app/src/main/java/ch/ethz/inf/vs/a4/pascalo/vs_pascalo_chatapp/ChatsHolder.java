@@ -46,14 +46,6 @@ public class ChatsHolder {
         return mChats.get(id);
     }
 
-    public LinkedList<Message> getPartnerMessages(UUID id) {
-        return mChats.get(id).getMessageList();
-    }
-
-    public String getPartnerName(UUID id) {
-        return mChats.get(id).getChatPartnerName();
-    }
-
     public void writeAddressBook(Context context) {
         FileOutputStream outputStream;
 

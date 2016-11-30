@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,6 +55,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
+    protected void onRestart() {
+        super.onRestart();
+
+        Log.d(MainActivity.class.getSimpleName(), "onRestart() called");
+        mChatArrayAdapter.sort(mChatComparator);
+
+    }
+
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             // This is called when the connection with the service has been
@@ -63,9 +72,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // cast its IBinder to a concrete class and directly access it.
             mBoundService = ((ChatService.LocalBinder)service).getService();
 
-            // Tell the user about this for our demo.
-            Toast.makeText(MainActivity.this, R.string.local_service_connected,
-                    Toast.LENGTH_SHORT).show();
+            Log.d(MainActivity.class.getSimpleName(), getString(R.string.local_service_connected));
 
             // Create adapter here onto the data structure of the service
             Collection<Chat> chats = mBoundService.getChats();
@@ -94,12 +101,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             };
 
-            mChatArrayAdapter.sort(new Comparator<Chat>() {
-                @Override
-                public int compare(Chat chat1, Chat chat2) {
-                    return chat1.getRecentActivity().compareTo(chat2.getRecentActivity());
-                }
-            });
+            mChatArrayAdapter.sort(mChatComparator);
             ListView chatListView = (ListView) findViewById(R.id.chatList);
             chatListView.setAdapter(mChatArrayAdapter);
 
@@ -111,11 +113,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // Because it is running in our same process, we should never
             // see this happen.
             mBoundService = null;
-            Toast.makeText(MainActivity.this, R.string.local_service_disconnected,
-                    Toast.LENGTH_SHORT).show();
+            Log.d(MainActivity.class.getSimpleName(), getString(R.string.local_service_disconnected));
         }
     };
 
+
+    private Comparator<Chat> mChatComparator = new Comparator<Chat>() {
+
+        @Override
+        public int compare(Chat chat1, Chat chat2) {
+            // All chats with unread messages need to be above all those without
+            // Within the two categories order by recent activity
+            // This feels more natural and useful than just ordering by recent activity
+            if (chat1.getUnreadMessages() == 0 && chat2.getUnreadMessages() > 0) {
+                return 1;
+            } else if (chat2.getUnreadMessages() == 0 && chat1.getUnreadMessages() > 0) {
+                return -1;
+            } else {
+                return chat1.getRecentActivity().compareTo(chat2.getRecentActivity());
+            }
+        }
+    };
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id){

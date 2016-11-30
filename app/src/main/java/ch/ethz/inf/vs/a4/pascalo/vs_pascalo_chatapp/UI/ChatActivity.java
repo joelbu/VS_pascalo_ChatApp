@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,8 +50,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         Intent intent = getIntent();
         mChatPartnerID = (UUID) intent.getSerializableExtra("userid");
 
-        Toast.makeText(ChatActivity.this, "Chat partner is: " + mChatPartnerID.toString(),
-                Toast.LENGTH_SHORT).show();
+        Log.d(ChatActivity.class.getSimpleName(), "Chat partner is: " +
+                mChatPartnerID.toString());
 
         mServiceIsBound = bindService(new Intent(getApplicationContext(),
                 ChatService.class), mConnection,
@@ -89,6 +90,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             Toast.makeText(ChatActivity.this, R.string.local_service_connected,
                     Toast.LENGTH_SHORT).show();
 
+            // Tell the service who the current partner is, so it knows on which chats to
+            // call the functions
             mBoundService.setChatPartner(mChatPartnerID);
 
             // create adapter
@@ -146,11 +149,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             ListView messageListView = (ListView) findViewById(R.id.messageList);
             messageListView.setAdapter(mMessageArrayAdapter);
 
-            Toast.makeText(ChatActivity.this, "Chat partners name is: " +
-                    mBoundService.getPartnerName(), Toast.LENGTH_SHORT).show();
+            Log.d(ChatActivity.class.getSimpleName(), "Chat partners name is: " +
+                    mBoundService.getPartnerName());
 
-            mBoundService.getmChats().getChat(mChatPartnerID).setUnreadMessages(0);
-
+            mBoundService.setUnreadMessages(0);
         }
 
         public void onServiceDisconnected(ComponentName className) {

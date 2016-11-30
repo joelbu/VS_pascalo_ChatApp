@@ -16,26 +16,28 @@ import java.util.UUID;
 public class ChatService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private ChatsHolder mChats;
-    private UUID mCurrentChatPartner;
+    private Chat mCurrentChat;
 
-    public void setChatPartner (UUID id) {
-        mCurrentChatPartner = id;
-    }
-
-    public LinkedList<Message> getMessages() {
-        return mChats.getPartnerMessages(mCurrentChatPartner);
-    }
-
+    // For use in MainActivity only, ChatActivity is only supposed to interact with the current
+    // chat through the methods below
     public Collection<Chat> getChats() {
         return mChats.getChats();
     }
 
-    public String getPartnerName() {
-        return mChats.getPartnerName(mCurrentChatPartner);
+    public void setChatPartner (UUID id) {
+        mCurrentChat = mChats.getChat(id);
     }
 
-    public ChatsHolder getmChats() {
-        return mChats;
+    public LinkedList<Message> getMessages() {
+        return mCurrentChat.getMessageList();
+    }
+
+    public String getPartnerName() {
+        return mCurrentChat.getChatPartnerName();
+    }
+
+    public void setUnreadMessages(int unreadMessages) {
+        mCurrentChat.setUnreadMessages(unreadMessages);
     }
 
     @Override

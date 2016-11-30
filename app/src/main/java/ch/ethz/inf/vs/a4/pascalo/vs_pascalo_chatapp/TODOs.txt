@@ -2,14 +2,14 @@
     OK - Pascal - 2016-11-21
 
 2. Order chats by most recent activity
-    NOT WORKING - Pascal - 2016-11-29
+    OK - Joel - 2016-11-30
 
 3.a) each chat preview should display the name of the chat partner and
     the number of unread messages
     OK - Joel und Pascal 2016-11-23
 
 3.b) Reset unreadMessages counter when chats are displayed
-    TRIED BUT NOT SOLVED - Pascal - 2016-11-29
+    OK - Joel - 2016-11-30
 
 4. add overflow menu with "Preferences", "Show Key", "Add Chat", "Go Offline",
     "Open Network Configuration" (in MainActivity)
