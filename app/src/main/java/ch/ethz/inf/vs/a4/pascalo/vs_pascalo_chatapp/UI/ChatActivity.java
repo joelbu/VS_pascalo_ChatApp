@@ -53,6 +53,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(ChatActivity.class.getSimpleName(), "Chat partner is: " +
                 mChatPartnerID.toString());
 
+        Log.d(ChatActivity.class.getSimpleName(), "binding Service");
         mServiceIsBound = bindService(new Intent(getApplicationContext(),
                 ChatService.class), mConnection,
                 getApplicationContext().BIND_AUTO_CREATE);
@@ -85,6 +86,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             // service that we know is running in our own process, we can
             // cast its IBinder to a concrete class and directly access it.
             mBoundService = ((ChatService.LocalBinder)service).getService();
+            Log.d(ChatActivity.class.getSimpleName(), "Service bound");
 
             // Tell the user about this for our demo.
             Toast.makeText(ChatActivity.this, R.string.local_service_connected,
@@ -161,8 +163,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             // Because it is running in our same process, we should never
             // see this happen.
             mBoundService = null;
-            Toast.makeText(ChatActivity.this, R.string.local_service_disconnected,
-                    Toast.LENGTH_SHORT).show();
+            Log.d(ChatActivity.class.getSimpleName(), "Service unbound");
         }
     };
 
@@ -171,7 +172,11 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         // save unsent messages with Tag "unsent" in chatfile
         LocalBroadcastManager.getInstance(getApplicationContext())
                                 .unregisterReceiver(mBroadcastReceiver);
-        if (mServiceIsBound) unbindService(mConnection);
+        Log.d(ChatActivity.class.getSimpleName(), "onDestroy() called");
+        if (mServiceIsBound) {
+            Log.d(ChatActivity.class.getSimpleName(), "unbinding Service");
+            unbindService(mConnection);
+        }
         super.onDestroy();
     }
 

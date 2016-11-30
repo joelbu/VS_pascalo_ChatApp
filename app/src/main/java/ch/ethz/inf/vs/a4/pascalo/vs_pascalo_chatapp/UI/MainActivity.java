@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d(MainActivity.class.getSimpleName(), "onCreate() called");
 
         // register listener on chatList
         ListView chatListView = (ListView) findViewById(R.id.chatList);
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // First start the service to make it's lifetime independent of the activity, if it's
         // already running this triggers onStartCommand, but no second instance
         startService(new Intent(getApplicationContext(), ChatService.class));
+
+        Log.d(MainActivity.class.getSimpleName(), "binding Service");
         // Then bind to it so we can call functions in it
         mServiceIsBound = bindService(new Intent(getApplicationContext(),
                 ChatService.class), mConnection,
@@ -71,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // service that we know is running in our own process, we can
             // cast its IBinder to a concrete class and directly access it.
             mBoundService = ((ChatService.LocalBinder)service).getService();
+            Log.d(MainActivity.class.getSimpleName(), "Service bound");
 
             Log.d(MainActivity.class.getSimpleName(), getString(R.string.local_service_connected));
 
@@ -114,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // see this happen.
             mBoundService = null;
             Log.d(MainActivity.class.getSimpleName(), getString(R.string.local_service_disconnected));
+            finish();
         }
     };
 
@@ -168,6 +173,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 myIntent = new Intent(this, ScanKeyActivity.class);
                 this.startActivity(myIntent);
                 break;
+            case R.id.go_offline :
+                Log.d(MainActivity.class.getSimpleName(), "Go Offline called");
+                if (mServiceIsBound) {
+                    unbindService(mConnection);
+                    mServiceIsBound = false;
+                }
+                myIntent = new Intent(getApplicationContext(), ChatService.class);
+                this.stopService(myIntent);
+                finish();
+                break;
             default:
                 return false;
         }
@@ -176,7 +191,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onDestroy() {
-        if (mServiceIsBound) unbindService(mConnection);
+        Log.d(MainActivity.class.getSimpleName(), "onDestroy() called");
+        if (mServiceIsBound) {
+            Log.d(MainActivity.class.getSimpleName(), "unbinding Service");
+            unbindService(mConnection);
+            mServiceIsBound = false;
+        }
         super.onDestroy();
     }
 

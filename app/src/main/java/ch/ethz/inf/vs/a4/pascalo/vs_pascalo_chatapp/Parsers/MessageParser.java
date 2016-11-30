@@ -1,14 +1,18 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Message;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedMessage;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedMessageThread;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.VectorClock;
 
 public class MessageParser {
@@ -21,8 +25,47 @@ public class MessageParser {
         this.magicNumber = magicNumber;
     }
 
+    public static JSONObject serializeThreadForStorage(List<Message>messages) {
+        JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        try {
+            for(int i = 0; i < messages.size(); i++) {
+                jsonArray.put(serializeForStorage(messages.get(i)));
+            }
+            jsonObject.put("thread", jsonArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+
+    public static ParsedMessageThread parseThreadFromStorage(String string) {
+        ParsedMessageThread ret = new ParsedMessageThread();
+        try {
+            JSONObject jsonObject = new JSONObject(string);
+            JSONArray jsonArray = jsonObject.getJSONArray("thread");
+            ret.messages = new LinkedList<>();
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                ParsedMessage parsedMessage = parseFromStorage((JSONObject) jsonArray.get(i));
+                if (parsedMessage.status == 0) {
+                    ret.messages.add(parsedMessage.message);
+                } else {
+                    ret.status = 2;
+                    break;
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            ret.status = 1;
+        }
+        return ret;
+    }
+
     // Serialize message to a JSON string, that is suitable for storage
-    public JSONObject serializeForStorage(Message message) {
+    public static JSONObject serializeForStorage(Message message) {
         JSONObject json = new JSONObject();
         try {
             json.put("writtenByMe", message.isWrittenByMe());
@@ -40,11 +83,9 @@ public class MessageParser {
     }
 
     // Initialise message from a JSON string, that came from storage
-    public ParsedMessage parseFromStorage(String string) {
+    public static ParsedMessage parseFromStorage(JSONObject json) {
         ParsedMessage ret = new ParsedMessage();
         try {
-            JSONObject json = new JSONObject(string);
-
             Calendar calendar = new GregorianCalendar();
             calendar.setTimeInMillis(json.getLong("timeWritten"));
 

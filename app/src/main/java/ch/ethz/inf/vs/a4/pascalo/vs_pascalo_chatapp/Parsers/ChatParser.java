@@ -17,7 +17,7 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedChatMap;
 
 public class ChatParser {
 
-    public JSONObject serializeCollectionOfChats(Collection<Chat> chats) {
+    public static JSONObject serializeCollectionOfChats(Collection<Chat> chats) {
         JSONObject jsonObject = new JSONObject();
         JSONArray jsonArray = new JSONArray();
         for (Chat chat : chats)
@@ -32,7 +32,7 @@ public class ChatParser {
         return jsonObject;
     }
 
-    public JSONObject serializeSingleChat(Chat chat) {
+    public static JSONObject serializeSingleChat(Chat chat) {
         JSONObject json = new JSONObject();
         try {
             json.put("chatPartnerID", chat.getChatPatnerID().toString());
@@ -46,7 +46,7 @@ public class ChatParser {
         return json;
     }
 
-    public ParsedChatMap parseMapOfChats(String string) {
+    public static ParsedChatMap parseMapOfChats(String string) {
         ParsedChatMap ret = new ParsedChatMap();
 
         try {
@@ -73,7 +73,7 @@ public class ChatParser {
         return ret;
     }
 
-    public ParsedChat parseSingleChat(JSONObject json) {
+    public static ParsedChat parseSingleChat(JSONObject json) {
         ParsedChat ret = new ParsedChat();
         try {
 

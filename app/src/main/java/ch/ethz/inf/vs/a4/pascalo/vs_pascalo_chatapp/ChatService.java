@@ -13,6 +13,8 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.UUID;
 
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.MainActivity;
+
 public class ChatService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private ChatsHolder mChats;
@@ -61,10 +63,11 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
     @Override
     public void onCreate() {
         mChats = new ChatsHolder();
-        // TODO: Load address book from file etc
 
+        // Now it just loads everything upon starting, we still need lazy initialisation
+        // TODO: Lazy initialisation of message threads
         mChats.readAddressBook(this);
-
+        mChats.readAllThreads(this);
 
         // Since notifications must come from the service I moved this here
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
@@ -122,13 +125,15 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
     @Override
     public void onDestroy() {
+        Log.d(ChatService.class.getSimpleName(), "onDestroy() called");
         // TODO: destroy the service to go offline
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
                 .unregisterOnSharedPreferenceChangeListener(this);
 
+        // Writing upon service shutdown may not be needed if we write whenever
+        // something new happens instead, but for now it will do
         mChats.writeAddressBook(this);
-
-
+        mChats.writeAllThreads(this);
 
     }
 
