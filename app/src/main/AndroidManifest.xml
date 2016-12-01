@@ -23,7 +23,6 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".UI.ShowKeyActivity" />
         <activity android:name=".UI.ScanKeyActivity" />
         <activity android:name=".UI.GenerateKeyActivity"></activity>
     </application>

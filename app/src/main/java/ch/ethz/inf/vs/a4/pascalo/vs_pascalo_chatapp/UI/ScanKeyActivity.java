@@ -42,11 +42,13 @@ public class ScanKeyActivity extends AppCompatActivity{
 
             EditText name = (EditText) findViewById(R.id.editText_partner_name);
             EditText key = (EditText) findViewById(R.id.editText_public_key);
+            EditText id = (EditText) findViewById(R.id.editText_partner_id);
 
             ParsedQRContent ret = QRContentParser.parse(scanResult.getContents());
             if (ret.status == 0) {
                 name.setText(ret.name);
                 key.setText(ret.key);
+                id.setText(ret.id.toString());
             } else {
                 key.setText(scanResult.getContents());
                 name.setText("Parsing failed, status: " + ret.status);

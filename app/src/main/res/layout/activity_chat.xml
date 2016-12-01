@@ -13,7 +13,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
+        android:inputType="textCapSentences|textAutoCorrect|textAutoComplete|textMultiLine"
         android:ems="10"
         android:layout_alignParentBottom="true"
         android:id="@+id/editMessage"
