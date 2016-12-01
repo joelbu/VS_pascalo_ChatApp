@@ -4,6 +4,9 @@ package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 import android.content.Context;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +28,11 @@ public class ChatsHolder {
     final String filename = "address_book";
 
     private Map<UUID, Chat> mChats = new HashMap<UUID, Chat>();
+    private UUID mOwnId = UUID.randomUUID();
+    private String mOwnName = "Default Name";
+    private String mOwnPrivateKey = "defaultSecretKey";
+    private String mOwnPublicKey = "defaultPublicKey";
+
 
     public void addMessage(UUID uuid, Message message) {
         mChats.get(uuid).addMessage(message);
@@ -56,15 +64,41 @@ public class ChatsHolder {
         mChats.remove(id);
     }
 
+    public UUID getOwnId() {
+        return mOwnId;
+    }
+
+    public String getOwnName() {
+        return mOwnName;
+    }
+
+    public String getOwnPrivateKey() {
+        return mOwnPrivateKey;
+    }
+
+    public String getOwnPublicKey() {
+        return mOwnPublicKey;
+    }
+
+
+
     // Writing to filesystem
 
     public void writeAddressBook(Context context) {
-        String addressBook = ChatParser.serializeCollectionOfChats(mChats.values()).toString();
+        JSONObject addressBook = ChatParser.serializeCollectionOfChats(mChats.values());
+        try {
+            addressBook.put("ownId", mOwnId.toString());
+            addressBook.put("ownName", mOwnName);
+            addressBook.put("ownPrivateKey", mOwnPrivateKey);
+            addressBook.put("ownPublicKey", mOwnPublicKey);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         FileOutputStream outputStream;
 
         try {
             outputStream = context.openFileOutput(filename, Context.MODE_PRIVATE);
-            outputStream.write(addressBook.getBytes("UTF-8"));
+            outputStream.write(addressBook.toString().getBytes("UTF-8"));
             outputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -108,7 +142,12 @@ public class ChatsHolder {
             fileInputStream.read(data);
             fileInputStream.close();
 
-            String addressBook = new String(data, "UTF-8");
+            JSONObject addressBook = new JSONObject(new String(data, "UTF-8"));
+
+            mOwnId = UUID.fromString(addressBook.getString("ownId"));
+            mOwnName = addressBook.getString("ownName");
+            mOwnPrivateKey = addressBook.getString("ownPrivateKey");
+            mOwnPublicKey = addressBook.getString("ownPublicKey");
 
             ParsedChatMap parsedChatMap = ChatParser.parseMapOfChats(addressBook);
             if (parsedChatMap.status == 0) {

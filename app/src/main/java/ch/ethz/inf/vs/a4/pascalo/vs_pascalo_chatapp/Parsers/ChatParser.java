@@ -46,12 +46,11 @@ public class ChatParser {
         return json;
     }
 
-    public static ParsedChatMap parseMapOfChats(String string) {
+    public static ParsedChatMap parseMapOfChats(JSONObject jsonObject) {
         ParsedChatMap ret = new ParsedChatMap();
 
         try {
-            JSONObject jsonObjet = new JSONObject(string);
-            JSONArray jsonArray = jsonObjet.getJSONArray("chats");
+            JSONArray jsonArray = jsonObject.getJSONArray("chats");
             ret.chat = new HashMap<>(jsonArray.length());
 
             for (int i = 0; i < jsonArray.length(); i++) {

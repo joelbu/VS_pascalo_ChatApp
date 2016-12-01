@@ -1,6 +1,7 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
@@ -50,9 +51,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         Log.d(MainActivity.class.getSimpleName(), "binding Service");
         // Then bind to it so we can call functions in it
-        mServiceIsBound = bindService(new Intent(getApplicationContext(),
+        bindService(new Intent(getApplicationContext(),
                 ChatService.class), mConnection,
-                getApplicationContext().BIND_AUTO_CREATE);
+                Context.BIND_AUTO_CREATE);
         // The service object will become available in onServiceConnected(...) so further setup is
         // done there
 
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // cast its IBinder to a concrete class and directly access it.
             mBoundService = ((ChatService.LocalBinder)service).getService();
             Log.d(MainActivity.class.getSimpleName(), "Service bound");
+            mServiceIsBound = true;
 
             Log.d(MainActivity.class.getSimpleName(), getString(R.string.local_service_connected));
 
@@ -124,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // see this happen.
             mBoundService = null;
             Log.d(MainActivity.class.getSimpleName(), getString(R.string.local_service_disconnected));
+            mServiceIsBound = false;
             finish();
         }
     };
@@ -172,8 +175,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 this.startActivity(myIntent);
                 break;
             case R.id.show_key :
-                myIntent = new Intent(this, ShowKeyActivity.class);
-                this.startActivity(myIntent);
+                if(mServiceIsBound) {
+                    mBoundService.shareMyInfo(this);
+                } else {
+                    Toast.makeText(this, "Please wait until ChatService is connected",
+                            Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.add_chat :
                 myIntent = new Intent(this, ScanKeyActivity.class);
@@ -189,10 +196,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 this.stopService(myIntent);
                 finish();
                 break;
-            case R.id.generate_new_login :
-                myIntent = new Intent(getApplicationContext(), GenerateKeyActivity.class);
-                this.startActivity(myIntent);
-                break;
+            //case R.id.generate_new_login :
+            //    myIntent = new Intent(getApplicationContext(), GenerateKeyActivity.class);
+            //    this.startActivity(myIntent);
+            //    break;
             default:
                 return false;
         }

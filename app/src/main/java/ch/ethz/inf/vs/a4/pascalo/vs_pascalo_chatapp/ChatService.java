@@ -1,5 +1,6 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,7 +14,8 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.UUID;
 
-import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.MainActivity;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.QRContentParser;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ZXing.IntentIntegrator;
 
 public class ChatService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -54,6 +56,26 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
     public void setUnreadMessages(int unreadMessages) {
         mCurrentChat.setUnreadMessages(unreadMessages);
+    }
+
+    public void shareMyInfo(Activity activity) {
+        shareInfo(activity,
+                mChats.getOwnId(),
+                mChats.getOwnName(),
+                mChats.getOwnPublicKey());
+    }
+
+    public void shareChatPartnerInfo(Activity activity) {
+        shareInfo(activity,
+                mCurrentChat.getChatPatnerID(),
+                mCurrentChat.getChatPartnerName(),
+                mCurrentChat.getChatPartnerPublicKey());
+    }
+
+    private void shareInfo(Activity activity, UUID id, String name, String key) {
+        String info = QRContentParser.serialize(id, name, key).toString();
+        IntentIntegrator integrator = new IntentIntegrator(activity);
+        integrator.shareText(info);
     }
 
     @Override

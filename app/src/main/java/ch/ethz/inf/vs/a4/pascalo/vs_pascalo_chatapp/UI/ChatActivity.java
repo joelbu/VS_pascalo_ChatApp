@@ -54,9 +54,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 mChatPartnerID.toString());
 
         Log.d(ChatActivity.class.getSimpleName(), "binding Service");
-        mServiceIsBound = bindService(new Intent(getApplicationContext(),
+        bindService(new Intent(getApplicationContext(),
                 ChatService.class), mConnection,
-                getApplicationContext().BIND_AUTO_CREATE);
+                Context.BIND_AUTO_CREATE);
 
         // register listener on chatList
         ListView chatListView = (ListView) findViewById(R.id.messageList);
@@ -87,6 +87,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             // cast its IBinder to a concrete class and directly access it.
             mBoundService = ((ChatService.LocalBinder)service).getService();
             Log.d(ChatActivity.class.getSimpleName(), "Service bound");
+            mServiceIsBound = true;
 
             // Tell the user about this for our demo.
             Toast.makeText(ChatActivity.this, R.string.local_service_connected,
@@ -164,6 +165,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             // see this happen.
             mBoundService = null;
             Log.d(ChatActivity.class.getSimpleName(), "Service unbound");
+            mServiceIsBound = false;
         }
     };
 
@@ -209,8 +211,12 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 this.startActivity(myIntent);
                 break;
             case R.id.show_partner_key :
-                myIntent = new Intent(this, ShowKeyActivity.class);
-                this.startActivity(myIntent);
+                if(mServiceIsBound) {
+                    mBoundService.shareChatPartnerInfo(this);
+                } else {
+                    Toast.makeText(this, "Please wait until ChatService is connected",
+                            Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.forget_user :
                 mBoundService.forgetUser();
