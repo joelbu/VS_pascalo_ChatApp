@@ -18,4 +18,6 @@
     <string name="add_user">Add User</string>
     <string name="chat_partner_name_hint">Chat partner name...</string>
     <string name="scan_or_type_key">You can either scan your chat partners name and key or type them in manually.</string>
+    <string name="generate_key">Generate a Key</string>
+    <string name="generate_new_login">Generate a new Login</string>
 </resources>

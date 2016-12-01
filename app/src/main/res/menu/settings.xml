@@ -22,4 +22,8 @@
         android:title="@string/open_network_configuraion"
         android:orderInCategory="2" />
 
+    <item android:id="@+id/generate_new_login"
+        android:title="@string/generate_new_login"
+        android:orderInCategory="3" />
+
 </menu>
