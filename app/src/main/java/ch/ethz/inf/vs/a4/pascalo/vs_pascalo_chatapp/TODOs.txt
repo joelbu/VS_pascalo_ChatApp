@@ -15,6 +15,8 @@
     "Open Network Configuration" (in MainActivity)
     no function implemented - Pascal - 21.11.2016
     Go Offline now works - Joel - 2016-11-30
+    Show Key now works - Joel - 2016-12-03
+    Add Chat now works - Joel - 2016-12-03
 
 5. implement a service that handles message state, address book state, receiving messages
     including decryption and notification handling
@@ -42,8 +44,10 @@
 11. add overflow menu with "Settings", "Show Key", "Forget User" (ChatActivity)
     no function implemented - Pascal - 2016-11-25
     Forget User now works - Joel - 2016-11-30
+    Show Key now works - Joel - 2016-12-03
 
 12. allow displaying Barcodes/QR-codes by using ZXing library
+    OK - Joel - 2016-12-03
 
 13. allow scanning Barcodes/QR-codes by using the ZXing library
     OK - Joel - 2016-11-30
@@ -69,5 +73,7 @@ store chat messages per chat in a file named "cat_[chat partner name].???"
 a little overhead but I think it's a lot easier to store and find them even we
 have more overhead
 
-
+I called the files chat_with_[UUID] instead, because everything is pretty much centered around
+UUIDs and we do theoretically support different chat partners with the same name. We only have
+checks if a UUID already exists when adding a new users. - Joel
 
