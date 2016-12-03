@@ -46,7 +46,7 @@ public class ChatsHolder {
     public int addPartner(UUID id, String username, String publicKey) {
         if (mChats.containsKey(id)) return 1;
 
-        Chat chat = new Chat(id, username, publicKey, new LinkedList<Message>());
+        Chat chat = new Chat(id, username, publicKey);
         mChats.put(id, chat);
         return 0;
     }

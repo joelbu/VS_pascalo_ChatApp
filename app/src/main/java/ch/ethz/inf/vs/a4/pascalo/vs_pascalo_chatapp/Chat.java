@@ -20,23 +20,24 @@ public class Chat {
 
     private Calendar recentActivity;
 
-    public Chat(UUID cPID, String cPN, String cPPK, LinkedList<Message> mL) {
+    // Constructor used for adding new chat partners by user action
+    public Chat(UUID cPID, String cPN, String cPPK) {
         chatPatnerID = cPID;
         chatPartnerName = cPN;
         chatPartnerPublicKey = cPPK;
-        messageList = mL;
+
+        messageList = new LinkedList<>();
         recentActivity = GregorianCalendar.getInstance();
         unreadMessages = 0;
     }
 
+    // Constructor as used by the parser
     public Chat(UUID cPID, String cPN, String cPPK, int uM, Calendar rA) {
         chatPatnerID = cPID;
         chatPartnerName = cPN;
         chatPartnerPublicKey = cPPK;
         unreadMessages = uM;
         recentActivity = rA;
-
-        messageList = new LinkedList<>();
     }
 
     // setter for unread messages
