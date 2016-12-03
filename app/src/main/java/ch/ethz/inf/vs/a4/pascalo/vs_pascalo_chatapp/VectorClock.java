@@ -1,9 +1,11 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class VectorClock  {
+public class VectorClock{
     private int myTime;
     private int theirTime;
 
@@ -24,14 +26,51 @@ public class VectorClock  {
         myTime = myTime + 1;
     }
 
-    public boolean happenedBefore(VectorClock other) {
-        boolean atLeastOneLater = false;
-        boolean atLeastOneEarlier = false;
+    public int compareToClock(VectorClock other) {
 
-        atLeastOneEarlier = myTime < other.myTime || theirTime < other.theirTime;
-        atLeastOneLater = myTime > other.myTime || theirTime > other.theirTime;
+        if (myTime < other.myTime) {
 
-        return atLeastOneEarlier && !atLeastOneLater;
+            if (theirTime <= other.theirTime) {
+                return -1;
+            } else if (theirTime > other.theirTime){
+                return 0; // Clocks are incomparable
+            }
+
+        } else if (myTime > other.myTime) {
+
+            if (theirTime >= other.theirTime) {
+                return 1;
+            } else if (theirTime < other.theirTime) {
+                return 0; // Clocks are incomparable
+            }
+
+        } else {
+
+            if (theirTime < other.theirTime) {
+                return -1;
+            } else if (theirTime > other.theirTime) {
+                return 1;
+            } else {
+                Log.d(VectorClock.class.getSimpleName(), "Two identical VectorClocks were compared");
+                return 0; // Clocks are equal
+            }
+        }
+
+        Log.d(VectorClock.class.getSimpleName(), "Catastrophic failure, this statement can't be reached");
+        return 0;
+    }
+
+    // This is used to get a canonical ordering, in cases when compareToClock gives back 0 because
+    // we need a way to decide on a stable total order in which to show the messages, even if the
+    // clocks would have been incomparable
+    public int totalOrder(VectorClock other) {
+
+        // If both times are equal then the Clocks are really equal
+        if (myTime == other.myTime && theirTime == other.theirTime) return 0;
+
+        // Otherwise the values must be different, and we simply define the our clock
+        // entry to be more important than theirs
+        return myTime < other.myTime ? 1 : -1;
     }
 
     public String serializeForStorage() {
@@ -74,5 +113,11 @@ public class VectorClock  {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean equals (Object obj) {
+        VectorClock that = (VectorClock) obj;
+        return this.myTime == that.myTime && this.theirTime == that.theirTime;
     }
 }

@@ -24,8 +24,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Collection;
-import java.util.Comparator;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ChatService;
@@ -97,14 +96,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             // call the functions
             mBoundService.setChatPartner(mChatPartnerID);
 
-            // create adapter
-            Collection<Message> messages =
-                    (Collection<Message>) mBoundService.getMessages();
-
             // Create adapter here directly onto the data structure of the service
             mMessageArrayAdapter = new ArrayAdapter<Message>(ChatActivity.this,
-                    android.R.layout.simple_list_item_1,
-                    messages.toArray(new Message[messages.size()])) {
+                    android.R.layout.simple_list_item_1) {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     Message message = getItem(position);
@@ -131,24 +125,15 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                     } else {
                         chatPartnerMessageView.setText(message.getText());
                         myMessagesView.setText("");
-                        message.setAcked(true);
                     }
                     return convertView;
                 }
             };
 
-            mMessageArrayAdapter.sort(new Comparator<Message>() {
-            @Override
-            public int compare(Message message1, Message message2) {
-                if (message1.getClock().happenedBefore(message2.getClock())) {
-                    return -1;
-                } else if (message2.getClock().happenedBefore(message1.getClock())) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            }
-        });
+            // Get data to be displayed and add it to adapter
+            TreeSet<Message> messages = mBoundService.getMessages();
+            mMessageArrayAdapter.addAll(messages);
+
             ListView messageListView = (ListView) findViewById(R.id.messageList);
             messageListView.setAdapter(mMessageArrayAdapter);
 
@@ -188,7 +173,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mMessageArrayAdapter.notifyDataSetChanged();
+            mMessageArrayAdapter.clear();
+            mMessageArrayAdapter.addAll(mBoundService.getMessages());
         }
     };
 

@@ -1,13 +1,10 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.UUID;
+import java.util.Comparator;
 
-public class Message {
+public class Message implements Comparable {
 
     private boolean writtenByMe;
     private boolean acked;
@@ -79,4 +76,31 @@ public class Message {
     public void setText(String text) {
         this.text = text;
     }
+
+    @Override
+    public int compareTo(Object o) {
+        Message message1 = this;
+        Message message2 = (Message) o;
+
+        // Do normal vector clock comparison...
+        int comparison = message1.getClock().compareToClock(message2.getClock());
+        if (comparison != 0) {
+            return comparison;
+        } else {
+            // ...and assign an arbitrary order among incomparables
+            return message1.getClock().totalOrder(message2.getClock());
+        }
+    }
+
+    @Override
+    public boolean equals (Object obj) {
+        return this.clock.equals(((Message)obj).clock);
+    }
+
+    public static final Comparator<Message> COMPARATOR = new Comparator<Message>() {
+        @Override
+        public int compare(Message message1, Message message2) {
+            return message1.compareTo(message2);
+        }
+    };
 }

@@ -20,7 +20,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.Collection;
-import java.util.Comparator;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Chat;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ChatService;
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             mBoundService.resetChatsChanged();
         }
 
-        mChatArrayAdapter.sort(mChatComparator);
+        mChatArrayAdapter.sort(Chat.COMPARATOR);
 
     }
 
@@ -113,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             };
 
             mChatArrayAdapter.addAll(mBoundService.getChats());
-            mChatArrayAdapter.sort(mChatComparator);
+            mChatArrayAdapter.sort(Chat.COMPARATOR);
             ListView chatListView = (ListView) findViewById(R.id.chatList);
             chatListView.setAdapter(mChatArrayAdapter);
 
@@ -131,23 +130,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     };
 
-
-    private Comparator<Chat> mChatComparator = new Comparator<Chat>() {
-
-        @Override
-        public int compare(Chat chat1, Chat chat2) {
-            // All chats with unread messages need to be above all those without
-            // Within the two categories order by recent activity
-            // This feels more natural and useful than just ordering by recent activity
-            if (chat1.getUnreadMessages() == 0 && chat2.getUnreadMessages() > 0) {
-                return 1;
-            } else if (chat2.getUnreadMessages() == 0 && chat1.getUnreadMessages() > 0) {
-                return -1;
-            } else {
-                return chat1.getRecentActivity().compareTo(chat2.getRecentActivity());
-            }
-        }
-    };
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id){

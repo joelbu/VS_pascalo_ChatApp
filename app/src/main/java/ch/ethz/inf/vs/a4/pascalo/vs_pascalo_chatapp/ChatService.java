@@ -8,12 +8,11 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.provider.Contacts;
 import android.util.Log;
 
 import java.util.Collection;
 import java.util.GregorianCalendar;
-import java.util.LinkedList;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.ShowKeyActivity;
@@ -37,7 +36,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         mCurrentChat = mChats.getChat(id);
     }
 
-    public LinkedList<Message> getMessages() {
+    public TreeSet<Message> getMessages() {
         return mCurrentChat.getMessageList();
     }
 
@@ -141,23 +140,23 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         UUID uuid1 = UUID.randomUUID();
         mChats.addPartner(uuid1, "Max Problem", "");
 
-        mChats.addMessage(uuid, new Message(true, true, GregorianCalendar.getInstance(),
+        mChats.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
                 new VectorClock(1, 4), "Text?"));
-        mChats.addMessage(uuid, new Message(true, true, GregorianCalendar.getInstance(),
+        mChats.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
                 new VectorClock(5, 5), "Text6"));
         mChats.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
                 new VectorClock(7, 6), "Text8"));
-        mChats.addMessage(uuid, new Message(false, false, GregorianCalendar.getInstance(),
+        mChats.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
                 new VectorClock(2, 2), "Text3"));
-        mChats.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
+        mChats.addMessage(uuid, new Message(true, true, GregorianCalendar.getInstance(),
                 new VectorClock(1, 0), "Text2a"));
-        mChats.addMessage(uuid, new Message(false, false, GregorianCalendar.getInstance(),
+        mChats.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
                 new VectorClock(0, 1), "Text2b"));
-        mChats.addMessage(uuid, new Message(false, false, GregorianCalendar.getInstance(),
+        mChats.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
                 new VectorClock(3, 4), "Text4"));
-        mChats.addMessage(uuid, new Message(false, false, GregorianCalendar.getInstance(),
+        mChats.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
                 new VectorClock(5, 6), "Text7"));
-        mChats.addMessage(uuid, new Message(false, false, GregorianCalendar.getInstance(),
+        mChats.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
                 new VectorClock(0, 0), "Text1"));
 
 
@@ -166,9 +165,6 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
                 new VectorClock(0, 0), "test"));
         mChats.addMessage(uuid1, new Message(true, false, GregorianCalendar.getInstance(),
                 new VectorClock(1, 1), "ack"));
-
-        mChats.addMessage(uuid, new Message(false, false, GregorianCalendar.getInstance(),
-                new VectorClock(0, 0), "Text1"));
     }
 
 

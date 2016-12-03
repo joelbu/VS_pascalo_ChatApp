@@ -1,8 +1,9 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
-import java.util.LinkedList;
+import java.util.TreeSet;
 import java.util.UUID;
 
 
@@ -14,7 +15,7 @@ public class Chat {
 
     private String chatPartnerPublicKey;
 
-    private LinkedList<Message> messageList;
+    private TreeSet<Message> messageList;
 
     private int unreadMessages;
 
@@ -26,7 +27,7 @@ public class Chat {
         chatPartnerName = cPN;
         chatPartnerPublicKey = cPPK;
 
-        messageList = new LinkedList<>();
+        messageList = new TreeSet<>();
         recentActivity = GregorianCalendar.getInstance();
         unreadMessages = 0;
     }
@@ -45,7 +46,7 @@ public class Chat {
         this.unreadMessages = unreadMessages;
     }
 
-    public void setMessageList(LinkedList<Message> messageList) {
+    public void setMessageList(TreeSet<Message> messageList) {
         this.messageList = messageList;
     }
 
@@ -62,7 +63,7 @@ public class Chat {
         return chatPartnerPublicKey;
     }
 
-    public LinkedList<Message> getMessageList() {
+    public TreeSet<Message> getMessageList() {
         return messageList;
     }
 
@@ -80,9 +81,23 @@ public class Chat {
     // append a new message to the messageList
     public void addMessage(Message msg) {
         messageList.add(msg);
-        // do we need to sort the functions after inserting to messageList?
-                // I'm hoping we can just insert in the right position
-        // messageList.sort( -----sorting function------- );
     }
+
+    public static final Comparator<Chat> COMPARATOR = new Comparator<Chat>() {
+
+        @Override
+        public int compare(Chat chat1, Chat chat2) {
+            // All chats with unread messages need to be above all those without
+            // Within the two categories order by recent activity
+            // This feels more natural and useful than just ordering by recent activity
+            if (chat1.getUnreadMessages() == 0 && chat2.getUnreadMessages() > 0) {
+                return 1;
+            } else if (chat2.getUnreadMessages() == 0 && chat1.getUnreadMessages() > 0) {
+                return -1;
+            } else {
+                return chat1.getRecentActivity().compareTo(chat2.getRecentActivity());
+            }
+        }
+    };
 
 }

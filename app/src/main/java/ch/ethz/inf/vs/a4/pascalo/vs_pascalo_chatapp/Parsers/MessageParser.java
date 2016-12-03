@@ -6,8 +6,7 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Message;
@@ -25,12 +24,12 @@ public class MessageParser {
         this.me = me;
     }
 
-    public static JSONObject serializeThreadForStorage(List<Message>messages) {
+    public static JSONObject serializeThreadForStorage(TreeSet<Message> messages) {
         JSONObject jsonObject = new JSONObject();
         JSONArray jsonArray = new JSONArray();
         try {
-            for(int i = 0; i < messages.size(); i++) {
-                jsonArray.put(serializeForStorage(messages.get(i)));
+            for(Message message: messages) {
+                jsonArray.put(serializeForStorage(message));
             }
             jsonObject.put("thread", jsonArray);
         } catch (JSONException e) {
@@ -45,7 +44,7 @@ public class MessageParser {
         try {
             JSONObject jsonObject = new JSONObject(string);
             JSONArray jsonArray = jsonObject.getJSONArray("thread");
-            ret.messages = new LinkedList<>();
+            ret.messages = new TreeSet<>();
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 ParsedMessage parsedMessage = parseFromStorage((JSONObject) jsonArray.get(i));
