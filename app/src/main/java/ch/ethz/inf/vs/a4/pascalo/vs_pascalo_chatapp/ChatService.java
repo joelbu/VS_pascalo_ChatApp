@@ -29,6 +29,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         return mChats.getChats();
     }
 
+    // Sets up the service to know what view is open in ChatActivity
     public void setChatPartner (UUID id) {
         mCurrentChat = mChats.getChat(id);
     }
@@ -41,9 +42,18 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         return mCurrentChat.getChatPartnerName();
     }
 
-    public void forgetUser() {
+    public void forgetPartner() {
         mChats.forget(mCurrentChat.getChatPatnerID());
         mChatsChanged = true;
+    }
+
+    // Returns 0 on success, 1 for UUID already in use
+    public int addPartner(UUID id, String name, String key) {
+        int status = mChats.addPartner(id, name, key);
+        if (status == 0) {
+            mChatsChanged = true;
+        }
+        return status;
     }
 
     public boolean getChatsChanged() {

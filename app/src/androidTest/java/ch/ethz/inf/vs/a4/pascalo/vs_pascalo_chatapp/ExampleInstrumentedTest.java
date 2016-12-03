@@ -102,7 +102,7 @@ public class ExampleInstrumentedTest {
         ChatsHolder chatsHolder = new ChatsHolder();
         ChatParser chatParser = new ChatParser();
 
-        ParsedChatMap result = chatParser.parseMapOfChats(input);
+        ParsedChatMap result = chatParser.parseMapOfChats(new JSONObject(input));
         assertEquals("Max Problem", result.chat
                 .get(UUID.fromString("7446c9b8-209b-467a-ae27-80e419381722"))
                 .getChatPartnerName()

@@ -174,6 +174,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         // save unsent messages with Tag "unsent" in chatfile
         LocalBroadcastManager.getInstance(getApplicationContext())
                                 .unregisterReceiver(mBroadcastReceiver);
+        mBoundService.setChatPartner(null);
         Log.d(ChatActivity.class.getSimpleName(), "onDestroy() called");
         if (mServiceIsBound) {
             Log.d(ChatActivity.class.getSimpleName(), "unbinding Service");
@@ -219,7 +220,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
                 break;
             case R.id.forget_user :
-                mBoundService.forgetUser();
+                mBoundService.forgetPartner();
                 finish();
                 break;
             default:
