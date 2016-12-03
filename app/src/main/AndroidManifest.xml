@@ -24,7 +24,8 @@
             android:exported="true" />
 
         <activity android:name=".UI.ScanKeyActivity" />
-        <activity android:name=".UI.GenerateKeyActivity"></activity>
+        <activity android:name=".UI.GenerateKeyActivity" />
+        <activity android:name=".UI.ShowKeyActivity"></activity>
     </application>
 
 </manifest>

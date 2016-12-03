@@ -2,11 +2,13 @@ package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
 import android.app.Activity;
 import android.app.Service;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.Contacts;
 import android.util.Log;
 
 import java.util.Collection;
@@ -14,6 +16,7 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.UUID;
 
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.ShowKeyActivity;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.QRContentParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ZXing.IntentIntegrator;
 
@@ -82,10 +85,19 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
                 mCurrentChat.getChatPartnerPublicKey());
     }
 
-    private void shareInfo(Activity activity, UUID id, String name, String key) {
-        String info = QRContentParser.serialize(id, name, key).toString();
+    private void shareInfo(final Activity activity, UUID id, String name, String key) {
+        final String info = QRContentParser.serialize(id, name, key).toString();
         IntentIntegrator integrator = new IntentIntegrator(activity);
-        integrator.shareText(info);
+        integrator.shareText(info, "TEXT_TYPE", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+                Intent intent = new Intent(activity, ShowKeyActivity.class);
+                intent.putExtra("info", info);
+                activity.startActivity(intent);
+
+            }
+        });
     }
 
     @Override

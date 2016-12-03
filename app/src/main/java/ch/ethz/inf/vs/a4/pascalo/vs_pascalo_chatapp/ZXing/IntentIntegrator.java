@@ -316,7 +316,7 @@ public class IntentIntegrator {
 
     String targetAppPackage = findTargetAppPackage(intentScan);
     if (targetAppPackage == null) {
-      return showDownloadDialog();
+      return showDownloadDialog(null);
     }
     intentScan.setPackage(targetAppPackage);
     intentScan.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -366,7 +366,7 @@ public class IntentIntegrator {
     return false;
   }
 
-  private AlertDialog showDownloadDialog() {
+  private AlertDialog showDownloadDialog(DialogInterface.OnClickListener noListener) {
     AlertDialog.Builder downloadDialog = new AlertDialog.Builder(activity);
     downloadDialog.setTitle(title);
     downloadDialog.setMessage(message);
@@ -395,7 +395,7 @@ public class IntentIntegrator {
         }
       }
     });
-    downloadDialog.setNegativeButton(buttonNo, null);
+    downloadDialog.setNegativeButton(buttonNo, noListener);
     downloadDialog.setCancelable(true);
     return downloadDialog.show();
   }
@@ -439,10 +439,10 @@ public class IntentIntegrator {
    * @param text the text string to encode as a barcode
    * @return the {@link AlertDialog} that was shown to the user prompting them to download the app
    *   if a prompt was needed, or null otherwise
-   * @see #shareText(CharSequence, CharSequence)
+   * @see #shareText(CharSequence, CharSequence, DialogInterface.OnClickListener)
    */
   public final AlertDialog shareText(CharSequence text) {
-    return shareText(text, "TEXT_TYPE");
+    return shareText(text, "TEXT_TYPE", null);
   }
 
   /**
@@ -451,10 +451,11 @@ public class IntentIntegrator {
    *
    * @param text the text string to encode as a barcode
    * @param type type of data to encode. See {@code com.google.zxing.client.android.Contents.Type} constants.
+   * @param noListener callback if the user chooses not to install from market
    * @return the {@link AlertDialog} that was shown to the user prompting them to download the app
    *   if a prompt was needed, or null otherwise
    */
-  public final AlertDialog shareText(CharSequence text, CharSequence type) {
+  public final AlertDialog shareText(CharSequence text, CharSequence type, DialogInterface.OnClickListener noListener) {
     Intent intent = new Intent();
     intent.addCategory(Intent.CATEGORY_DEFAULT);
     intent.setAction(BS_PACKAGE + ".ENCODE");
@@ -462,7 +463,7 @@ public class IntentIntegrator {
     intent.putExtra("ENCODE_DATA", text);
     String targetAppPackage = findTargetAppPackage(intent);
     if (targetAppPackage == null) {
-      return showDownloadDialog();
+      return showDownloadDialog(noListener);
     }
     intent.setPackage(targetAppPackage);
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
