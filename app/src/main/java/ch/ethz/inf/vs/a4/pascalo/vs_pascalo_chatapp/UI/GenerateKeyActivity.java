@@ -29,21 +29,25 @@ public class GenerateKeyActivity extends AppCompatActivity implements OnClickLis
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.button_generate_key :
+        switch (view.getId()) {
+            case R.id.button_generate_key:
                 try {
                     KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-                    kpg.initialize(1024);
+                    Log.d(TAG, "KeyPaitGenerator generated");
+                    kpg.initialize(16);
+                    Log.d(TAG, "KeyPairGenerator initialized");
                     KeyPair kp = kpg.genKeyPair();
+                    Log.d(TAG, "KeyPair generated");
                     publicKey = kp.getPublic();
+                    Log.d(TAG, "publicKey copied");
                     privateKey = kp.getPrivate();
+                    Log.d(TAG, "privateKey copied");
                 } catch (Exception e) {
-                    Log.e(TAG, "RSA key pair error");
+                    Log.d(TAG, "RSA key pair error");
                 }
                 break;
             default:
 
         }
-        Toast.makeText(getApplicationContext(), (CharSequence) privateKey, Toast.LENGTH_LONG);
     }
 }

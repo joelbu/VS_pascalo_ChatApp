@@ -178,10 +178,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 this.stopService(myIntent);
                 finish();
                 break;
-            //case R.id.generate_new_login :
-            //    myIntent = new Intent(getApplicationContext(), GenerateKeyActivity.class);
-            //    this.startActivity(myIntent);
-            //    break;
+            case R.id.generate_new_login :
+                myIntent = new Intent(getApplicationContext(), GenerateKeyActivity.class);
+                this.startActivity(myIntent);
+                break;
             default:
                 return false;
         }
