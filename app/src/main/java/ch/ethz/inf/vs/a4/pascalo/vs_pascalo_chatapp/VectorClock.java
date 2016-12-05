@@ -5,11 +5,17 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class VectorClock{
+public class VectorClock {
     private int myTime;
     private int theirTime;
 
     public VectorClock() {
+    }
+
+    // Copy constructor
+    public VectorClock(VectorClock other) {
+        this.myTime = other.myTime;
+        this.theirTime = other.theirTime;
     }
 
     public VectorClock(int myTime, int theirTime) {
@@ -17,7 +23,7 @@ public class VectorClock{
         this.theirTime = theirTime;
     }
 
-    public void takeMax(VectorClock other) {
+    public void setToMax(VectorClock other) {
         if (other.myTime > myTime) { myTime = other.myTime; }
         if (other.theirTime > theirTime) { theirTime = other.theirTime; }
     }
@@ -73,7 +79,7 @@ public class VectorClock{
         return myTime < other.myTime ? 1 : -1;
     }
 
-    public String serializeForStorage() {
+    public JSONObject serializeForStorage() {
         JSONObject json = new JSONObject();
         try {
             json.put("myTime", myTime);
@@ -81,12 +87,11 @@ public class VectorClock{
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return json.toString();
+        return json;
     }
 
-    public void parseFromStorage(String string) {
+    public void parseFromStorage(JSONObject json) {
         try {
-            JSONObject json = new JSONObject(string);
             myTime = json.getInt("myTime");
             theirTime = json.getInt("theirTime");
         } catch (JSONException e) {
@@ -94,7 +99,7 @@ public class VectorClock{
         }
     }
 
-    public String serializeForNetwork() {
+    public JSONObject serializeForNetwork() {
         JSONObject json = new JSONObject();
         try {
             json.put("senderTime", myTime);
@@ -102,12 +107,11 @@ public class VectorClock{
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return json.toString();
+        return json;
     }
 
-    public void parseFromNetwork(String string) {
+    public void parseFromNetwork(JSONObject json) {
         try {
-            JSONObject json = new JSONObject(string);
             myTime = json.getInt("receiverTime");
             theirTime = json.getInt("senderTime");
         } catch (JSONException e) {

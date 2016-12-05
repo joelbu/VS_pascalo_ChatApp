@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,6 +25,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -114,8 +114,19 @@ public class ChatActivity extends AppCompatActivity{
                             (TextView) convertView.findViewById(R.id.messagePartnerView);
                     TextView myMessagesView =
                             (TextView) convertView.findViewById(R.id.messageMeView);
+                    TextView myPartnerTimeView =
+                            (TextView) convertView.findViewById(R.id.messageMeTimeView);
+                    TextView chatPartnerTimeView =
+                            (TextView) convertView.findViewById(R.id.messagePartnerTimeView);
+
+                    SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm");
+                    String time = formater.format(message.getTimeWritten().getTime());
+
+
 
                     if (message.isWrittenByMe()) {
+                        myPartnerTimeView.setText(time);
+                        chatPartnerTimeView.setText("");
                         myMessagesView.setText(message.getText());
                         chatPartnerMessageView.setText("");
                         if (!message.isAcked()) {
@@ -124,6 +135,8 @@ public class ChatActivity extends AppCompatActivity{
                             myMessagesView.setTextColor(Color.BLACK);
                         }
                     } else {
+                        chatPartnerTimeView.setText(time);
+                        myPartnerTimeView.setText("");
                         chatPartnerMessageView.setText(message.getText());
                         myMessagesView.setText("");
                     }
@@ -159,6 +172,7 @@ public class ChatActivity extends AppCompatActivity{
     @Override
     protected void onDestroy() {
         // save unsent messages with Tag "unsent" in chatfile
+        mBoundService.setUnreadMessages(0);
         LocalBroadcastManager.getInstance(getApplicationContext())
                                 .unregisterReceiver(mBroadcastReceiver);
         mBoundService.setChatPartner(null);

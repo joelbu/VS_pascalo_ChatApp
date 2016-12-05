@@ -89,7 +89,7 @@ public class MessageParser {
             calendar.setTimeInMillis(json.getLong("timeWritten"));
 
             VectorClock clock = new VectorClock();
-            clock.parseFromStorage(json.getString("clock"));
+            clock.parseFromStorage(json.getJSONObject("clock"));
 
             ret.message = new Message(
                     json.getBoolean("writtenByMe"),
@@ -148,7 +148,7 @@ public class MessageParser {
             calendar.setTimeInMillis(json.getLong("timeWritten"));
 
             VectorClock clock = new VectorClock();
-            clock.parseFromNetwork(json.getString("clock"));
+            clock.parseFromNetwork(json.getJSONObject("clock"));
 
             ret.message = new Message(
                     //This information is not contained in the network message, but clear from circumstance

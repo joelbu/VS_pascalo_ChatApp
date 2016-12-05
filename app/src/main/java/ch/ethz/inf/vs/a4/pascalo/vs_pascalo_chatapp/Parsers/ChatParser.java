@@ -8,12 +8,12 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Chat;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedChat;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedChatMap;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.VectorClock;
 
 public class ChatParser {
 
@@ -40,6 +40,7 @@ public class ChatParser {
             json.put("chatPartnerPublicKey", chat.getChatPartnerPublicKey());
             json.put("unreadMessages", chat.getUnreadMessages());
             json.put("recentActivity", chat.getRecentActivity().getTimeInMillis());
+            json.put("clockTime", chat.getLatestClock().serializeForStorage());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -79,12 +80,16 @@ public class ChatParser {
             Calendar recentActivity = new GregorianCalendar();
             recentActivity.setTimeInMillis(json.getLong("recentActivity"));
 
+            VectorClock clockTime = new VectorClock();
+            clockTime.parseFromStorage(json.getJSONObject("clockTime"));
+
             ret.chat = new Chat(
                     UUID.fromString(json.getString("chatPartnerID")),
                     json.getString("chatPartnerName"),
                     json.getString("chatPartnerPublicKey"),
                     json.getInt("unreadMessages"),
-                    recentActivity
+                    recentActivity,
+                    clockTime
             );
             ret.status = 0;
         } catch (JSONException e) {

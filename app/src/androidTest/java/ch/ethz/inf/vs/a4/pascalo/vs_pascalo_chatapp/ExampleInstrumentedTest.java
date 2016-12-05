@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.ChatParser;
@@ -43,66 +44,83 @@ public class ExampleInstrumentedTest {
         UUID uuid = UUID.fromString("f590e29d-6315-4572-a2bc-5009a3ac1251");
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTimeInMillis(1480344165822L);
-        Chat chat = new Chat(uuid, "Hans Muster", "", 0, calendar);
-        chat.addMessage(new Message(true, true, GregorianCalendar.getInstance(),
+        Chat chat = new Chat(uuid, "Hans Muster", "", 0, calendar, new VectorClock(5, 5));
+        TreeSet<Message> messages = new TreeSet<>();
+        messages.add(new Message(true, true, GregorianCalendar.getInstance(),
                 new VectorClock(1, 4), "Text?"));
-        chat.addMessage(new Message(true, true, GregorianCalendar.getInstance(),
+        messages.add(new Message(true, true, GregorianCalendar.getInstance(),
                 new VectorClock(5, 5), "Text6"));
+        chat.setMessageList(messages);
         chats.put(uuid, chat);
 
 
         UUID uuid1 = UUID.fromString("7446c9b8-209b-467a-ae27-80e419381722");
         GregorianCalendar calendar1 = new GregorianCalendar();
         calendar1.setTimeInMillis(1480344165828L);
-        Chat chat1 = new Chat(uuid1, "Max Problem", "", 0, calendar1);
-        chat.addMessage(new Message(false, false, GregorianCalendar.getInstance(),
+        Chat chat1 = new Chat(uuid1, "Max Problem", "", 0, calendar1, new VectorClock(1, 1));
+        TreeSet<Message> messages1 = new TreeSet<>();
+        messages1.add(new Message(false, false, GregorianCalendar.getInstance(),
                 new VectorClock(0, 0), "test"));
-        chat.addMessage(new Message(true, false, GregorianCalendar.getInstance(),
+        messages1.add(new Message(true, false, GregorianCalendar.getInstance(),
                 new VectorClock(1, 1), "ack"));
+        chat1.setMessageList(messages1);
         chats.put(uuid1, chat1);
 
 
         assertEquals(
                 "{\"chats\":" +
                         "[" +
-                            "{\"chatPartnerID\":\"f590e29d-6315-4572-a2bc-5009a3ac1251\"," +
+                            "{" +
+                                "\"chatPartnerID\":\"f590e29d-6315-4572-a2bc-5009a3ac1251\"," +
                                 "\"chatPartnerName\":\"Hans Muster\"," +
                                 "\"chatPartnerPublicKey\":\"\"," +
                                 "\"unreadMessages\":0," +
-                                "\"recentActivity\":1480344165822}," +
-                            "{\"chatPartnerID\":\"7446c9b8-209b-467a-ae27-80e419381722\"," +
+                                "\"recentActivity\":1480344165822," +
+                                "\"clockTime\":{\"myTime\":5,\"theirTime\":5}" +
+                            "}," +
+                            "{" +
+                                "\"chatPartnerID\":\"7446c9b8-209b-467a-ae27-80e419381722\"," +
                                 "\"chatPartnerName\":\"Max Problem\"," +
                                 "\"chatPartnerPublicKey\":\"\"," +
                                 "\"unreadMessages\":0," +
-                                "\"recentActivity\":1480344165828}" +
+                                "\"recentActivity\":1480344165828," +
+                                "\"clockTime\":{\"myTime\":1,\"theirTime\":1}" +
+                            "}" +
                         "]" +
                 "}",
-                chatParser.serializeCollectionOfChats(chats.values()).toString()
+                ChatParser.serializeCollectionOfChats(chats.values()).toString()
         );
     }
 
     @Test
     public void chatParserTest() throws Exception {
         String input =
-                "{\"chats\":" +
-                        "[" +
-                            "{\"chatPartnerID\":\"f590e29d-6315-4572-a2bc-5009a3ac1251\"," +
-                                "\"chatPartnerName\":\"Hans Muster\"," +
-                                "\"chatPartnerPublicKey\":\"\"," +
-                                "\"unreadMessages\":0," +
-                                "\"recentActivity\":1480344165824}," +
-                            "{\"chatPartnerID\":\"7446c9b8-209b-467a-ae27-80e419381722\"," +
-                                "\"chatPartnerName\":\"Max Problem\"," +
-                                "\"chatPartnerPublicKey\":\"\"," +
-                                "\"unreadMessages\":0," +
-                                "\"recentActivity\":1480344165828}" +
-                        "]" +
+                "{" +
+                        "\"chats\":" +
+                            "[" +
+                                "{" +
+                                    "\"chatPartnerID\":\"f590e29d-6315-4572-a2bc-5009a3ac1251\"," +
+                                    "\"chatPartnerName\":\"Hans Muster\"," +
+                                    "\"chatPartnerPublicKey\":\"\"," +
+                                    "\"unreadMessages\":0," +
+                                    "\"recentActivity\":1480344165824," +
+                                    "\"clockTime\":{\"myTime\":5,\"theirTime\":5}" +
+                                "}," +
+                                "{" +
+                                    "\"chatPartnerID\":\"7446c9b8-209b-467a-ae27-80e419381722\"," +
+                                    "\"chatPartnerName\":\"Max Problem\"," +
+                                    "\"chatPartnerPublicKey\":\"\"," +
+                                    "\"unreadMessages\":0," +
+                                    "\"recentActivity\":1480344165828," +
+                                    "\"clockTime\":{\"myTime\":1,\"theirTime\":1}" +
+                                "}" +
+                            "]" +
                 "}";
 
         ChatsHolder chatsHolder = new ChatsHolder();
         ChatParser chatParser = new ChatParser();
 
-        ParsedChatMap result = chatParser.parseMapOfChats(new JSONObject(input));
+        ParsedChatMap result = ChatParser.parseMapOfChats(new JSONObject(input));
         assertEquals("Max Problem", result.chat
                 .get(UUID.fromString("7446c9b8-209b-467a-ae27-80e419381722"))
                 .getChatPartnerName()

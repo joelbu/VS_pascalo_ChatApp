@@ -21,6 +21,8 @@ public class Chat {
 
     private Calendar recentActivity;
 
+    private VectorClock latestClock;
+
     // Constructor used for adding new chat partners by user action
     public Chat(UUID cPID, String cPN, String cPPK) {
         chatPatnerID = cPID;
@@ -28,17 +30,19 @@ public class Chat {
         chatPartnerPublicKey = cPPK;
 
         messageList = new TreeSet<>();
-        recentActivity = GregorianCalendar.getInstance();
         unreadMessages = 0;
+        recentActivity = GregorianCalendar.getInstance();
+        latestClock = new VectorClock(0, 0);
     }
 
     // Constructor as used by the parser
-    public Chat(UUID cPID, String cPN, String cPPK, int uM, Calendar rA) {
+    public Chat(UUID cPID, String cPN, String cPPK, int uM, Calendar rA, VectorClock vC) {
         chatPatnerID = cPID;
         chatPartnerName = cPN;
         chatPartnerPublicKey = cPPK;
         unreadMessages = uM;
         recentActivity = rA;
+        latestClock = vC;
     }
 
     // setter for unread messages
@@ -71,13 +75,18 @@ public class Chat {
 
     public int getUnreadMessages() { return unreadMessages; }
 
-    public Message constructMessageFromUs(String text) {
-        // TODO: constructing message, incrementing clocks, adding it to the thread, updating recent activity, etc etc
+    public VectorClock getLatestClock() {
+        return latestClock;
+    }
+
+    public Message constructMessageFromUser(String text) {
+
+        latestClock.tick();
 
         Message message = new Message(true, false, GregorianCalendar.getInstance(),
-                new VectorClock(100, 100), "Dumb Testing Message");
+                new VectorClock(latestClock), text);
 
-        addMessage(message);
+        messageList.add(message);
         updateRecentActivity();
 
         return message;
@@ -88,8 +97,14 @@ public class Chat {
     }
 
     // append a new message to the messageList
-    public void addMessage(Message msg) {
-        messageList.add(msg);
+    public void addMessage(Message message) {
+        unreadMessages = unreadMessages + 1;
+        // The chat should always contain the latest point in time we have encountered, so we can
+        // tick it once and append a clone of that to an outgoing message
+        latestClock.setToMax(message.getClock());
+
+        messageList.add(message);
+        updateRecentActivity();
     }
 
     public static final Comparator<Chat> COMPARATOR = new Comparator<Chat>() {

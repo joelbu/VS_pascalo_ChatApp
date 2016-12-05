@@ -18,6 +18,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.MessageParser;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedMessage;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.ShowKeyActivity;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.QRContentParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ZXing.IntentIntegrator;
@@ -28,6 +29,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
     private Chat mCurrentChat;
     private boolean mChatsChanged;
     private Connector mConnector;
+    private MessageParser mMessageParser;
 
     // For use in MainActivity only, ChatActivity is only supposed to interact with the current
     // chat through the methods below
@@ -107,13 +109,14 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
     public void sendMessage(String text) {
 
         // The Chat has the context information necessary to construct a Message
-        Message message = mCurrentChat.constructMessageFromUs(text);
+        Message message = mCurrentChat.constructMessageFromUser(text);
 
         // Telling the UI that something has changed
         broadcastViewChange();
 
-        MessageParser parser = new MessageParser(mChatsHolder.getOwnId());
-        String networkString = parser.serializeForNetwork(message).toString();
+        String networkString = mMessageParser.serializeForNetwork(message).toString();
+
+        //TODO: Encrypt message
 
         try {
             mConnector.broadcastMessage(networkString.getBytes("UTF-8"));
@@ -130,7 +133,23 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
     }
 
     public void onReceiveMessage(byte[] message) {
-        // TODO: Handle incoming messages
+        try {
+            String networkString = new String(message, "UTF-8");
+
+            // TODO: Decrypt message
+
+            ParsedMessage ret = mMessageParser.parseFromNetwork(networkString);
+
+            mChatsHolder.addMessage(ret.sender, ret.message);
+
+            if (ret.sender.equals(mCurrentChat.getChatPatnerID())) {
+                broadcastViewChange();
+            }
+
+        } catch (UnsupportedEncodingException e) {
+            // This should never happen, because UTF-8 is always supported
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -196,9 +215,11 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
 
         mChatsHolder.addMessage(uuid1, new Message(false, false, GregorianCalendar.getInstance(),
-                new VectorClock(0, 0), "test"));
+                new VectorClock(0, 1), "test"));
         mChatsHolder.addMessage(uuid1, new Message(true, false, GregorianCalendar.getInstance(),
                 new VectorClock(1, 1), "ack"));
+
+        mMessageParser = new MessageParser(mChatsHolder.getOwnId());
 
         mConnector = new Connector(this, "SuperCoolPrivateChattingApp", this);
         mConnector.connectToWDMF();

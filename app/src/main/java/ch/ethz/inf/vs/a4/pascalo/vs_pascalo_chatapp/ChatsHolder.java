@@ -33,13 +33,9 @@ public class ChatsHolder {
     private String mOwnPrivateKey = "defaultSecretKey";
     private String mOwnPublicKey = "defaultPublicKey";
 
-
+    // For testing purposes
     public void addMessage(UUID uuid, Message message) {
         mChats.get(uuid).addMessage(message);
-        mChats.get(uuid).updateRecentActivity();
-        if (!message.isAcked()) {
-            mChats.get(uuid).setUnreadMessages(mChats.get(uuid).getUnreadMessages() + 1);
-        }
     }
 
     // Returns 0 on success, 1 for UUID already in use
