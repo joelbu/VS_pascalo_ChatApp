@@ -20,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,12 +33,13 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ChatService;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Message;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.R;
 
-public class ChatActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
+public class ChatActivity extends AppCompatActivity{
 
     private ChatService mBoundService;
     private ArrayAdapter<Message> mMessageArrayAdapter;
     private UUID mChatPartnerID;
     private boolean mServiceIsBound;
+    private ListView mMessageListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,24 +59,6 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         bindService(new Intent(getApplicationContext(),
                 ChatService.class), mConnection,
                 Context.BIND_AUTO_CREATE);
-
-        // register listener on chatList
-        ListView chatListView = (ListView) findViewById(R.id.messageList);
-        chatListView.setOnItemClickListener(this);
-            // why we need a listener on chatListView???
-
-        // read information out of intent
-
-        // name of the chat partner
-
-        // filename of chatfile
-
-        // load chat messages out of file
-
-        // Register a broadcast receiver that allows us to react in the UI when the service says
-        LocalBroadcastManager.getInstance(getApplicationContext())
-                .registerReceiver(mBroadcastReceiver, new IntentFilter("update-message-list"));
-
 
     }
 
@@ -95,6 +80,22 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             // Tell the service who the current partner is, so it knows on which chats to
             // call the functions
             mBoundService.setChatPartner(mChatPartnerID);
+
+            // Set the ActivityTitle to the name
+            getSupportActionBar().setTitle(mBoundService.getPartnerName());
+
+            Button scan = (Button) findViewById(R.id.button_send_messege);
+            scan.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    mBoundService.sendMessage(
+                            ((EditText)findViewById(R.id.editMessage)).getText().toString()
+                    );
+                }
+            });
+
+            // Register a broadcast receiver that allows us to react in the UI when the service says
+            LocalBroadcastManager.getInstance(getApplicationContext())
+                    .registerReceiver(mBroadcastReceiver, new IntentFilter("UPDATE_MESSAGE_VIEW"));
 
             // Create adapter here directly onto the data structure of the service
             mMessageArrayAdapter = new ArrayAdapter<Message>(ChatActivity.this,
@@ -134,8 +135,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             TreeSet<Message> messages = mBoundService.getMessages();
             mMessageArrayAdapter.addAll(messages);
 
-            ListView messageListView = (ListView) findViewById(R.id.messageList);
-            messageListView.setAdapter(mMessageArrayAdapter);
+            mMessageListView = (ListView) findViewById(R.id.messageList);
+            mMessageListView.setAdapter(mMessageArrayAdapter);
+
 
             Log.d(ChatActivity.class.getSimpleName(), "Chat partners name is: " +
                     mBoundService.getPartnerName());
@@ -175,13 +177,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         public void onReceive(Context context, Intent intent) {
             mMessageArrayAdapter.clear();
             mMessageArrayAdapter.addAll(mBoundService.getMessages());
+            mMessageListView.smoothScrollToPosition(mMessageArrayAdapter.getCount() - 1);
         }
     };
 
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

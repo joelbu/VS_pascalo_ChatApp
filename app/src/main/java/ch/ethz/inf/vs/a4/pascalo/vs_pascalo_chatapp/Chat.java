@@ -71,8 +71,17 @@ public class Chat {
 
     public int getUnreadMessages() { return unreadMessages; }
 
+    public Message constructMessageFromUs(String text) {
+        // TODO: constructing message, incrementing clocks, adding it to the thread, updating recent activity, etc etc
 
+        Message message = new Message(true, false, GregorianCalendar.getInstance(),
+                new VectorClock(100, 100), "Dumb Testing Message");
 
+        addMessage(message);
+        updateRecentActivity();
+
+        return message;
+    }
 
     public void updateRecentActivity() {
         recentActivity = GregorianCalendar.getInstance();

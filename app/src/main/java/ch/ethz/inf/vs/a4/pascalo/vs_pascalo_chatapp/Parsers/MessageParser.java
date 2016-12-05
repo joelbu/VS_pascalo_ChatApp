@@ -20,7 +20,7 @@ public class MessageParser {
     private static int magicNumber = -432185306;
     private UUID me;
 
-    private MessageParser(UUID me) {
+    public MessageParser(UUID me) {
         this.me = me;
     }
 

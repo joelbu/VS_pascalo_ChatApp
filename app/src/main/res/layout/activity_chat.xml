@@ -17,19 +17,29 @@
         android:ems="10"
         android:layout_alignParentBottom="true"
         android:id="@+id/editMessage"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:textSize="18sp"
-        tools:inputType="textShortMessage" />
+        tools:inputType="textShortMessage"
+        android:layout_toStartOf="@+id/button_send_messege"
+        android:layout_toLeftOf="@+id/button_send_messege" />
+
+    <Button
+        android:text="@string/send_message_button_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/messageList"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/button_send_messege" />
 
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/messageList"
-        android:layout_above="@+id/editMessage"
+        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/editMessage" />
 
 </RelativeLayout>
