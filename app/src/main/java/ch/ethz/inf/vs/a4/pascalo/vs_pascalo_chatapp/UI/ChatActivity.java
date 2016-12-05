@@ -1,6 +1,8 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI;
 
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -60,6 +63,18 @@ public class ChatActivity extends AppCompatActivity{
                 ChatService.class), mConnection,
                 Context.BIND_AUTO_CREATE);
 
+        // register listener on chatList
+        ListView messageListView = (ListView) findViewById(R.id.messageList);
+        messageListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Message message = (Message) parent.getItemAtPosition(position);
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("Message", message.getText());
+                clipboard.setPrimaryClip(clip);
+                return true;
+            }
+        });
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
