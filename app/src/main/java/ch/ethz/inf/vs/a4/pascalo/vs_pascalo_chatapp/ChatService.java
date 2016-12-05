@@ -50,6 +50,10 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         return mCurrentChat.getChatPartnerName();
     }
 
+    public String getPartnerKey() {
+        return mCurrentChat.getChatPartnerPublicKey();
+    }
+
     public void forgetPartner() {
         mChatsHolder.forget(mCurrentChat.getChatPatnerID());
         mChatsChanged = true;
@@ -70,6 +74,10 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
     public void resetChatsChanged() {
         mChatsChanged = false;
+    }
+
+    public boolean isKeyKnown() {
+        return mCurrentChat.isKeyKnown();
     }
 
     public void setUnreadMessages(int unreadMessages) {
@@ -188,10 +196,10 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         // TODO: set chats to list
 
         UUID uuid = UUID.randomUUID();
-        mChatsHolder.addPartner(uuid, "Hans Muster", "");
+        mChatsHolder.addPartner(uuid, "Hans Muster", "nicelittlekey");
 
         UUID uuid1 = UUID.randomUUID();
-        mChatsHolder.addPartner(uuid1, "Max Problem", "");
+        mChatsHolder.addPartner(uuid1, "Max Problem", "iamalsoanicekey");
 
         mChatsHolder.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
                 new VectorClock(1, 4), "Text?"));
@@ -218,6 +226,18 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
                 new VectorClock(0, 1), "test"));
         mChatsHolder.addMessage(uuid1, new Message(true, false, GregorianCalendar.getInstance(),
                 new VectorClock(1, 1), "ack"));
+
+        UUID uuidOfAStranger = UUID.randomUUID();
+        mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
+                new VectorClock(5, 5), "Hey remember me?"));
+        mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
+                new VectorClock(5, 6), "We met at the bar"));
+        mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
+                new VectorClock(5, 7), "Oh you don't have my key yet right. It's:"));
+        mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
+                new VectorClock(5, 8), "TotallyLegitKeyIAmNotACreep"));
+        mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
+                new VectorClock(5, 9), "So add me and write back"));
 
         mMessageParser = new MessageParser(mChatsHolder.getOwnId());
 

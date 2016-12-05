@@ -43,6 +43,7 @@ public class ChatActivity extends AppCompatActivity{
     private UUID mChatPartnerID;
     private boolean mServiceIsBound;
     private ListView mMessageListView;
+    private Button mScanButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +61,10 @@ public class ChatActivity extends AppCompatActivity{
 
         Log.d(ChatActivity.class.getSimpleName(), "binding Service");
         bindService(new Intent(getApplicationContext(),
-                ChatService.class), mConnection,
+                        ChatService.class), mConnection,
                 Context.BIND_AUTO_CREATE);
+
+        mScanButton = (Button) findViewById(R.id.button_send_messege);
 
         // register listener on chatList
         ListView messageListView = (ListView) findViewById(R.id.messageList);
@@ -75,6 +78,16 @@ public class ChatActivity extends AppCompatActivity{
                 return true;
             }
         });
+    }
+
+    @Override
+    protected void onRestart() {
+        // Set the ActivityTitle to the name
+        getSupportActionBar().setTitle(mBoundService.getPartnerName());
+
+        // Only enable sending if we know their key, which is not guaranteed
+        mScanButton.setEnabled(mBoundService.isKeyKnown());
+        super.onRestart();
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -94,10 +107,8 @@ public class ChatActivity extends AppCompatActivity{
 
             // Tell the service who the current partner is, so it knows on which chats to
             // call the functions
+            Log.d(ChatActivity.class.getSimpleName(), "Setting chat partner");
             mBoundService.setChatPartner(mChatPartnerID);
-
-            // Set the ActivityTitle to the name
-            getSupportActionBar().setTitle(mBoundService.getPartnerName());
 
             Button scan = (Button) findViewById(R.id.button_send_messege);
             scan.setOnClickListener(new View.OnClickListener() {
@@ -185,13 +196,11 @@ public class ChatActivity extends AppCompatActivity{
     };
 
     @Override
-    protected void onDestroy() {
-        // save unsent messages with Tag "unsent" in chatfile
+    public void onDestroy() {
         mBoundService.setUnreadMessages(0);
         LocalBroadcastManager.getInstance(getApplicationContext())
-                                .unregisterReceiver(mBroadcastReceiver);
-        mBoundService.setChatPartner(null);
-        Log.d(ChatActivity.class.getSimpleName(), "onDestroy() called");
+                .unregisterReceiver(mBroadcastReceiver);
+        Log.d(ChatActivity.class.getSimpleName(), "onStop() called");
         if (mServiceIsBound) {
             Log.d(ChatActivity.class.getSimpleName(), "unbinding Service");
             unbindService(mConnection);
@@ -232,6 +241,11 @@ public class ChatActivity extends AppCompatActivity{
                     Toast.makeText(this, "Please wait until ChatService is connected",
                             Toast.LENGTH_SHORT).show();
                 }
+                break;
+            case R.id.add_partner_info :
+                myIntent = new Intent(this, ScanKeyActivity.class);
+                myIntent.putExtra("userid", mChatPartnerID);
+                this.startActivity(myIntent);
                 break;
             case R.id.forget_user :
                 mBoundService.forgetPartner();

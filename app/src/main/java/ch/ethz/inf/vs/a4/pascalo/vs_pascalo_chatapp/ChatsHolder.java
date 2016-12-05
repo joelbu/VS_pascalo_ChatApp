@@ -33,18 +33,29 @@ public class ChatsHolder {
     private String mOwnPrivateKey = "defaultSecretKey";
     private String mOwnPublicKey = "defaultPublicKey";
 
-    // For testing purposes
-    public void addMessage(UUID uuid, Message message) {
-        mChats.get(uuid).addMessage(message);
+    public void addMessage(UUID id, Message message) {
+        if (!mChats.containsKey(id)) {
+            // Someone got our key somewhere and has sent us a message or someone whom we had
+            // "forgotten" is writing again. We don't know their name or key but we can make a
+            // basic chat object and show their messages
+            addPartner(id, "Unknown user: " + id.toString(), "");
+        }
+        mChats.get(id).addMessage(message);
     }
 
-    // Returns 0 on success, 1 for UUID already in use
+    // Either makes a new chat or updates an old one
+    // Returns 0 if there is a new one
     public int addPartner(UUID id, String username, String publicKey) {
-        if (mChats.containsKey(id)) return 1;
-
-        Chat chat = new Chat(id, username, publicKey);
-        mChats.put(id, chat);
-        return 0;
+        if (mChats.containsKey(id)) {
+            Chat chat = mChats.get(id);
+            chat.setChatPartnerName(username);
+            chat.setChatPartnerPublicKey(publicKey);
+            return 1;
+        } else {
+            Chat chat = new Chat(id, username, publicKey);
+            mChats.put(id, chat);
+            return 0;
+        }
     }
 
     public Collection<Chat> getChats() {

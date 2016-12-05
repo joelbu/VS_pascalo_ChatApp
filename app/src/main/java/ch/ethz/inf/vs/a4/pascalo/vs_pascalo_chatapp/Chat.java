@@ -54,6 +54,15 @@ public class Chat {
         this.messageList = messageList;
     }
 
+    public void setChatPartnerName(String chatPartnerName) {
+        this.chatPartnerName = chatPartnerName;
+    }
+
+    public void setChatPartnerPublicKey(String chatPartnerPublicKey) {
+        this.chatPartnerPublicKey = chatPartnerPublicKey;
+    }
+
+
     // getter functions
     public UUID getChatPatnerID() {
         return chatPatnerID;
@@ -77,6 +86,10 @@ public class Chat {
 
     public VectorClock getLatestClock() {
         return latestClock;
+    }
+
+    public boolean isKeyKnown() {
+        return !chatPartnerPublicKey.equals("");
     }
 
     public Message constructMessageFromUser(String text) {

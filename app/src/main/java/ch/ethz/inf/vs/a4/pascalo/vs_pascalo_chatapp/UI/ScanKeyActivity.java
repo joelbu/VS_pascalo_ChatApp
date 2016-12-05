@@ -24,6 +24,7 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ZXing.IntentResult;
 public class ScanKeyActivity extends AppCompatActivity{
     private ChatService mBoundService;
     private boolean mServiceIsBound;
+    private UUID mChatPartnerID;
     EditText mNameEditText;
     EditText mKeyEditText;
     EditText mIdEditText;
@@ -32,6 +33,9 @@ public class ScanKeyActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_key);
+
+        Intent intent = getIntent();
+        mChatPartnerID = (UUID) intent.getSerializableExtra("userid");
 
         mNameEditText = (EditText) findViewById(R.id.editText_partner_name);
         mKeyEditText = (EditText) findViewById(R.id.editText_public_key);
@@ -48,6 +52,16 @@ public class ScanKeyActivity extends AppCompatActivity{
             mBoundService = ((ChatService.LocalBinder)service).getService();
             Log.d(ChatActivity.class.getSimpleName(), "Service bound");
             mServiceIsBound = true;
+
+            // If we were called with an Id in the intent, that means we are supposed to show
+            // what we know already so it can be changed
+            if (mChatPartnerID != null) {
+                mBoundService.setChatPartner(mChatPartnerID);
+                mIdEditText.setText(mChatPartnerID.toString());
+                mKeyEditText.setText(mBoundService.getPartnerKey());
+                mNameEditText.setText(mBoundService.getPartnerName());
+            }
+
 
             Button scan = (Button) findViewById(R.id.button_scan_chat_partner_info);
             scan.setOnClickListener(new View.OnClickListener() {
@@ -106,7 +120,7 @@ public class ScanKeyActivity extends AppCompatActivity{
     protected void onDestroy() {
         Log.d(ScanKeyActivity.class.getSimpleName(), "onDestroy() called");
         if (mServiceIsBound) {
-            Log.d(ChatActivity.class.getSimpleName(), "unbinding Service");
+            Log.d(ScanKeyActivity.class.getSimpleName(), "unbinding Service");
             unbindService(mConnection);
         }
         super.onDestroy();

@@ -19,15 +19,6 @@
         android:layout_alignParentStart="true"
         android:id="@+id/button_scan_chat_partner_info" />
 
-    <Button
-        android:text="@string/add_user"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/button_add_chat_partner" />
-
     <TextView
         android:text="@string/scan_or_type_key"
         android:layout_width="match_parent"
@@ -73,5 +64,14 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:id="@+id/editText_partner_id" />
+
+    <Button
+        android:text="@string/add_user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_add_chat_partner"
+        android:layout_below="@+id/editText_partner_id"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>
