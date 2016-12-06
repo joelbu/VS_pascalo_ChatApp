@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -19,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.ChatParser;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.KeyParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.MessageParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedChatMap;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedMessageThread;
@@ -28,24 +31,24 @@ public class ChatsHolder {
     final String filename = "address_book";
 
     private Map<UUID, Chat> mChats = new HashMap<UUID, Chat>();
-    private UUID mOwnId = UUID.randomUUID();
-    private String mOwnName = "Default Name";
-    private String mOwnPrivateKey = "defaultSecretKey";
-    private String mOwnPublicKey = "defaultPublicKey";
+    private UUID mOwnId;
+    private String mOwnName;
+    private PrivateKey mOwnPrivateKey;
+    private PublicKey mOwnPublicKey;
 
     public void addMessage(UUID id, Message message) {
         if (!mChats.containsKey(id)) {
             // Someone got our key somewhere and has sent us a message or someone whom we had
             // "forgotten" is writing again. We don't know their name or key but we can make a
             // basic chat object and show their messages
-            addPartner(id, "Unknown user: " + id.toString(), "");
+            addPartner(id, "Unknown user: " + id.toString(), null);
         }
         mChats.get(id).addMessage(message);
     }
 
     // Either makes a new chat or updates an old one
     // Returns 0 if there is a new one
-    public int addPartner(UUID id, String username, String publicKey) {
+    public int addPartner(UUID id, String username, PublicKey publicKey) {
         if (mChats.containsKey(id)) {
             Chat chat = mChats.get(id);
             chat.setChatPartnerName(username);
@@ -79,15 +82,20 @@ public class ChatsHolder {
         return mOwnName;
     }
 
-    public String getOwnPrivateKey() {
+    public PrivateKey getOwnPrivateKey() {
         return mOwnPrivateKey;
     }
 
-    public String getOwnPublicKey() {
+    public PublicKey getOwnPublicKey() {
         return mOwnPublicKey;
     }
 
-
+    public void setUpOwnInfo(UUID id, String name, PrivateKey privateKey, PublicKey publicKey) {
+        mOwnId = id;
+        mOwnName = name;
+        mOwnPrivateKey = privateKey;
+        mOwnPublicKey = publicKey;
+    }
 
     // Writing to filesystem
 
@@ -96,8 +104,8 @@ public class ChatsHolder {
         try {
             addressBook.put("ownId", mOwnId.toString());
             addressBook.put("ownName", mOwnName);
-            addressBook.put("ownPrivateKey", mOwnPrivateKey);
-            addressBook.put("ownPublicKey", mOwnPublicKey);
+            addressBook.put("ownPrivateKey", KeyParser.serializePrivateKey(mOwnPrivateKey));
+            addressBook.put("ownPublicKey", KeyParser.serializePublicKey(mOwnPublicKey));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -153,8 +161,8 @@ public class ChatsHolder {
 
             mOwnId = UUID.fromString(addressBook.getString("ownId"));
             mOwnName = addressBook.getString("ownName");
-            mOwnPrivateKey = addressBook.getString("ownPrivateKey");
-            mOwnPublicKey = addressBook.getString("ownPublicKey");
+            mOwnPrivateKey = KeyParser.parsePrivateKey(addressBook.getString("ownPrivateKey"));
+            mOwnPublicKey = KeyParser.parsePublicKey(addressBook.getString("ownPublicKey"));
 
             ParsedChatMap parsedChatMap = ChatParser.parseMapOfChats(addressBook);
             if (parsedChatMap.status == 0) {

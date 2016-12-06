@@ -24,4 +24,6 @@
     <string name="chat_partner_id">Chat partner id...</string>
     <string name="showKey_explanation">Since you do not have the ZXing Barcode Scanner, no QR code can be produced, please copy these values manually.</string>
     <string name="send_message_button_text">Send</string>
+    <string name="choose_your_username">Choose your username...</string>
+    <string name="identity_set_up_title">Identity set-up</string>
 </resources>

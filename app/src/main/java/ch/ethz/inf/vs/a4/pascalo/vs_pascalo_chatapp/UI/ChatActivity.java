@@ -200,7 +200,7 @@ public class ChatActivity extends AppCompatActivity{
         mBoundService.setUnreadMessages(0);
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .unregisterReceiver(mBroadcastReceiver);
-        Log.d(ChatActivity.class.getSimpleName(), "onStop() called");
+        Log.d(ChatActivity.class.getSimpleName(), "onDestroy() called");
         if (mServiceIsBound) {
             Log.d(ChatActivity.class.getSimpleName(), "unbinding Service");
             unbindService(mConnection);

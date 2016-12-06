@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -58,6 +59,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
+    @Override
+    protected void onStart() {
+        boolean keyPairGenerated = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean("key-pair-generated", false);
+        if(!keyPairGenerated) {
+            this.startActivity(new Intent(this, GenerateKeyActivity.class));
+        }
+        super.onStart();
+    }
+
+    @Override
     protected void onRestart() {
         super.onRestart();
         Log.d(MainActivity.class.getSimpleName(), "onRestart() called");

@@ -12,9 +12,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.security.PublicKey;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ChatService;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.KeyParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.QRContentParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.R;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedQRContent;
@@ -58,7 +60,7 @@ public class ScanKeyActivity extends AppCompatActivity{
             if (mChatPartnerID != null) {
                 mBoundService.setChatPartner(mChatPartnerID);
                 mIdEditText.setText(mChatPartnerID.toString());
-                mKeyEditText.setText(mBoundService.getPartnerKey());
+                mKeyEditText.setText(KeyParser.serializePublicKey(mBoundService.getPartnerKey()));
                 mNameEditText.setText(mBoundService.getPartnerName());
             }
 
@@ -74,9 +76,12 @@ public class ScanKeyActivity extends AppCompatActivity{
             Button add = (Button) findViewById(R.id.button_add_chat_partner);
             add.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    mBoundService.addPartner(UUID.fromString(mIdEditText.getText().toString()),
-                            mNameEditText.getText().toString(), mKeyEditText.getText().toString());
-                    finish();
+                    PublicKey key = KeyParser.parsePublicKey(mKeyEditText.getText().toString());
+                    if(key != null) {
+                        mBoundService.addPartner(UUID.fromString(mIdEditText.getText().toString()),
+                                mNameEditText.getText().toString(), key);
+                        finish();
+                    }
                 }
             });
         }

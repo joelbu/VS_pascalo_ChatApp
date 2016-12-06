@@ -44,7 +44,7 @@ public class ExampleInstrumentedTest {
         UUID uuid = UUID.fromString("f590e29d-6315-4572-a2bc-5009a3ac1251");
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTimeInMillis(1480344165822L);
-        Chat chat = new Chat(uuid, "Hans Muster", "", 0, calendar, new VectorClock(5, 5));
+        Chat chat = new Chat(uuid, "Hans Muster", null, 0, calendar, new VectorClock(5, 5));
         TreeSet<Message> messages = new TreeSet<>();
         messages.add(new Message(true, true, GregorianCalendar.getInstance(),
                 new VectorClock(1, 4), "Text?"));
@@ -57,7 +57,7 @@ public class ExampleInstrumentedTest {
         UUID uuid1 = UUID.fromString("7446c9b8-209b-467a-ae27-80e419381722");
         GregorianCalendar calendar1 = new GregorianCalendar();
         calendar1.setTimeInMillis(1480344165828L);
-        Chat chat1 = new Chat(uuid1, "Max Problem", "", 0, calendar1, new VectorClock(1, 1));
+        Chat chat1 = new Chat(uuid1, "Max Problem", null, 0, calendar1, new VectorClock(1, 1));
         TreeSet<Message> messages1 = new TreeSet<>();
         messages1.add(new Message(false, false, GregorianCalendar.getInstance(),
                 new VectorClock(0, 0), "test"));

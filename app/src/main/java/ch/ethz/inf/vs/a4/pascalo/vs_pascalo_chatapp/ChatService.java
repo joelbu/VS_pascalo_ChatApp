@@ -12,6 +12,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.TreeSet;
@@ -50,8 +52,12 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         return mCurrentChat.getChatPartnerName();
     }
 
-    public String getPartnerKey() {
+    public PublicKey getPartnerKey() {
         return mCurrentChat.getChatPartnerPublicKey();
+    }
+
+    public void setUpOwnInfo(UUID id, String name, PrivateKey privateKey, PublicKey publicKey) {
+        mChatsHolder.setUpOwnInfo(id, name, privateKey, publicKey);
     }
 
     public void forgetPartner() {
@@ -60,7 +66,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
     }
 
     // Returns 0 on success, 1 for UUID already in use
-    public int addPartner(UUID id, String name, String key) {
+    public int addPartner(UUID id, String name, PublicKey key) {
         int status = mChatsHolder.addPartner(id, name, key);
         if (status == 0) {
             mChatsChanged = true;
@@ -98,7 +104,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
                 mCurrentChat.getChatPartnerPublicKey());
     }
 
-    private void shareInfo(final Activity activity, UUID id, String name, String key) {
+    private void shareInfo(final Activity activity, UUID id, String name, PublicKey key) {
         final String info = QRContentParser.serialize(id, name, key).toString();
         IntentIntegrator integrator = new IntentIntegrator(activity);
         integrator.shareText(info, "TEXT_TYPE", new DialogInterface.OnClickListener() {
@@ -188,18 +194,16 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         mChatsHolder.readAllThreads(this);
 
         // Since notifications must come from the service I moved this here
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+        PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);
 
         // TODO: Maybe read preferences into member fields
 
-        // TODO: set chats to list
-
         UUID uuid = UUID.randomUUID();
-        mChatsHolder.addPartner(uuid, "Hans Muster", "nicelittlekey");
+        mChatsHolder.addPartner(uuid, "Hans Muster", null);
 
         UUID uuid1 = UUID.randomUUID();
-        mChatsHolder.addPartner(uuid1, "Max Problem", "iamalsoanicekey");
+        mChatsHolder.addPartner(uuid1, "Max Problem", null);
 
         mChatsHolder.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
                 new VectorClock(1, 4), "Text?"));
@@ -257,10 +261,10 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
     public void onDestroy() {
         Log.d(ChatService.class.getSimpleName(), "onDestroy() called");
         mConnector.disconnectFromWDMF();
-        // TODO: destroy the service to go offline
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
                 .unregisterOnSharedPreferenceChangeListener(this);
 
+        //TODO: Writeback when something changes instead of here
         // Writing upon service shutdown may not be needed if we write whenever
         // something new happens instead, but for now it will do
         mChatsHolder.writeAddressBook(this);

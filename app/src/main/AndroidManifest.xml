@@ -23,7 +23,8 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".UI.ScanKeyActivity" />
+        <activity android:name=".UI.ScanKeyActivity"
+            android:label="@string/identity_set_up_title" />
         <activity android:name=".UI.GenerateKeyActivity" />
         <activity android:name=".UI.ShowKeyActivity"></activity>
     </application>

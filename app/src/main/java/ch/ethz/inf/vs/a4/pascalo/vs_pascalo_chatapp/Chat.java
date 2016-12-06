@@ -1,5 +1,6 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
+import java.security.PublicKey;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
@@ -13,7 +14,7 @@ public class Chat {
 
     private String chatPartnerName;
 
-    private String chatPartnerPublicKey;
+    private PublicKey chatPartnerPublicKey;
 
     private TreeSet<Message> messageList;
 
@@ -24,7 +25,7 @@ public class Chat {
     private VectorClock latestClock;
 
     // Constructor used for adding new chat partners by user action
-    public Chat(UUID cPID, String cPN, String cPPK) {
+    public Chat(UUID cPID, String cPN, PublicKey cPPK) {
         chatPatnerID = cPID;
         chatPartnerName = cPN;
         chatPartnerPublicKey = cPPK;
@@ -36,7 +37,7 @@ public class Chat {
     }
 
     // Constructor as used by the parser
-    public Chat(UUID cPID, String cPN, String cPPK, int uM, Calendar rA, VectorClock vC) {
+    public Chat(UUID cPID, String cPN, PublicKey cPPK, int uM, Calendar rA, VectorClock vC) {
         chatPatnerID = cPID;
         chatPartnerName = cPN;
         chatPartnerPublicKey = cPPK;
@@ -58,7 +59,7 @@ public class Chat {
         this.chatPartnerName = chatPartnerName;
     }
 
-    public void setChatPartnerPublicKey(String chatPartnerPublicKey) {
+    public void setChatPartnerPublicKey(PublicKey chatPartnerPublicKey) {
         this.chatPartnerPublicKey = chatPartnerPublicKey;
     }
 
@@ -72,7 +73,7 @@ public class Chat {
         return chatPartnerName;
     }
 
-    public String getChatPartnerPublicKey() {
+    public PublicKey getChatPartnerPublicKey() {
         return chatPartnerPublicKey;
     }
 

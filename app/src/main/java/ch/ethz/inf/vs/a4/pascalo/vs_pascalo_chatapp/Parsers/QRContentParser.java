@@ -3,6 +3,7 @@ package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.PublicKey;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedQRContent;
@@ -11,13 +12,14 @@ public class QRContentParser {
     // Made with randomness from atmospheric noise provided by random.org
     private static int magicNumber = 656297891;
 
-    public static JSONObject serialize(UUID id, String name, String key) {
+    public static JSONObject serialize(UUID id, String name, PublicKey key) {
+        String keyStringRepresentation = KeyParser.serializePublicKey(key);
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("magic", magicNumber);
             jsonObject.put("id", id.toString());
             jsonObject.put("name", name);
-            jsonObject.put("key", key);
+            jsonObject.put("key", keyStringRepresentation);
         } catch (JSONException e) {
             e.printStackTrace();
         }

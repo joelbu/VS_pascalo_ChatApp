@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.PublicKey;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
@@ -83,10 +84,12 @@ public class ChatParser {
             VectorClock clockTime = new VectorClock();
             clockTime.parseFromStorage(json.getJSONObject("clockTime"));
 
+            PublicKey key = KeyParser.parsePublicKey(json.getString("chatPartnerPublicKey"));
+
             ret.chat = new Chat(
                     UUID.fromString(json.getString("chatPartnerID")),
                     json.getString("chatPartnerName"),
-                    json.getString("chatPartnerPublicKey"),
+                    key,
                     json.getInt("unreadMessages"),
                     recentActivity,
                     clockTime
