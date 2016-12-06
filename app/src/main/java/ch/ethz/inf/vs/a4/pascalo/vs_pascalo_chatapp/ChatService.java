@@ -12,12 +12,19 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.TreeSet;
 import java.util.UUID;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.MessageParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedMessage;
@@ -119,6 +126,39 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         });
     }
 
+    // TODO: Better crypto? Signing a message hash and appending it? Symmetric crypto (AES?) for message content and signature, encrypting the key with RSA and appending that to the message?
+    // This is going to be slow and vulnerable to malleability attacks, and we don't have any
+    // sender authentication but it doesn't really matter for our project
+    private byte[] encryptMessage(byte[] payload) {
+        byte[] cipherText = null;
+        try {
+            // Ignore the warning android studio gives here about ECB,
+            // it only applies to symmetric crypto
+            final Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, mCurrentChat.getChatPartnerPublicKey());
+            cipherText = cipher.doFinal(payload);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
+                BadPaddingException | IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+        return cipherText;
+    }
+
+    private byte[] decryptMessage(byte[] cipherText){
+        byte[] payload = null;
+        try {
+            // Ignore the warning android studio gives here about ECB,
+            // it only applies to symmetric crypto
+            final Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+            cipher.init(Cipher.DECRYPT_MODE, mChatsHolder.getOwnPrivateKey());
+            payload = cipher.doFinal(cipherText);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
+                BadPaddingException | IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+        return payload;
+    }
+
     // This is intended to be called from ChatActivity after a user pressed send
     public void sendMessage(String text) {
 
@@ -128,17 +168,18 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         // Telling the UI that something has changed
         broadcastViewChange();
 
-        String networkString = mMessageParser.serializeForNetwork(message).toString();
+        String payload = mMessageParser.serializeForNetwork(message).toString();
 
-        //TODO: Encrypt message
-
+        byte[] cipherText = null;
         try {
-            mConnector.broadcastMessage(networkString.getBytes("UTF-8"));
+            cipherText = encryptMessage(payload.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            // This should never happen, because UTF-8 is always supported
             e.printStackTrace();
         }
 
+        if (cipherText != null) {
+            mConnector.broadcastMessage(cipherText);
+        }
     }
 
     private void broadcastViewChange() {
@@ -148,16 +189,18 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
     public void onReceiveMessage(byte[] message) {
         try {
-            String networkString = new String(message, "UTF-8");
+            byte[] payload = decryptMessage(message);
 
-            // TODO: Decrypt message
+            ParsedMessage ret = mMessageParser.parseFromNetwork(new String(payload, "UTF-8"));
 
-            ParsedMessage ret = mMessageParser.parseFromNetwork(networkString);
+            if (ret.status == 0) {
 
-            mChatsHolder.addMessage(ret.sender, ret.message);
+                mChatsHolder.addMessage(ret.sender, ret.message);
 
-            if (ret.sender.equals(mCurrentChat.getChatPatnerID())) {
-                broadcastViewChange();
+                if (ret.sender.equals(mCurrentChat.getChatPatnerID())) {
+                    broadcastViewChange();
+                }
+
             }
 
         } catch (UnsupportedEncodingException e) {
