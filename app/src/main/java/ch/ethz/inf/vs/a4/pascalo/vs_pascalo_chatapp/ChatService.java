@@ -79,7 +79,6 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
     public void setUpOwnInfo(UUID id, String name, PrivateKey privateKey, PublicKey publicKey) {
         mChatsHolder.setUpOwnInfo(id, name, privateKey, publicKey);
-        // Test
         mMessageParser = new MessageParser(mChatsHolder.getOwnId());
     }
 
