@@ -1,13 +1,19 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -44,6 +50,8 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
     // flags to know if we should play sound or not resp. vibrate or not
     private boolean vibrate;
+    private long vibrating_time = (long) 0.5; // in seconds
+    private int vibrate_for_n_times = 2;
     private boolean sound;
 
     // For use in MainActivity only, ChatActivity is only supposed to interact with the current
@@ -203,6 +211,49 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
                 mChatsHolder.addMessage(ret.sender, ret.message);
 
+                // notification
+                // TODO: add a notification in the status bar
+                //create a notification
+                NotificationCompat.Builder builder =
+                        new NotificationCompat.Builder(this)
+                                .setSmallIcon(android.R.drawable.ic_secure)
+                                .setContentTitle("Chat")
+                                .setContentText("You have a new message from " + ret.sender.toString())
+                                .setOngoing(true);
+
+                //create notification manager
+                NotificationManager notificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                //show built notification
+                notificationManager.notify(17, builder.build());
+
+                // play sound if necessary
+                if (sound) {
+                    //create media player
+                    AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                    /*
+                    MediaPlayer mp = MediaPlayer.create(
+                            getApplicationContext(),
+                            R.raw.loop TODO:set a file to play
+                            //, new AudioAttributes.Builder().setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED).build(),
+                            //am.generateAudioSessionId()
+                    ); */
+                    // play sound
+                    //mp.start();
+                }
+
+                // vibrate if necessary
+                if (vibrate) {
+                    // vibrate
+                    long ms = (long) (1000.0 * vibrating_time);
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    // short and esy pattern
+                    for (int i=0; i<vibrate_for_n_times; i++){
+                        v.vibrate(ms);
+                    }
+                }
+
                 if (ret.sender.equals(mCurrentChat.getChatPatnerID())) {
                     broadcastViewChange();
                 }
@@ -285,7 +336,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
     }
 
-
+    // function for generating test chats
     private void generateTestChats(){
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
