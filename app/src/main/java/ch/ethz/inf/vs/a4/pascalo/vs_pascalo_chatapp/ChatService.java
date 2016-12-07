@@ -13,6 +13,8 @@ import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -242,49 +244,71 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
         // TODO: Maybe read preferences into member fields
 
-        UUID uuid = UUID.randomUUID();
-        mChatsHolder.addPartner(uuid, "Hans Muster", null);
+        try {
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+            Log.d(this.getClass().getSimpleName(), "KeyPairGenerator generated");
+            kpg.initialize(128);
+            Log.d(this.getClass().getSimpleName(), "KeyPairGenerator initialized");
+            KeyPair kp;
+            PublicKey publicKey;
 
-        UUID uuid1 = UUID.randomUUID();
-        mChatsHolder.addPartner(uuid1, "Max Problem", null);
+            kp =  kpg.genKeyPair();
+            Log.d(this.getClass().getSimpleName(), "KeyPair for Hans generated");
+            publicKey = kp.getPublic();
+            Log.d(this.getClass().getSimpleName(), "publicKey copied");
+            UUID uuid = UUID.randomUUID();
+            mChatsHolder.addPartner(uuid, "Hans Muster", publicKey);
 
-        mChatsHolder.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
-                new VectorClock(1, 4), "Text?"));
-        mChatsHolder.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
-                new VectorClock(5, 5), "Text6"));
-        mChatsHolder.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
-                new VectorClock(7, 6), "Text8"));
-        mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
-                new VectorClock(2, 2), "Text3"));
-        mChatsHolder.addMessage(uuid, new Message(true, true, GregorianCalendar.getInstance(),
-                new VectorClock(1, 0), "Text2a"));
-        mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
-                new VectorClock(0, 1), "Text2b"));
-        mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
-                new VectorClock(3, 4), "Text4"));
-        mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
-                new VectorClock(5, 6), "Text7"));
-        mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
-                new VectorClock(0, 0), "Text1"));
+            mChatsHolder.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
+                    new VectorClock(1, 4), "Text?"));
+            mChatsHolder.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
+                    new VectorClock(5, 5), "Text6"));
+            mChatsHolder.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
+                    new VectorClock(7, 6), "Text8"));
+            mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
+                    new VectorClock(2, 2), "Text3"));
+            mChatsHolder.addMessage(uuid, new Message(true, true, GregorianCalendar.getInstance(),
+                    new VectorClock(1, 0), "Text2a"));
+            mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
+                    new VectorClock(0, 1), "Text2b"));
+            mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
+                    new VectorClock(3, 4), "Text4"));
+            mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
+                    new VectorClock(5, 6), "Text7"));
+            mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
+                    new VectorClock(0, 0), "Text1"));
+
+            kp = kpg.genKeyPair();
+            Log.d(this.getClass().getSimpleName(), "KeyPair for Max generated");
+            publicKey = kp.getPublic();
+            Log.d(this.getClass().getSimpleName(), "publicKey copied");
+            UUID uuid1 = UUID.randomUUID();
+            mChatsHolder.addPartner(uuid1, "Max Problem", publicKey);
+
+            mChatsHolder.addMessage(uuid1, new Message(false, false, GregorianCalendar.getInstance(),
+                    new VectorClock(0, 1), "test"));
+            mChatsHolder.addMessage(uuid1, new Message(true, false, GregorianCalendar.getInstance(),
+                    new VectorClock(1, 1), "ack"));
 
 
+            UUID uuidOfAStranger = UUID.randomUUID();
 
-        mChatsHolder.addMessage(uuid1, new Message(false, false, GregorianCalendar.getInstance(),
-                new VectorClock(0, 1), "test"));
-        mChatsHolder.addMessage(uuid1, new Message(true, false, GregorianCalendar.getInstance(),
-                new VectorClock(1, 1), "ack"));
+            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
+                    new VectorClock(5, 5), "Hey remember me?"));
+            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
+                    new VectorClock(5, 6), "We met at the bar"));
+            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
+                    new VectorClock(5, 7), "Oh you don't have my key yet right. It's:"));
+            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
+                    new VectorClock(5, 8), "MCwwDQYJKoZIhvcNAQEBBQADGwAwGAIRANxEwt5Wq8EOxq5mnz8dFCECAwEAAQ=="));
+            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
+                    new VectorClock(5, 9), "So add me and write back"));
 
-        UUID uuidOfAStranger = UUID.randomUUID();
-        mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
-                new VectorClock(5, 5), "Hey remember me?"));
-        mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
-                new VectorClock(5, 6), "We met at the bar"));
-        mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
-                new VectorClock(5, 7), "Oh you don't have my key yet right. It's:"));
-        mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
-                new VectorClock(5, 8), "TotallyLegitKeyIAmNotACreep"));
-        mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
-                new VectorClock(5, 9), "So add me and write back"));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+
 
         mMessageParser = new MessageParser(mChatsHolder.getOwnId());
 

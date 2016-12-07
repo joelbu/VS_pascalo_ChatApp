@@ -64,7 +64,7 @@ public class GenerateKeyActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     try {
                         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-                        Log.d(TAG, "KeyPaitGenerator generated");
+                        Log.d(TAG, "KeyPairGenerator generated");
                         kpg.initialize(128);
                         Log.d(TAG, "KeyPairGenerator initialized");
                         KeyPair kp = kpg.genKeyPair();
