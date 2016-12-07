@@ -17,6 +17,7 @@
     Go Offline now works - Joel - 2016-11-30
     Show Key now works - Joel - 2016-12-03
     Add Chat now works - Joel - 2016-12-03
+    TODO: Open Network Configuration
 
 5. implement a service that handles message state, address book state, receiving messages
     including decryption and notification handling
@@ -54,12 +55,12 @@
 
 14. create an activity to generate a public-private key pair with java.crypto
     and to enter the username
-    how to create a key? automatically? - Pascal - 2016-11-25
+    OK - Pascal - 2016-12-06
 
 15. create a preference activity with two options to toggle sound and vibration for notification
     and an option to generate a new key
     no function implemented - Pascal - 2016-1-22
-    option to generate new key is missing
+    option to generate new key is missing --> done in the overflow menu of the MainActivity
 
 
 
