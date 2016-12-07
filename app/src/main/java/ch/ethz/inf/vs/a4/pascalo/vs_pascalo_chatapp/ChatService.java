@@ -42,6 +42,10 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
     private Connector mConnector;
     private MessageParser mMessageParser;
 
+    // flags to know if we should play sound or not resp. vibrate or not
+    private boolean vibrate;
+    private boolean sound;
+
     // For use in MainActivity only, ChatActivity is only supposed to interact with the current
     // chat through the methods below
     public Collection<Chat> getChats() {
@@ -214,6 +218,9 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
         // TODO: Make sure we react to configuration changes like vibration off
+        vibrate = sharedPreferences.getBoolean("check_box_vibrate", true);
+        sound = sharedPreferences.getBoolean("check_box_vibrate", true);
+
     }
 
     public class LocalBinder extends Binder {
@@ -244,6 +251,42 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
         // TODO: Maybe read preferences into member fields
 
+
+        // just for testing
+        generateTestChats();
+
+
+        mMessageParser = new MessageParser(mChatsHolder.getOwnId());
+
+        mConnector = new Connector(this, "SuperCoolPrivateChattingApp", this);
+        mConnector.connectToWDMF();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("LocalService", "Received start id " + startId + ": " + intent);
+
+        // Sticky ensures that the Android system keeps the service around for us
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(ChatService.class.getSimpleName(), "onDestroy() called");
+        mConnector.disconnectFromWDMF();
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+                .unregisterOnSharedPreferenceChangeListener(this);
+
+        //TODO: Writeback when something changes instead of here
+        // Writing upon service shutdown may not be needed if we write whenever
+        // something new happens instead, but for now it will do
+        mChatsHolder.writeAddressBook(this);
+        mChatsHolder.writeAllThreads(this);
+
+    }
+
+
+    private void generateTestChats(){
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
             Log.d(this.getClass().getSimpleName(), "KeyPairGenerator generated");
@@ -307,37 +350,5 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-
-
-
-        mMessageParser = new MessageParser(mChatsHolder.getOwnId());
-
-        mConnector = new Connector(this, "SuperCoolPrivateChattingApp", this);
-        mConnector.connectToWDMF();
     }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("LocalService", "Received start id " + startId + ": " + intent);
-
-        // Sticky ensures that the Android system keeps the service around for us
-        return START_STICKY;
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.d(ChatService.class.getSimpleName(), "onDestroy() called");
-        mConnector.disconnectFromWDMF();
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-                .unregisterOnSharedPreferenceChangeListener(this);
-
-        //TODO: Writeback when something changes instead of here
-        // Writing upon service shutdown may not be needed if we write whenever
-        // something new happens instead, but for now it will do
-        mChatsHolder.writeAddressBook(this);
-        mChatsHolder.writeAllThreads(this);
-
-    }
-
-
 }
