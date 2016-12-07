@@ -110,6 +110,9 @@ public class ChatActivity extends AppCompatActivity{
             Log.d(ChatActivity.class.getSimpleName(), "Setting chat partner");
             mBoundService.setChatPartner(mChatPartnerID);
 
+            // Only enable sending if we know their key, which is not guaranteed
+            mScanButton.setEnabled(mBoundService.isKeyKnown());
+
             Button scan = (Button) findViewById(R.id.button_send_messege);
             scan.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {

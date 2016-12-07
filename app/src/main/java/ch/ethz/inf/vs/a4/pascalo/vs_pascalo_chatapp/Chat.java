@@ -90,7 +90,7 @@ public class Chat {
     }
 
     public boolean isKeyKnown() {
-        return !chatPartnerPublicKey.equals("");
+        return chatPartnerPublicKey != null;
     }
 
     public Message constructMessageFromUser(String text) {
