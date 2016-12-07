@@ -298,7 +298,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
             mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
                     new VectorClock(5, 6), "We met at the bar"));
             mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
-                    new VectorClock(5, 7), "Oh you don't have my key yet right. It's:"));
+                    new VectorClock(5, 7), "Oh you don't have my key yet right.\nIt's:\nass"));
             mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
                     new VectorClock(5, 8), "MCwwDQYJKoZIhvcNAQEBBQADGwAwGAIRANxEwt5Wq8EOxq5mnz8dFCECAwEAAQ=="));
             mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),

@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
-            android:layout_below="@id/messageMeView"
+            android:layout_below="@id/messagePartnerView"
             android:textColor="#000000"
             android:textSize="10sp"/>
         <TextView
