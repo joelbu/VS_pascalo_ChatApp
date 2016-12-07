@@ -40,6 +40,8 @@
         android:layout_below="@id/messageList"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="false"
         android:enabled="false"
         android:id="@+id/button_send_messege" />
 

@@ -79,6 +79,8 @@ public class GenerateKeyActivity extends AppCompatActivity {
                         String username = mUsernameEditText.getText().toString();
                         mBoundService.setUpOwnInfo(UUID.randomUUID(), username, privateKey, publicKey);
 
+                        Log.d(TAG, "username and keypair stored (chatservice) in addressbook");
+
                         // Setting the flag in the preferences, so on next start of the app we
                         // won't call GenerateKeyActivity again.
                         SharedPreferences prefs = PreferenceManager
