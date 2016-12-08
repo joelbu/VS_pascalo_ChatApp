@@ -74,7 +74,10 @@ store chat messages per chat in a file named "cat_[chat partner name].???"
 a little overhead but I think it's a lot easier to store and find them even we
 have more overhead
 
-I called the files chat_with_[UUID] instead, because everything is pretty much centered around
-UUIDs and we do theoretically support different chat partners with the same name. We only have
-checks if a UUID already exists when adding a new users. - Joel
-
+2016-12-08:
+    - close app and open it again is as slow as possible
+    - vibration is not working
+    - sound is not working :-)
+    - network configuration still missing
+    - store chats when new messages are added to it
+    - notification is not visible
