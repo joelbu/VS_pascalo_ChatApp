@@ -90,6 +90,9 @@ public class GenerateKeyActivity extends AppCompatActivity {
                             SharedPreferences.Editor edit = prefs.edit();
                             edit.putBoolean("key-pair-generated", true);
                             edit.apply();
+
+                            mBoundService.generateTestChats();
+
                             finish();
                         } catch (Exception e) {
                             e.printStackTrace();

@@ -265,6 +265,8 @@ public class ChatService extends Service {
         // Telling the UI that something has changed
         broadcastViewChange();
 
+        mChatsChanged = true;
+
         sendMessage(mCurrentChat.getChatPatnerID(), message);
     }
 
@@ -321,6 +323,7 @@ public class ChatService extends Service {
             if (ret.status == 0) { // We just got a standard message
 
                 mChatsHolder.addMessage(ret.sender, ret.message);
+                mChatsChanged = true;
                 prepareAndSendAcknowledgement(ret.sender, ret.message);
 
                 // Only make notification if the chat is not currently open
@@ -428,10 +431,6 @@ public class ChatService extends Service {
         mSound = sharedPreferences.getBoolean("check_box_vibrate", true);
 
 
-        // just for testing
-        generateTestChats();
-
-
         mMessageParser = new MessageParser(mChatsHolder.getOwnId());
 
         mConnector = new Connector(this, "SuperCoolPrivateChattingApp", this);
@@ -462,7 +461,7 @@ public class ChatService extends Service {
     }
 
     // function for generating test chats
-    private void generateTestChats(){
+    public void generateTestChats(){
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
             Log.d(this.getClass().getSimpleName(), "KeyPairGenerator generated");
@@ -527,6 +526,8 @@ public class ChatService extends Service {
 
             mChatsHolder.addMessage(mChatsHolder.getOwnId(), new Message(true, true, false,
                     GregorianCalendar.getInstance(), new VectorClock(0, 1), "Okay let's see"));
+
+            mChatsChanged = true;
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

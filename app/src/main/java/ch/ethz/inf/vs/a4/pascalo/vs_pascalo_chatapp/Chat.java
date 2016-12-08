@@ -144,7 +144,7 @@ public class Chat {
             } else if (chat2.getUnreadMessages() == 0 && chat1.getUnreadMessages() > 0) {
                 return -1;
             } else {
-                return chat1.getRecentActivity().compareTo(chat2.getRecentActivity());
+                return -1 * chat1.getRecentActivity().compareTo(chat2.getRecentActivity());
             }
         }
     };
