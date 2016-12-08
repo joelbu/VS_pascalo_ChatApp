@@ -32,7 +32,7 @@ public class KeyParser {
         try {
             KeyFactory factory = KeyFactory.getInstance("RSA");
             PKCS8EncodedKeySpec keySpec = factory.getKeySpec(key, PKCS8EncodedKeySpec.class);
-            keyStringRepresentation = Base64.encodeToString(keySpec.getEncoded(), Base64.NO_WRAP);
+            keyStringRepresentation = Base64.encodeToString(keySpec.getEncoded(), Base64.NO_WRAP | Base64.URL_SAFE);
 
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -42,7 +42,7 @@ public class KeyParser {
 
     public static PrivateKey parsePrivateKey(String string) {
         try {
-            byte[] keyByte = Base64.decode(string, Base64.NO_WRAP);
+            byte[] keyByte = Base64.decode(string, Base64.NO_WRAP | Base64.URL_SAFE);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyByte);
             KeyFactory factory = KeyFactory.getInstance("RSA");
             return factory.generatePrivate(keySpec);
@@ -64,10 +64,10 @@ public class KeyParser {
                 return keyStringRepresentation;
             }
             Log.d(TAG, "The Key is: " + key.toString());
-            Log.d(TAG, "The EncodedKeySpec is: " + X509EncodedKeySpec.class.toString());
             X509EncodedKeySpec keySpec = factory.getKeySpec(key, X509EncodedKeySpec.class);
-            keyStringRepresentation = Base64.encodeToString(keySpec.getEncoded(), Base64.NO_WRAP);
-
+            Log.d(TAG, "The EncodedKeySpec is: " + keySpec.toString());
+            keyStringRepresentation = Base64.encodeToString(keySpec.getEncoded(), Base64.NO_WRAP | Base64.URL_SAFE);
+            Log.d(TAG, "The Key in Base64 is: " + keyStringRepresentation.toString());
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -76,7 +76,7 @@ public class KeyParser {
 
     public static PublicKey parsePublicKey(String string) {
         try {
-            byte[] keyByte = Base64.decode(string, Base64.NO_WRAP);
+            byte[] keyByte = Base64.decode(string, Base64.NO_WRAP | Base64.URL_SAFE);
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyByte);
             KeyFactory factory = KeyFactory.getInstance("RSA");
             return factory.generatePublic(keySpec);
@@ -92,7 +92,7 @@ public class KeyParser {
         try {
             JSONObject json = new JSONObject();
             json.put("m", magicNumber);
-            json.put("k", Base64.encodeToString(key.getEncoded(), Base64.NO_WRAP));
+            json.put("k", Base64.encodeToString(key.getEncoded(), Base64.NO_WRAP | Base64.URL_SAFE));
             return json.toString().getBytes("UTF-8");
 
         } catch (JSONException |UnsupportedEncodingException e) {
@@ -115,7 +115,7 @@ public class KeyParser {
             }
 
             json = new JSONObject(string);
-            byte[] keyRaw = Base64.decode(json.getString("k"), Base64.NO_WRAP);
+            byte[] keyRaw = Base64.decode(json.getString("k"), Base64.NO_WRAP | Base64.URL_SAFE);
             ret.key = new SecretKeySpec(keyRaw, "AES");
             ret.status = 0;
 
@@ -131,9 +131,9 @@ public class KeyParser {
     public static byte[] serializeIvKeyPayload(byte[] iv, byte[] key, byte[] payload) {
         JSONObject json = new JSONObject();
         try {
-            json.put("iv", Base64.encodeToString(iv, Base64.NO_WRAP));
-            json.put("key", Base64.encodeToString(key, Base64.NO_WRAP));
-            json.put("payload", Base64.encodeToString(payload, Base64.NO_WRAP));
+            json.put("iv", Base64.encodeToString(iv, Base64.NO_WRAP | Base64.URL_SAFE));
+            json.put("key", Base64.encodeToString(key, Base64.NO_WRAP | Base64.URL_SAFE));
+            json.put("payload", Base64.encodeToString(payload, Base64.NO_WRAP | Base64.URL_SAFE));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -151,9 +151,9 @@ public class KeyParser {
             String jsonString = new String(bundle, "UTF-8");
             JSONObject json = new JSONObject(jsonString);
 
-            ret.iv = Base64.decode(json.getString("iv"), Base64.NO_WRAP);
-            ret.key = Base64.decode(json.getString("key"), Base64.NO_WRAP);
-            ret.payload = Base64.decode(json.getString("payload"), Base64.NO_WRAP);
+            ret.iv = Base64.decode(json.getString("iv"), Base64.NO_WRAP | Base64.URL_SAFE);
+            ret.key = Base64.decode(json.getString("key"), Base64.NO_WRAP | Base64.URL_SAFE);
+            ret.payload = Base64.decode(json.getString("payload"), Base64.NO_WRAP | Base64.URL_SAFE);
             ret.status = 0;
         } catch (UnsupportedEncodingException | JSONException e) {
             e.printStackTrace();
