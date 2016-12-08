@@ -110,6 +110,9 @@ public class ChatActivity extends AppCompatActivity{
             Log.d(ChatActivity.class.getSimpleName(), "Setting chat partner");
             mBoundService.setChatPartner(mChatPartnerID);
 
+            // TODO: and only enable if our key is correctly generated
+            // but this should never happen because the id has to be generated at the first start of app
+
             // Only enable sending if we know their key, which is not guaranteed
             mScanButton.setEnabled(mBoundService.isKeyKnown());
 
@@ -119,6 +122,8 @@ public class ChatActivity extends AppCompatActivity{
                     mBoundService.sendMessage(
                             ((EditText)findViewById(R.id.editMessage)).getText().toString()
                     );
+                    EditText editText = (EditText) findViewById(R.id.editMessage);
+                    editText.setText("");
                 }
             });
 

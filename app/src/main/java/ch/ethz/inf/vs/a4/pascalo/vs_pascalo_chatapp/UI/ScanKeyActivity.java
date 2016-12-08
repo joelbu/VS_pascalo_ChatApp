@@ -63,7 +63,16 @@ public class ScanKeyActivity extends AppCompatActivity{
             if (mChatPartnerID != null) {
                 mBoundService.setChatPartner(mChatPartnerID);
                 mIdEditText.setText(mChatPartnerID.toString());
-                mKeyEditText.setText(KeyParser.serializePublicKey(mBoundService.getPartnerKey()));
+                Log.d(TAG, mBoundService.getPartnerName().toString()
+                        + " has key: " + mBoundService.getPartnerKey());
+                // special case if we don't know the chatPartners key yet
+                if (mBoundService.getPartnerKey() != null) {
+                    mKeyEditText.setText(
+                            KeyParser.serializePublicKey(
+                                    mBoundService.getPartnerKey()
+                            )
+                    );
+                }
                 mNameEditText.setText(mBoundService.getPartnerName());
             }
 

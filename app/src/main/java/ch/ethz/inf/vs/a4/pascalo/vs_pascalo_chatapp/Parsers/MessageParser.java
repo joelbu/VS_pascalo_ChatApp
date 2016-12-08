@@ -1,5 +1,7 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +19,8 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.VectorClock;
 public class MessageParser {
 
     private UUID me;
+
+    private String TAG = "MessageParser";
 
     public MessageParser(UUID me) {
         this.me = me;
@@ -119,6 +123,7 @@ public class MessageParser {
             json.put("timeWritten", message.getTimeWritten().getTimeInMillis());
             json.put("clock", message.getClock().serializeForNetwork());
 
+            Log.d(TAG, "me is: " + me.toString());
             json.put("sender", me.toString());
             json.put("message", message);
         } catch (JSONException e) {

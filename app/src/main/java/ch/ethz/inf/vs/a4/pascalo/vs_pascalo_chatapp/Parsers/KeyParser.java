@@ -2,6 +2,7 @@ package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers;
 
 
 import android.util.Base64;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +25,7 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedIvKeyPaylo
 public class KeyParser {
     // Made with randomness from atmospheric noise provided by random.org
     private static int magicNumber = -432185306;
+    private static String TAG = "KeyParser";
 
     public static String serializePrivateKey(PrivateKey key) {
         String keyStringRepresentation = "";
@@ -56,6 +58,13 @@ public class KeyParser {
         String keyStringRepresentation = "";
         try {
             KeyFactory factory = KeyFactory.getInstance("RSA");
+            Log.d(TAG, "The KeyFactory is: " + factory.toString());
+            if (key == null) {
+                Log.d(TAG, "We should not get to this point.");
+                return keyStringRepresentation;
+            }
+            Log.d(TAG, "The Key is: " + key.toString());
+            Log.d(TAG, "The EncodedKeySpec is: " + X509EncodedKeySpec.class.toString());
             X509EncodedKeySpec keySpec = factory.getKeySpec(key, X509EncodedKeySpec.class);
             keyStringRepresentation = Base64.encodeToString(keySpec.getEncoded(), Base64.NO_WRAP);
 
