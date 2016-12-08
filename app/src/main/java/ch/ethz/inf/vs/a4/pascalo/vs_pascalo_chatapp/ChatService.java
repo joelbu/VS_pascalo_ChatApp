@@ -18,12 +18,16 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.spec.InvalidParameterSpecException;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.TreeSet;
@@ -32,15 +36,24 @@ import java.util.UUID;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.KeyParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.MessageParser;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedAesKey;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedIvKeyPayload;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedMessage;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.ShowKeyActivity;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.QRContentParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ZXing.IntentIntegrator;
 
 public class ChatService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
+    static {
+        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+    }
 
     private ChatsHolder mChatsHolder;
     private Chat mCurrentChat;
@@ -78,7 +91,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
     }
 
     public void setUpOwnInfo(UUID id, String name, PrivateKey privateKey, PublicKey publicKey) {
-        mChatsHolder.setUpOwnInfo(id, name, privateKey, publicKey);
+        mChatsHolder.setUpOwnInfo(id, name, privateKey, publicKey, this);
         mMessageParser = new MessageParser(mChatsHolder.getOwnId());
     }
 
@@ -145,33 +158,89 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
     // This is going to be slow and vulnerable to malleability attacks, and we don't have any
     // sender authentication but it doesn't really matter for our project
     private byte[] encryptMessage(byte[] payload) {
-        byte[] cipherText = null;
         try {
+
+            // Generate a random initialisation vector for each message
+            SecureRandom random = new SecureRandom();
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(random.generateSeed(16));
+            byte[] ivRawData = ivParameterSpec.getIV();
+
+            // Generate a random AES key for each message
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(192);
+            SecretKey aesKey = keyGenerator.generateKey();
+
             // Ignore the warning android studio gives here about ECB,
             // it only applies to symmetric crypto
-            final Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, mCurrentChat.getChatPartnerPublicKey());
-            cipherText = cipher.doFinal(payload);
+            final Cipher rsaCipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+            rsaCipher.init(Cipher.ENCRYPT_MODE, mCurrentChat.getChatPartnerPublicKey());
+            byte[] serialized = KeyParser.serializeAesKey(aesKey);
+            Log.d(this.getClass().getSimpleName(), "Length of AES key is: " + serialized.length);
+            byte[] encryptedAesKey = rsaCipher.doFinal(serialized);
+
+            // Encrypt the payload
+            final Cipher aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            aesCipher.init(Cipher.ENCRYPT_MODE, aesKey, ivParameterSpec);
+            byte[] encryptedPayload = aesCipher.doFinal(payload);
+
+            // Put the three iv, key and payload together. Note iv doesn't need to be encrypted.
+            return KeyParser.serializeIvKeyPayload(ivRawData, encryptedAesKey, encryptedPayload);
+
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
-                BadPaddingException | IllegalBlockSizeException e) {
+                BadPaddingException | IllegalBlockSizeException |
+                InvalidAlgorithmParameterException e) {
             e.printStackTrace();
+            return new byte[0];
         }
-        return cipherText;
+
     }
 
     private byte[] decryptMessage(byte[] cipherText){
-        byte[] payload = null;
         try {
+            // Parse the wire format into the three byte arrays
+            ParsedIvKeyPayload ret = KeyParser.parseIvKeyPayload(cipherText);
+
+            if (ret.status != 0) {
+                Log.d(this.getClass().getSimpleName(), "The message being decrypted is broken");
+                return new byte[0];
+            }
+
             // Ignore the warning android studio gives here about ECB,
             // it only applies to symmetric crypto
             final Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
             cipher.init(Cipher.DECRYPT_MODE, mChatsHolder.getOwnPrivateKey());
-            payload = cipher.doFinal(cipherText);
+
+            // Decrypt the AES key with our RSA private key
+            byte[] aesKeyRaw = cipher.doFinal(ret.key);
+
+            // Parse it and check for magic value
+            ParsedAesKey aesRet = KeyParser.parseAesKey(aesKeyRaw);
+
+            if (aesRet.status == 1) {
+                Log.d(this.getClass().getSimpleName(), "The message being decrypted is broken");
+                return new byte[0];
+            } else if (aesRet.status == 2) {
+                Log.d(this.getClass().getSimpleName(), "The message being decrypted is not for us");
+                return new byte[0];
+            }
+
+            // Recreate initialisation vector
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(ret.iv);
+
+            // Instantiate AES Cipher with key and iv
+            final Cipher aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            aesCipher.init(Cipher.DECRYPT_MODE, aesRet.key, ivParameterSpec);
+
+            // Decrypt payload with AES
+            return aesCipher.doFinal(ret.payload);
+
+
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
-                BadPaddingException | IllegalBlockSizeException e) {
+                BadPaddingException | IllegalBlockSizeException |
+                InvalidAlgorithmParameterException e) {
             e.printStackTrace();
+            return new byte[0];
         }
-        return payload;
     }
 
     // This is intended to be called from ChatActivity after a user pressed send
@@ -342,7 +411,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
             Log.d(this.getClass().getSimpleName(), "KeyPairGenerator generated");
-            kpg.initialize(128);
+            kpg.initialize(1024);
             Log.d(this.getClass().getSimpleName(), "KeyPairGenerator initialized");
             KeyPair kp;
             PublicKey publicKey;

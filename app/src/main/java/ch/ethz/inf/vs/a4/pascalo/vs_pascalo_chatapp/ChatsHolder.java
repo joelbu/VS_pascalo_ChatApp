@@ -90,11 +90,13 @@ public class ChatsHolder {
         return mOwnPublicKey;
     }
 
-    public void setUpOwnInfo(UUID id, String name, PrivateKey privateKey, PublicKey publicKey) {
+    public void setUpOwnInfo(UUID id, String name, PrivateKey privateKey, PublicKey publicKey, Context context) {
         mOwnId = id;
         mOwnName = name;
         mOwnPrivateKey = privateKey;
         mOwnPublicKey = publicKey;
+        // Our identity is so important that we write it to storage immediately
+        writeAddressBook(context);
     }
 
     // Writing to filesystem

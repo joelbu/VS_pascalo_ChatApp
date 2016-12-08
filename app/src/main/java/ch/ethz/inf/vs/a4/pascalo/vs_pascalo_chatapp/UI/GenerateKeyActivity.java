@@ -65,7 +65,7 @@ public class GenerateKeyActivity extends AppCompatActivity {
                     try {
                         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
                         Log.d(TAG, "KeyPairGenerator generated");
-                        kpg.initialize(128);
+                        kpg.initialize(1024);
                         Log.d(TAG, "KeyPairGenerator initialized");
                         KeyPair kp = kpg.genKeyPair();
                         Log.d(TAG, "KeyPair generated");
@@ -90,6 +90,7 @@ public class GenerateKeyActivity extends AppCompatActivity {
                         edit.apply();
                         finish();
                     } catch (Exception e) {
+                        e.printStackTrace();
                         Log.d(TAG, "RSA key pair error");
                     }
                 }

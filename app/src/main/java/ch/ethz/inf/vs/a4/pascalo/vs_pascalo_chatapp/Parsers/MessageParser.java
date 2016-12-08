@@ -16,8 +16,6 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.VectorClock;
 
 public class MessageParser {
 
-    // Made with randomness from atmospheric noise provided by random.org
-    private static int magicNumber = -432185306;
     private UUID me;
 
     public MessageParser(UUID me) {
@@ -118,8 +116,6 @@ public class MessageParser {
     public JSONObject serializeForNetwork(Message message) {
         JSONObject json = new JSONObject();
         try {
-            json.put("magic", magicNumber);
-
             json.put("timeWritten", message.getTimeWritten().getTimeInMillis());
             json.put("clock", message.getClock().serializeForNetwork());
 
@@ -134,12 +130,6 @@ public class MessageParser {
     // Parse given String, that came from network into given message and sender.
     public ParsedMessage parseFromNetwork(String string) {
         ParsedMessage ret = new ParsedMessage();
-
-        // The magic number must be early in the string, if not don't bother trying JSON
-        if (!string.substring(0, 25).contains(Integer.toString(magicNumber)))  {
-            ret.status = 2;
-            return ret;
-        }
 
         try {
             JSONObject json = new JSONObject(string);
