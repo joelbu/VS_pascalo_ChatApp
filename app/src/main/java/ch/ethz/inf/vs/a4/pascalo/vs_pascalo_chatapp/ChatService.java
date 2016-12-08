@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -279,7 +280,30 @@ public class ChatService extends Service {
         }
 
         if (cipherText != null) {
-            mConnector.broadcastMessage(cipherText);
+
+            if (receiver.equals(mChatsHolder.getOwnId())) {
+
+                Log.d(this.getClass().getSimpleName(), "Writing to ourselves");
+                Log.d(this.getClass().getSimpleName(), "Is this an ack?: " + String.valueOf(message.isAckMessage()));
+                Log.d(this.getClass().getSimpleName(), "This has a VC of: " + String.valueOf(message.getClock().serializeForNetwork()));
+                final byte[] cipherTextDelayed = cipherText;
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        onReceiveMessage(cipherTextDelayed);
+                    }
+
+                }, 5000);
+
+
+            } else {
+                mConnector.broadcastMessage(cipherText);
+            }
+
+
         }
     }
 
@@ -498,6 +522,11 @@ public class ChatService extends Service {
                     GregorianCalendar.getInstance(), new VectorClock(5, 8), "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDbW7VLPFD0bsagHIC0vnSFbHn7RsbXeniDqwN-6j63HYLoGpvWcWJL8hQgVAHVwpEkqQYwQdzmh0RY55sikG-9R-X3KDd5mGghumMIlc7dPau1JlxWqMjSHJ3AmggHkJr0c4QeL2_u-9GqDpTmjTI77-mntU1mrD-XU-gPOx8QSwIDAQAB"));
             mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, false,
                     GregorianCalendar.getInstance(), new VectorClock(5, 9), "So add me and write back"));
+
+            mChatsHolder.addPartner(mChatsHolder.getOwnId(), "Myself", mChatsHolder.getOwnPublicKey());
+
+            mChatsHolder.addMessage(mChatsHolder.getOwnId(), new Message(true, true, false,
+                    GregorianCalendar.getInstance(), new VectorClock(0, 1), "Okay let's see"));
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
