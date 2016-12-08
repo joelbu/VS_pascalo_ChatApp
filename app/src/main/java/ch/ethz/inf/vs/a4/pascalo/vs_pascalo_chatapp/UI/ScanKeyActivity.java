@@ -92,6 +92,7 @@ public class ScanKeyActivity extends AppCompatActivity{
                         UUID chatPartnerId = UUID.fromString(mIdEditText.getText().toString());
                         String chatPartnerName = mNameEditText.getText().toString();
                         PublicKey key = KeyParser.parsePublicKey(mKeyEditText.getText().toString());
+                        // TODO: can key be null or is it only empty ("")
                         if(key != null && !chatPartnerName.equals("")) {
                             mBoundService.addPartner(chatPartnerId, chatPartnerName, key);
                             Log.d(TAG, "The name of the chat partner is" + mNameEditText.getText().toString());
