@@ -82,3 +82,4 @@ have more overhead
     - store chats when new messages are added to it
     - notification is not visible
     - i saw a lifecycle bug earlier but don't remember what it was
+    - perhaps we can avoid trying to read address book on first start, I think the filenotfound exception is rather slow
