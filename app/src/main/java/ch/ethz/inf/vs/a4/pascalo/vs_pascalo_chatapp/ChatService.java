@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Vibrator;
@@ -27,7 +26,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.security.spec.InvalidParameterSpecException;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.TreeSet;
@@ -55,17 +53,20 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
     }
 
+    public static final int AES_KEY_LENGTH = 192;
+    public static final int RSA_KEY_LENGTH = 1024;
+    private static final long VIBRATION_TIME = 500L; //in milliseconds
+    private static final int TIMES_OF_VIBRATION = 2;
+
     private ChatsHolder mChatsHolder;
     private Chat mCurrentChat;
     private boolean mChatsChanged;
     private Connector mConnector;
     private MessageParser mMessageParser;
 
-    // flags to know if we should play sound or not resp. vibrate or not
-    private boolean vibrate;
-    private long vibrating_time = (long) 0.5; // in seconds
-    private int vibrate_for_n_times = 2;
-    private boolean sound;
+    // flags to know if we should play mSound or not resp. mVibrate or not
+    private boolean mVibrate;
+    private boolean mSound;
 
     // For use in MainActivity only, ChatActivity is only supposed to interact with the current
     // chat through the methods below
@@ -154,7 +155,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         });
     }
 
-    // TODO: Better crypto? Signing a message hash and appending it? Symmetric crypto (AES?) for message content and signature, encrypting the key with RSA and appending that to the message?
+    // TODO: Signing a message hash and appending it?
     // This is going to be slow and vulnerable to malleability attacks, and we don't have any
     // sender authentication but it doesn't really matter for our project
     private byte[] encryptMessage(byte[] payload) {
@@ -167,7 +168,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
             // Generate a random AES key for each message
             KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-            keyGenerator.init(192);
+            keyGenerator.init(AES_KEY_LENGTH);
             SecretKey aesKey = keyGenerator.generateKey();
 
             // Ignore the warning android studio gives here about ECB,
@@ -175,10 +176,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
             final Cipher rsaCipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
             rsaCipher.init(Cipher.ENCRYPT_MODE, mCurrentChat.getChatPartnerPublicKey());
             byte[] serialized = KeyParser.serializeAesKey(aesKey);
-            Log.d(this.getClass().getSimpleName(), "Length of AES key is: " + serialized.length);
-            Log.d(this.getClass().getSimpleName(), "rsaCipher = " + rsaCipher.toString());
-            Log.d(this.getClass().getSimpleName(), "serialized is: " + serialized.toString());
-            Log.d(this.getClass().getSimpleName(), "rsaCipher.doFinal(serialized) = " + rsaCipher.doFinal(serialized).toString());
+            Log.d(this.getClass().getSimpleName(), "Length of AES key and magic in Base64 is: " + serialized.length + "Bytes");
             byte[] encryptedAesKey = rsaCipher.doFinal(serialized);
 
             // Encrypt the payload
@@ -301,8 +299,8 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
                 //show built notification
                 notificationManager.notify(17, builder.build());
 
-                // play sound if necessary
-                if (sound) {
+                // play mSound if necessary
+                if (mSound) {
                     //create media player
                     AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
                     /*
@@ -312,18 +310,18 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
                             //, new AudioAttributes.Builder().setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED).build(),
                             //am.generateAudioSessionId()
                     ); */
-                    // play sound
+                    // play mSound
                     //mp.start();
                 }
 
-                // vibrate if necessary
-                if (vibrate) {
-                    // vibrate
-                    long ms = (long) (1000.0 * vibrating_time);
+                // mVibrate if necessary
+                if (mVibrate) {
+                    // mVibrate
+
                     Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     // short and esy pattern
-                    for (int i=0; i<vibrate_for_n_times; i++){
-                        v.vibrate(ms);
+                    for (int i = 0; i < TIMES_OF_VIBRATION; i++){
+                        v.vibrate(VIBRATION_TIME);
                     }
                 }
 
@@ -342,8 +340,8 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
         // TODO: Make sure we react to configuration changes like vibration off
-        vibrate = sharedPreferences.getBoolean("check_box_vibrate", true);
-        sound = sharedPreferences.getBoolean("check_box_vibrate", true);
+        mVibrate = sharedPreferences.getBoolean("check_box_vibrate", true);
+        mSound = sharedPreferences.getBoolean("check_box_vibrate", true);
 
     }
 
@@ -414,7 +412,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
             Log.d(this.getClass().getSimpleName(), "KeyPairGenerator generated");
-            kpg.initialize(1024);
+            kpg.initialize(RSA_KEY_LENGTH);
             Log.d(this.getClass().getSimpleName(), "KeyPairGenerator initialized");
             KeyPair kp;
             PublicKey publicKey;

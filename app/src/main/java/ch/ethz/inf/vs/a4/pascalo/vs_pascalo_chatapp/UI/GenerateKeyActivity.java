@@ -65,7 +65,7 @@ public class GenerateKeyActivity extends AppCompatActivity {
                     try {
                         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
                         Log.d(TAG, "KeyPairGenerator generated");
-                        kpg.initialize(1024);
+                        kpg.initialize(ChatService.RSA_KEY_LENGTH);
                         Log.d(TAG, "KeyPairGenerator initialized");
                         KeyPair kp = kpg.genKeyPair();
                         Log.d(TAG, "KeyPair generated");
