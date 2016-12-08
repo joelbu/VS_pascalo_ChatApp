@@ -21,8 +21,8 @@
 
 5. implement a service that handles message state, address book state, receiving messages
     including decryption and notification handling
-    PARTIALLY - Joel - 2016-12-05
-    TODO: Encryption and decryption, acknowledgements, notifications
+    PARTIALLY - Joel - 2016-12-08
+    TODO: notifications
     The rest pretty much done
 
 6. the service has to be started on app start if it is not running, destroy if GO OFFLINE
@@ -81,3 +81,4 @@ have more overhead
     - network configuration still missing
     - store chats when new messages are added to it
     - notification is not visible
+    - i saw a lifecycle bug earlier but don't remember what it was
