@@ -38,7 +38,13 @@ public class ChatParser {
         try {
             json.put("chatPartnerID", chat.getChatPatnerID().toString());
             json.put("chatPartnerName", chat.getChatPartnerName());
-            json.put("chatPartnerPublicKey", chat.getChatPartnerPublicKey());
+
+            if(chat.getChatPartnerPublicKey() == null) {
+                json.put("chatPartnerKeyKnown", false);
+            } else {
+                json.put("chatPartnerKeyKnown", true);
+                json.put("chatPartnerPublicKey", chat.getChatPartnerPublicKey());
+            }
             json.put("unreadMessages", chat.getUnreadMessages());
             json.put("recentActivity", chat.getRecentActivity().getTimeInMillis());
             json.put("clockTime", chat.getLatestClock().serializeForStorage());
@@ -84,7 +90,10 @@ public class ChatParser {
             VectorClock clockTime = new VectorClock();
             clockTime.parseFromStorage(json.getJSONObject("clockTime"));
 
-            PublicKey key = KeyParser.parsePublicKey(json.getString("chatPartnerPublicKey"));
+            PublicKey key = null;
+            if(json.getBoolean("chatPartnerKeyKnown")) {
+                key = KeyParser.parsePublicKey(json.getString("chatPartnerPublicKey"));
+            }
 
             ret.chat = new Chat(
                     UUID.fromString(json.getString("chatPartnerID")),

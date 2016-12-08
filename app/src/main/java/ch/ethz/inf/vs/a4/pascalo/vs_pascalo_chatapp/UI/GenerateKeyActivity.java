@@ -88,7 +88,7 @@ public class GenerateKeyActivity extends AppCompatActivity {
                             SharedPreferences prefs = PreferenceManager
                                     .getDefaultSharedPreferences(GenerateKeyActivity.this);
                             SharedPreferences.Editor edit = prefs.edit();
-                            edit.putBoolean("key-pair-generated", true);
+                            edit.putBoolean("is-key-pair-generated", true);
                             edit.apply();
 
                             mBoundService.generateTestChats();

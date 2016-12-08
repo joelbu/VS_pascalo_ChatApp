@@ -62,7 +62,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onStart() {
         boolean keyPairGenerated = PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean("key-pair-generated", false);
+                .getBoolean("is-key-pair-generated", false);
+        Log.d(this.getClass().getSimpleName(), "KeyPairGenerated: " + String.valueOf(keyPairGenerated));
         if(!keyPairGenerated) {
             this.startActivity(new Intent(this, GenerateKeyActivity.class));
         }
