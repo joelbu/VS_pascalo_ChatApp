@@ -26,4 +26,8 @@
     <string name="send_message_button_text">Send</string>
     <string name="choose_your_username">Choose your username...</string>
     <string name="identity_set_up_title">Identity set-up</string>
+    <string name="error_invalid_UUID">Invalid UUID. Please enter a valid UUID.</string>
+    <string name="error_key_is_null">Key is an empty string. Please enter a valid key.</string>
+    <string name="error_chatPartnerName_is_empty">The name of the chat partner is left empty. Please insert a name.</string>
+    <string name="error_empty_username">The Username is empty. Please enter a name.</string>
 </resources>

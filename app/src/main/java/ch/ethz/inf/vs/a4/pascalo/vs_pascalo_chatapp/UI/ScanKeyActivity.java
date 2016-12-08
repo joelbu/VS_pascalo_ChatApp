@@ -88,12 +88,38 @@ public class ScanKeyActivity extends AppCompatActivity{
             Button add = (Button) findViewById(R.id.button_add_chat_partner);
             add.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    PublicKey key = KeyParser.parsePublicKey(mKeyEditText.getText().toString());
-                    if(key != null) {
-                        mBoundService.addPartner(UUID.fromString(mIdEditText.getText().toString()),
-                                mNameEditText.getText().toString(), key);
-                        Log.d(TAG, "The name of the chat partner is" + mNameEditText.getText().toString());
-                        finish();
+                    try {
+                        UUID chatPartnerId = UUID.fromString(mIdEditText.getText().toString());
+                        String chatPartnerName = mNameEditText.getText().toString();
+                        PublicKey key = KeyParser.parsePublicKey(mKeyEditText.getText().toString());
+                        if(key != null && !chatPartnerName.equals("")) {
+                            mBoundService.addPartner(chatPartnerId, chatPartnerName, key);
+                            Log.d(TAG, "The name of the chat partner is" + mNameEditText.getText().toString());
+                            finish();
+                        } else {
+                            if (key == null) {
+                                Toast.makeText(
+                                        ScanKeyActivity.this,
+                                        R.string.error_key_is_null,
+                                        Toast.LENGTH_LONG
+                                        );
+                            }
+                            if (chatPartnerName.equals("")) {
+                                Toast.makeText(
+                                        ScanKeyActivity.this,
+                                        R.string.error_chatPartnerName_is_empty,
+                                        Toast.LENGTH_LONG
+                                );
+                            }
+                        }
+
+                    } catch (IllegalArgumentException e) {
+                        Toast.makeText(
+                                ScanKeyActivity.this,
+                                R.string.error_invalid_UUID,
+                                Toast.LENGTH_LONG
+                        );
+                        e.printStackTrace();
                     }
                 }
             });
