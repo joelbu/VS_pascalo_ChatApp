@@ -176,6 +176,9 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
             rsaCipher.init(Cipher.ENCRYPT_MODE, mCurrentChat.getChatPartnerPublicKey());
             byte[] serialized = KeyParser.serializeAesKey(aesKey);
             Log.d(this.getClass().getSimpleName(), "Length of AES key is: " + serialized.length);
+            Log.d(this.getClass().getSimpleName(), "rsaCipher = " + rsaCipher.toString());
+            Log.d(this.getClass().getSimpleName(), "serialized is: " + serialized.toString());
+            Log.d(this.getClass().getSimpleName(), "rsaCipher.doFinal(serialized) = " + rsaCipher.doFinal(serialized).toString());
             byte[] encryptedAesKey = rsaCipher.doFinal(serialized);
 
             // Encrypt the payload

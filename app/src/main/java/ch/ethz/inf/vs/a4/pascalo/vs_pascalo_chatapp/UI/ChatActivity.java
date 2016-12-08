@@ -119,10 +119,10 @@ public class ChatActivity extends AppCompatActivity{
             Button scan = (Button) findViewById(R.id.button_send_messege);
             scan.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    mBoundService.sendMessage(
-                            ((EditText)findViewById(R.id.editMessage)).getText().toString()
-                    );
                     EditText editText = (EditText) findViewById(R.id.editMessage);
+                    mBoundService.sendMessage(
+                            editText.getText().toString()
+                    );
                     editText.setText("");
                 }
             });
