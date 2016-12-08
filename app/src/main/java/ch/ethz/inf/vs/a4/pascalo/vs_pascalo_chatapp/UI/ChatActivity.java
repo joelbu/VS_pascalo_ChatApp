@@ -101,10 +101,6 @@ public class ChatActivity extends AppCompatActivity{
             Log.d(ChatActivity.class.getSimpleName(), "Service bound");
             mServiceIsBound = true;
 
-            // Tell the user about this for our demo.
-            Toast.makeText(ChatActivity.this, R.string.local_service_connected,
-                    Toast.LENGTH_SHORT).show();
-
             // Tell the service who the current partner is, so it knows on which chats to
             // call the functions
             Log.d(ChatActivity.class.getSimpleName(), "Setting chat partner");
@@ -122,7 +118,7 @@ public class ChatActivity extends AppCompatActivity{
                     EditText editText = (EditText) findViewById(R.id.editMessage);
                     String msg = editText.getText().toString();
                     if (!msg.equals("")) {
-                        mBoundService.sendMessage(msg);
+                        mBoundService.prepareAndSendMessage(msg);
                         editText.setText("");
                     }
                 }

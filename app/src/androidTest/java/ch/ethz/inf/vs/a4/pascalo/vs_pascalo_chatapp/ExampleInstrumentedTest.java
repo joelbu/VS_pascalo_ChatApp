@@ -46,9 +46,9 @@ public class ExampleInstrumentedTest {
         calendar.setTimeInMillis(1480344165822L);
         Chat chat = new Chat(uuid, "Hans Muster", null, 0, calendar, new VectorClock(5, 5));
         TreeSet<Message> messages = new TreeSet<>();
-        messages.add(new Message(true, true, GregorianCalendar.getInstance(),
+        messages.add(new Message(true, true, false, GregorianCalendar.getInstance(),
                 new VectorClock(1, 4), "Text?"));
-        messages.add(new Message(true, true, GregorianCalendar.getInstance(),
+        messages.add(new Message(true, true, false, GregorianCalendar.getInstance(),
                 new VectorClock(5, 5), "Text6"));
         chat.setMessageList(messages);
         chats.put(uuid, chat);
@@ -59,9 +59,9 @@ public class ExampleInstrumentedTest {
         calendar1.setTimeInMillis(1480344165828L);
         Chat chat1 = new Chat(uuid1, "Max Problem", null, 0, calendar1, new VectorClock(1, 1));
         TreeSet<Message> messages1 = new TreeSet<>();
-        messages1.add(new Message(false, false, GregorianCalendar.getInstance(),
+        messages1.add(new Message(false, false, false, GregorianCalendar.getInstance(),
                 new VectorClock(0, 0), "test"));
-        messages1.add(new Message(true, false, GregorianCalendar.getInstance(),
+        messages1.add(new Message(true, false, false, GregorianCalendar.getInstance(),
                 new VectorClock(1, 1), "ack"));
         chat1.setMessageList(messages1);
         chats.put(uuid1, chat1);
@@ -72,6 +72,7 @@ public class ExampleInstrumentedTest {
                         "[" +
                             "{" +
                                 "\"chatPartnerID\":\"f590e29d-6315-4572-a2bc-5009a3ac1251\"," +
+                                "\"isAck\":false," +
                                 "\"chatPartnerName\":\"Hans Muster\"," +
                                 "\"chatPartnerPublicKey\":\"\"," +
                                 "\"unreadMessages\":0," +
@@ -80,6 +81,7 @@ public class ExampleInstrumentedTest {
                             "}," +
                             "{" +
                                 "\"chatPartnerID\":\"7446c9b8-209b-467a-ae27-80e419381722\"," +
+                                "\"isAck\":false," +
                                 "\"chatPartnerName\":\"Max Problem\"," +
                                 "\"chatPartnerPublicKey\":\"\"," +
                                 "\"unreadMessages\":0," +
@@ -100,6 +102,7 @@ public class ExampleInstrumentedTest {
                             "[" +
                                 "{" +
                                     "\"chatPartnerID\":\"f590e29d-6315-4572-a2bc-5009a3ac1251\"," +
+                                    "\"isAck\":false," +
                                     "\"chatPartnerName\":\"Hans Muster\"," +
                                     "\"chatPartnerPublicKey\":\"\"," +
                                     "\"unreadMessages\":0," +
@@ -108,6 +111,7 @@ public class ExampleInstrumentedTest {
                                 "}," +
                                 "{" +
                                     "\"chatPartnerID\":\"7446c9b8-209b-467a-ae27-80e419381722\"," +
+                                    "\"isAck\":false," +
                                     "\"chatPartnerName\":\"Max Problem\"," +
                                     "\"chatPartnerPublicKey\":\"\"," +
                                     "\"unreadMessages\":0," +

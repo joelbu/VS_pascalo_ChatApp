@@ -96,6 +96,7 @@ public class MessageParser {
             ret.message = new Message(
                     json.getBoolean("writtenByMe"),
                     json.getBoolean("acked"),
+                    false,
                     calendar,
                     clock,
                     json.getString("text")
@@ -120,12 +121,18 @@ public class MessageParser {
     public JSONObject serializeForNetwork(Message message) {
         JSONObject json = new JSONObject();
         try {
-            json.put("timeWritten", message.getTimeWritten().getTimeInMillis());
-            json.put("clock", message.getClock().serializeForNetwork());
+            if (message.isAckMessage()) {
+                json.put("isAck", true);
+                json.put("sender", me.toString());
+                json.put("clock", message.getClock().serializeForNetwork());
 
-            Log.d(TAG, "me is: " + me.toString());
-            json.put("sender", me.toString());
-            json.put("message", message);
+            } else {
+                json.put("isAck", false);
+                json.put("sender", me.toString());
+                json.put("clock", message.getClock().serializeForNetwork());
+                json.put("timeWritten", message.getTimeWritten().getTimeInMillis());
+                json.put("text", message.getText());
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -139,26 +146,51 @@ public class MessageParser {
         try {
             JSONObject json = new JSONObject(string);
 
-            Calendar calendar = new GregorianCalendar();
-            calendar.setTimeInMillis(json.getLong("timeWritten"));
+            if (json.getBoolean("isAck")) {
 
-            VectorClock clock = new VectorClock();
-            clock.parseFromNetwork(json.getJSONObject("clock"));
+                ret.status = 1;
+                ret.sender = UUID.fromString(json.getString("sender"));
 
-            ret.message = new Message(
-                    //This information is not contained in the network message, but clear from circumstance
-                    false,
-                    false,
-                    calendar,
-                    clock,
-                    json.getString("text")
-            );
+                VectorClock clock = new VectorClock();
+                clock.parseFromNetwork(json.getJSONObject("clock"));
+                ret.message = new Message(
+                        //This information is not contained in the network message, but clear from circumstance
+                        false,
+                        true,
+                        true,
+                        null,
+                        clock,
+                        null
+                );
 
-            ret.sender = UUID.fromString(json.getString("sender"));
-            ret.status = 0;
+            } else {
+
+                ret.status = 0;
+                ret.sender = UUID.fromString(json.getString("sender"));
+
+                VectorClock clock = new VectorClock();
+                clock.parseFromNetwork(json.getJSONObject("clock"));
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTimeInMillis(json.getLong("timeWritten"));
+                String text = json.getString("text");
+
+                ret.message = new Message(
+                        //This information is not contained in the network message, but clear from circumstance
+                        false,
+                        false,
+                        false,
+                        calendar,
+                        clock,
+                        text
+                );
+
+                ret.sender = UUID.fromString(json.getString("sender"));
+
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
-            ret.status = 1;
+            ret.status = -1;
         }
         return ret;
     }

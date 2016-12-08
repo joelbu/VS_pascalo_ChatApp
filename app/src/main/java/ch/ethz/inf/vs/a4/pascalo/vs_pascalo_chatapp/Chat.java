@@ -97,7 +97,7 @@ public class Chat {
 
         latestClock.tick();
 
-        Message message = new Message(true, false, GregorianCalendar.getInstance(),
+        Message message = new Message(true, false, false, GregorianCalendar.getInstance(),
                 new VectorClock(latestClock), text);
 
         messageList.add(message);
@@ -119,6 +119,17 @@ public class Chat {
 
         messageList.add(message);
         updateRecentActivity();
+    }
+
+    public void acknowledgeMessage(Message ack) {
+        // Get least element in the tree greater than or equal to ack
+        Message message = messageList.ceiling(ack);
+
+        // Check to see if it's actually the correct message
+        if (ack.equals(message)) {
+            // Finally mark it acked
+            message.setAcked(true);
+        }
     }
 
     public static final Comparator<Chat> COMPARATOR = new Comparator<Chat>() {

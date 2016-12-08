@@ -48,7 +48,7 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.ShowKeyActivity;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.QRContentParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ZXing.IntentIntegrator;
 
-public class ChatService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class ChatService extends Service {
     static {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
     }
@@ -158,7 +158,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
     // TODO: Signing a message hash and appending it?
     // This is going to be slow and vulnerable to malleability attacks, and we don't have any
     // sender authentication but it doesn't really matter for our project
-    private byte[] encryptMessage(byte[] payload) {
+    private byte[] encryptMessage(byte[] payload, UUID receiver) {
         try {
 
             // Generate a random initialisation vector for each message
@@ -174,7 +174,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
             // Ignore the warning android studio gives here about ECB,
             // it only applies to symmetric crypto
             final Cipher rsaCipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-            rsaCipher.init(Cipher.ENCRYPT_MODE, mCurrentChat.getChatPartnerPublicKey());
+            rsaCipher.init(Cipher.ENCRYPT_MODE, mChatsHolder.getChat(receiver).getChatPartnerPublicKey());
             byte[] serialized = KeyParser.serializeAesKey(aesKey);
             Log.d(this.getClass().getSimpleName(), "Length of AES key and magic in Base64 is: " + serialized.length + "Bytes");
             byte[] encryptedAesKey = rsaCipher.doFinal(serialized);
@@ -244,20 +244,36 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         }
     }
 
-    // This is intended to be called from ChatActivity after a user pressed send
-    public void sendMessage(String text) {
+    private void prepareAndSendAcknowledgement(UUID receiver, Message message) {
+        Message ack = new Message(
+                true,
+                true,
+                true,
+                null,
+                new VectorClock(message.getClock()),
+                null);
 
+        sendMessage(receiver, ack);
+    }
+
+    // This is intended to be called from ChatActivity after a user pressed send
+    public void prepareAndSendMessage(String text) {
         // The Chat has the context information necessary to construct a Message
         Message message = mCurrentChat.constructMessageFromUser(text);
 
         // Telling the UI that something has changed
         broadcastViewChange();
 
+        sendMessage(mCurrentChat.getChatPatnerID(), message);
+    }
+
+
+    private void sendMessage(UUID receiver, Message message) {
         String payload = mMessageParser.serializeForNetwork(message).toString();
 
         byte[] cipherText = null;
         try {
-            cipherText = encryptMessage(payload.getBytes("UTF-8"));
+            cipherText = encryptMessage(payload.getBytes("UTF-8"), receiver);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -278,9 +294,13 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
             ParsedMessage ret = mMessageParser.parseFromNetwork(new String(payload, "UTF-8"));
 
-            if (ret.status == 0) {
+            if (ret.status == 0) { // We just got a standard message
 
                 mChatsHolder.addMessage(ret.sender, ret.message);
+                prepareAndSendAcknowledgement(ret.sender, ret.message);
+
+                // Only make notification if the chat is not currently open
+                if(!ret.sender.equals(mCurrentChat.getChatPatnerID())) { // Chat is not open
 
                 // notification
                 // TODO: add a notification in the status bar
@@ -320,15 +340,20 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
 
                     Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     // short and esy pattern
-                    for (int i = 0; i < TIMES_OF_VIBRATION; i++){
+                    for (int i = 0; i < TIMES_OF_VIBRATION; i++) {
                         v.vibrate(VIBRATION_TIME);
                     }
                 }
 
-                if (ret.sender.equals(mCurrentChat.getChatPatnerID())) {
+                } else  { // Chat is indeed currently open
                     broadcastViewChange();
                 }
 
+            } else if (ret.status == 1) { // We just got an ack message
+                mChatsHolder.markMessageAcknowledged(ret.sender, ret.message);
+                if (ret.sender.equals(mCurrentChat.getChatPatnerID())) {
+                    broadcastViewChange();
+                }
             }
 
         } catch (UnsupportedEncodingException e) {
@@ -337,13 +362,16 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         }
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        // TODO: Make sure we react to configuration changes like vibration off
-        mVibrate = sharedPreferences.getBoolean("check_box_vibrate", true);
-        mSound = sharedPreferences.getBoolean("check_box_vibrate", true);
+    private SharedPreferences.OnSharedPreferenceChangeListener mOnSPChangeListener =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sP, String s) {
+                    mVibrate = sP.getBoolean("check_box_vibrate", true);
+                    mSound = sP.getBoolean("check_box_vibrate", true);
+                }
+            };
 
-    }
+
 
     public class LocalBinder extends Binder {
         public ChatService getService() {
@@ -368,10 +396,12 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         mChatsHolder.readAllThreads(this);
 
         // Since notifications must come from the service I moved this here
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        // TODO: Maybe read preferences into member fields
+        sharedPreferences.registerOnSharedPreferenceChangeListener(mOnSPChangeListener);
+
+        mVibrate = sharedPreferences.getBoolean("check_box_vibrate", true);
+        mSound = sharedPreferences.getBoolean("check_box_vibrate", true);
 
 
         // just for testing
@@ -397,7 +427,7 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
         Log.d(ChatService.class.getSimpleName(), "onDestroy() called");
         mConnector.disconnectFromWDMF();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-                .unregisterOnSharedPreferenceChangeListener(this);
+                .unregisterOnSharedPreferenceChangeListener(mOnSPChangeListener);
 
         //TODO: Writeback when something changes instead of here
         // Writing upon service shutdown may not be needed if we write whenever
@@ -424,24 +454,24 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
             UUID uuid = UUID.randomUUID();
             mChatsHolder.addPartner(uuid, "Hans Muster", publicKey);
 
-            mChatsHolder.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
-                    new VectorClock(1, 4), "Text?"));
-            mChatsHolder.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
-                    new VectorClock(5, 5), "Text6"));
-            mChatsHolder.addMessage(uuid, new Message(true, false, GregorianCalendar.getInstance(),
-                    new VectorClock(7, 6), "Text8"));
-            mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
-                    new VectorClock(2, 2), "Text3"));
-            mChatsHolder.addMessage(uuid, new Message(true, true, GregorianCalendar.getInstance(),
-                    new VectorClock(1, 0), "Text2a"));
-            mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
-                    new VectorClock(0, 1), "Text2b"));
-            mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
-                    new VectorClock(3, 4), "Text4"));
-            mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
-                    new VectorClock(5, 6), "Text7"));
-            mChatsHolder.addMessage(uuid, new Message(false, true, GregorianCalendar.getInstance(),
-                    new VectorClock(0, 0), "Text1"));
+            mChatsHolder.addMessage(uuid, new Message(true, false, false,
+                    GregorianCalendar.getInstance(), new VectorClock(1, 4), "Text?"));
+            mChatsHolder.addMessage(uuid, new Message(true, false, false,
+                    GregorianCalendar.getInstance(), new VectorClock(5, 5), "Text6"));
+            mChatsHolder.addMessage(uuid, new Message(true, false, false,
+                    GregorianCalendar.getInstance(), new VectorClock(7, 6), "Text8"));
+            mChatsHolder.addMessage(uuid, new Message(false, true, false,
+                    GregorianCalendar.getInstance(), new VectorClock(2, 2), "Text3"));
+            mChatsHolder.addMessage(uuid, new Message(true, true, false,
+                    GregorianCalendar.getInstance(), new VectorClock(1, 0), "Text2a"));
+            mChatsHolder.addMessage(uuid, new Message(false, true, false,
+                    GregorianCalendar.getInstance(), new VectorClock(0, 1), "Text2b"));
+            mChatsHolder.addMessage(uuid, new Message(false, true, false,
+                    GregorianCalendar.getInstance(), new VectorClock(3, 4), "Text4"));
+            mChatsHolder.addMessage(uuid, new Message(false, true, false,
+                    GregorianCalendar.getInstance(), new VectorClock(5, 6), "Text7"));
+            mChatsHolder.addMessage(uuid, new Message(false, true, false,
+                    GregorianCalendar.getInstance(),  new VectorClock(0, 0), "Text1"));
 
             kp = kpg.genKeyPair();
             Log.d(this.getClass().getSimpleName(), "KeyPair for Max generated");
@@ -450,24 +480,24 @@ public class ChatService extends Service implements SharedPreferences.OnSharedPr
             UUID uuid1 = UUID.randomUUID();
             mChatsHolder.addPartner(uuid1, "Max Problem", publicKey);
 
-            mChatsHolder.addMessage(uuid1, new Message(false, false, GregorianCalendar.getInstance(),
-                    new VectorClock(0, 1), "test"));
-            mChatsHolder.addMessage(uuid1, new Message(true, false, GregorianCalendar.getInstance(),
-                    new VectorClock(1, 1), "ack"));
+            mChatsHolder.addMessage(uuid1, new Message(false, false, false,
+                    GregorianCalendar.getInstance(), new VectorClock(0, 1), "test"));
+            mChatsHolder.addMessage(uuid1, new Message(true, false, false,
+                    GregorianCalendar.getInstance(), new VectorClock(1, 1), "ack"));
 
 
             UUID uuidOfAStranger = UUID.randomUUID();
 
-            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
-                    new VectorClock(5, 5), "Hey remember me?"));
-            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
-                    new VectorClock(5, 6), "We met at the bar"));
-            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
-                    new VectorClock(5, 7), "Oh you don't have my key yet right.\nIt's:\nass"));
-            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
-                    new VectorClock(5, 8), "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDbW7VLPFD0bsagHIC0vnSFbHn7RsbXeniDqwN-6j63HYLoGpvWcWJL8hQgVAHVwpEkqQYwQdzmh0RY55sikG-9R-X3KDd5mGghumMIlc7dPau1JlxWqMjSHJ3AmggHkJr0c4QeL2_u-9GqDpTmjTI77-mntU1mrD-XU-gPOx8QSwIDAQAB"));
-            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, GregorianCalendar.getInstance(),
-                    new VectorClock(5, 9), "So add me and write back"));
+            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, false,
+                    GregorianCalendar.getInstance(), new VectorClock(5, 5), "Hey remember me?"));
+            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, false,
+                    GregorianCalendar.getInstance(), new VectorClock(5, 6), "We met at the bar"));
+            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, false,
+                    GregorianCalendar.getInstance(), new VectorClock(5, 7), "Oh you don't have my key yet right.\nIt's:\nass"));
+            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, false,
+                    GregorianCalendar.getInstance(), new VectorClock(5, 8), "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDbW7VLPFD0bsagHIC0vnSFbHn7RsbXeniDqwN-6j63HYLoGpvWcWJL8hQgVAHVwpEkqQYwQdzmh0RY55sikG-9R-X3KDd5mGghumMIlc7dPau1JlxWqMjSHJ3AmggHkJr0c4QeL2_u-9GqDpTmjTI77-mntU1mrD-XU-gPOx8QSwIDAQAB"));
+            mChatsHolder.addMessage(uuidOfAStranger, new Message(false, false, false,
+                    GregorianCalendar.getInstance(), new VectorClock(5, 9), "So add me and write back"));
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

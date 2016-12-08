@@ -46,6 +46,10 @@ public class ChatsHolder {
         mChats.get(id).addMessage(message);
     }
 
+    public void markMessageAcknowledged(UUID id, Message message) {
+        mChats.get(id).acknowledgeMessage(message);
+    }
+
     // Either makes a new chat or updates an old one
     // Returns 0 if there is a new one
     public int addPartner(UUID id, String username, PublicKey publicKey) {

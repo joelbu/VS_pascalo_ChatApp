@@ -8,6 +8,7 @@ public class Message implements Comparable {
 
     private boolean writtenByMe;
     private boolean acked;
+    private boolean ackMessage;
 
     // For user display
     private Calendar timeWritten;
@@ -19,11 +20,12 @@ public class Message implements Comparable {
     private String text;
 
     // Used by serializer and for testing
-    public Message(boolean writtenByMe, boolean acked, Calendar timeWritten,
+    public Message(boolean writtenByMe, boolean acked, boolean ackMessage, Calendar timeWritten,
                    VectorClock clock, String text) {
 
         this.writtenByMe = writtenByMe;
         this.acked = acked;
+        this.ackMessage = ackMessage;
         this.timeWritten = timeWritten;
         this.clock = clock;
         this.text = text;
@@ -42,6 +44,10 @@ public class Message implements Comparable {
 
     public boolean isAcked() {
         return acked;
+    }
+
+    public boolean isAckMessage() {
+        return ackMessage;
     }
 
     public Calendar getTimeWritten() {
