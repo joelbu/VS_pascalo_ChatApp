@@ -102,14 +102,15 @@ public class ScanKeyActivity extends AppCompatActivity{
                                         ScanKeyActivity.this,
                                         R.string.error_key_is_null,
                                         Toast.LENGTH_LONG
-                                        );
+                                        ).show();
                             }
                             if (chatPartnerName.equals("")) {
                                 Toast.makeText(
                                         ScanKeyActivity.this,
                                         R.string.error_chatPartnerName_is_empty,
                                         Toast.LENGTH_LONG
-                                );
+                                ).show();
+
                             }
                         }
 
@@ -118,7 +119,7 @@ public class ScanKeyActivity extends AppCompatActivity{
                                 ScanKeyActivity.this,
                                 R.string.error_invalid_UUID,
                                 Toast.LENGTH_LONG
-                        );
+                        ).show();
                         e.printStackTrace();
                     }
                 }

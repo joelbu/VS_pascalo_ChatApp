@@ -100,7 +100,7 @@ public class GenerateKeyActivity extends AppCompatActivity {
                                 GenerateKeyActivity.this,
                                 R.string.error_empty_username,
                                 Toast.LENGTH_LONG
-                        );
+                        ).show();
                     }
                 }
             });
