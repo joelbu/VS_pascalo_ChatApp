@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.security.Key;
 import java.security.KeyPair;
@@ -62,36 +63,44 @@ public class GenerateKeyActivity extends AppCompatActivity {
 
                 @Override
                 public void onClick(View view) {
-                    try {
-                        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-                        Log.d(TAG, "KeyPairGenerator generated");
-                        kpg.initialize(ChatService.RSA_KEY_LENGTH);
-                        Log.d(TAG, "KeyPairGenerator initialized");
-                        KeyPair kp = kpg.genKeyPair();
-                        Log.d(TAG, "KeyPair generated");
-                        PublicKey publicKey = kp.getPublic();
-                        Log.d(TAG, "publicKey copied");
-                        Log.d(TAG, "publicKey format: " + publicKey.getFormat());
-                        PrivateKey privateKey = kp.getPrivate();
-                        Log.d(TAG, "privateKey copied");
-                        Log.d(TAG, "privateKey format: " + privateKey.getFormat());
+                    String username = mUsernameEditText.getText().toString();
+                    if (!username.equals("")) {
+                        try {
+                            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+                            Log.d(TAG, "KeyPairGenerator generated");
+                            kpg.initialize(ChatService.RSA_KEY_LENGTH);
+                            Log.d(TAG, "KeyPairGenerator initialized");
+                            KeyPair kp = kpg.genKeyPair();
+                            Log.d(TAG, "KeyPair generated");
+                            PublicKey publicKey = kp.getPublic();
+                            Log.d(TAG, "publicKey copied");
+                            Log.d(TAG, "publicKey format: " + publicKey.getFormat());
+                            PrivateKey privateKey = kp.getPrivate();
+                            Log.d(TAG, "privateKey copied");
+                            Log.d(TAG, "privateKey format: " + privateKey.getFormat());
 
-                        String username = mUsernameEditText.getText().toString();
-                        mBoundService.setUpOwnInfo(UUID.randomUUID(), username, privateKey, publicKey);
+                            mBoundService.setUpOwnInfo(UUID.randomUUID(), username, privateKey, publicKey);
 
-                        Log.d(TAG, "username and keypair stored (chatservice) in addressbook");
+                            Log.d(TAG, "username and keypair stored (chatservice) in addressbook");
 
-                        // Setting the flag in the preferences, so on next start of the app we
-                        // won't call GenerateKeyActivity again.
-                        SharedPreferences prefs = PreferenceManager
-                                .getDefaultSharedPreferences(GenerateKeyActivity.this);
-                        SharedPreferences.Editor edit = prefs.edit();
-                        edit.putBoolean("key-pair-generated", true);
-                        edit.apply();
-                        finish();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Log.d(TAG, "RSA key pair error");
+                            // Setting the flag in the preferences, so on next start of the app we
+                            // won't call GenerateKeyActivity again.
+                            SharedPreferences prefs = PreferenceManager
+                                    .getDefaultSharedPreferences(GenerateKeyActivity.this);
+                            SharedPreferences.Editor edit = prefs.edit();
+                            edit.putBoolean("key-pair-generated", true);
+                            edit.apply();
+                            finish();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Log.d(TAG, "RSA key pair error");
+                        }
+                    } else {
+                        Toast.makeText(
+                                GenerateKeyActivity.this,
+                                R.string.error_empty_username,
+                                Toast.LENGTH_LONG
+                        ).show();
                     }
                 }
             });
