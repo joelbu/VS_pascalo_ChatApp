@@ -344,7 +344,8 @@ public class ChatService extends Service {
                 // Only make notification if the chat is not currently open
                     // if the last active chat was the mCurrentChat there will be no notification
 
-                if(!(ret.sender.equals(mCurrentChat.getChatPatnerID()) && getCurrentChatOpenInfo())) { // Chat is not open
+                if(!(ret.sender.equals(mCurrentChat.getChatPatnerID())
+                        && getCurrentChatOpenInfo())) { // Chat is not open
 
                     // notification
                     // TODO: modifiy notation content
