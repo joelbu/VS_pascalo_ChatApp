@@ -46,7 +46,6 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.MessageParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedAesKey;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedIvKeyPayload;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedMessage;
-import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.ChatActivity;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.MainActivity;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.ShowKeyActivity;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.QRContentParser;
@@ -66,7 +65,7 @@ public class ChatService extends Service {
 
 
     private ChatsHolder mChatsHolder;
-    private Chat mCurrentChat;
+    private UUID mCurrentChatId;
     private boolean mChatsChanged;
     private Connector mConnector;
     private MessageParser mMessageParser;
@@ -85,28 +84,28 @@ public class ChatService extends Service {
 
     // Sets up the service to know what view is open in ChatActivity
     public void setChatPartner (UUID id) {
-        mCurrentChat = mChatsHolder.getChat(id);
+        mCurrentChatId = id;
     }
 
     public TreeSet<Message> getMessages() {
-        return mCurrentChat.getMessageList();
+        return mChatsHolder.getMessages(mCurrentChatId);
     }
 
     public String getPartnerName() {
-        return mCurrentChat.getChatPartnerName();
+        return mChatsHolder.getPartnerName(mCurrentChatId);
     }
 
     public PublicKey getPartnerKey() {
-        return mCurrentChat.getChatPartnerPublicKey();
+        return mChatsHolder.getPartnerKey(mCurrentChatId);
     }
 
     public void setUpOwnInfo(UUID id, String name, PrivateKey privateKey, PublicKey publicKey) {
-        mChatsHolder.setUpOwnInfo(id, name, privateKey, publicKey, this);
+        mChatsHolder.setUpOwnInfo(id, name, privateKey, publicKey);
         mMessageParser = new MessageParser(mChatsHolder.getOwnId());
     }
 
     public void forgetPartner() {
-        mChatsHolder.forget(mCurrentChat.getChatPatnerID());
+        mChatsHolder.forget(mCurrentChatId);
         mChatsChanged = true;
     }
 
@@ -128,11 +127,11 @@ public class ChatService extends Service {
     }
 
     public boolean isKeyKnown() {
-        return mCurrentChat.isKeyKnown();
+        return mChatsHolder.isKeyKnown(mCurrentChatId);
     }
 
     public void setUnreadMessages(int unreadMessages) {
-        mCurrentChat.setUnreadMessages(unreadMessages);
+        mChatsHolder.setUnreadMessages(mCurrentChatId, unreadMessages);
     }
 
     public void shareMyInfo(Activity activity) {
@@ -144,9 +143,9 @@ public class ChatService extends Service {
 
     public void shareChatPartnerInfo(Activity activity) {
         shareInfo(activity,
-                mCurrentChat.getChatPatnerID(),
-                mCurrentChat.getChatPartnerName(),
-                mCurrentChat.getChatPartnerPublicKey());
+                mCurrentChatId,
+                mChatsHolder.getPartnerName(mCurrentChatId),
+                mChatsHolder.getPartnerKey(mCurrentChatId));
     }
 
     private void shareInfo(final Activity activity, UUID id, String name, PublicKey key) {
@@ -165,11 +164,11 @@ public class ChatService extends Service {
     }
 
     public void setCurrentChatOpenInfo(boolean b) {
-        mCurrentChat.setOpenInActivity(b);
+        mChatsHolder.setOpenInActivity(mCurrentChatId, b);
     }
 
     public boolean getCurrentChatOpenInfo() {
-        return mCurrentChat.isOpenInActivity();
+        return mChatsHolder.isOpenInActivity(mCurrentChatId);
     }
 
     // TODO: Signing a message hash and appending it?
@@ -191,9 +190,10 @@ public class ChatService extends Service {
             // Ignore the warning android studio gives here about ECB,
             // it only applies to symmetric crypto
             final Cipher rsaCipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-            rsaCipher.init(Cipher.ENCRYPT_MODE, mChatsHolder.getChat(receiver).getChatPartnerPublicKey());
+            rsaCipher.init(Cipher.ENCRYPT_MODE, mChatsHolder.getPartnerKey(receiver));
             byte[] serialized = KeyParser.serializeAesKey(aesKey);
-            Log.d(this.getClass().getSimpleName(), "Length of AES key and magic in Base64 is: " + serialized.length + "Bytes");
+            Log.d(this.getClass().getSimpleName(), "Length of AES key and magic in Base64 is: " +
+                    serialized.length + "Bytes");
             byte[] encryptedAesKey = rsaCipher.doFinal(serialized);
 
             // Encrypt the payload
@@ -276,14 +276,14 @@ public class ChatService extends Service {
     // This is intended to be called from ChatActivity after a user pressed send
     public void prepareAndSendMessage(String text) {
         // The Chat has the context information necessary to construct a Message
-        Message message = mCurrentChat.constructMessageFromUser(text);
+        Message message = mChatsHolder.constructMessageFromUser(mCurrentChatId, text);
 
         // Telling the UI that something has changed
         broadcastViewChange();
 
         mChatsChanged = true;
 
-        sendMessage(mCurrentChat.getChatPatnerID(), message);
+        sendMessage(mCurrentChatId, message);
     }
 
 
@@ -346,7 +346,7 @@ public class ChatService extends Service {
                 // Only make notification if the chat is not currently open
                     // if the last active chat was the mCurrentChat there will be no notification
 
-                if(!(ret.sender.equals(mCurrentChat.getChatPatnerID())
+                if(!(ret.sender.equals(mCurrentChatId)
                         && getCurrentChatOpenInfo())) { // Chat is not open
 
                     // notification
@@ -358,7 +358,7 @@ public class ChatService extends Service {
                                     .setSmallIcon(android.R.drawable.ic_secure)
                                     .setContentTitle("SecureChat")
                                     .setContentText("You have a new message from "
-                                            + mCurrentChat.getChatPartnerName())
+                                            + mChatsHolder.getPartnerName(mCurrentChatId))
                                     .setOngoing(false)
                                     .setAutoCancel(true)
                                     .setContentIntent(PendingIntent.getActivity(
@@ -420,7 +420,7 @@ public class ChatService extends Service {
 
             } else if (ret.status == 1) { // We just got an ack message
                 mChatsHolder.markMessageAcknowledged(ret.sender, ret.message);
-                if (ret.sender.equals(mCurrentChat.getChatPatnerID())) {
+                if (ret.sender.equals(mCurrentChatId)) {
                     broadcastViewChange();
                 }
             }
@@ -458,13 +458,14 @@ public class ChatService extends Service {
 
     @Override
     public void onCreate() {
-        mChatsHolder = new ChatsHolder();
+        super.onCreate();
+        mChatsHolder = new ChatsHolder(getApplicationContext());
 
         // Now it just loads everything upon starting, we still need lazy initialisation
         // TODO: Lazy initialisation of message threads
 
-        mChatsHolder.readAddressBook(this);
-        mChatsHolder.readAllThreads(this);
+        mChatsHolder.readAddressBook();
+        mChatsHolder.readAllThreads();
 
         // Since notifications must come from the service I moved this here
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -499,13 +500,6 @@ public class ChatService extends Service {
         mConnector.disconnectFromWDMF();
         PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
                 .unregisterOnSharedPreferenceChangeListener(mOnSPChangeListener);
-
-        //TODO: Writeback when something changes instead of here
-        // Writing upon service shutdown may not be needed if we write whenever
-        // something new happens instead, but for now it will do
-        mChatsHolder.writeAddressBook(this);
-        mChatsHolder.writeAllThreads(this);
-
     }
 
     // function for generating test chats

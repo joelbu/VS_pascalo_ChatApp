@@ -124,6 +124,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             };
 
+            Log.d(MainActivity.class.getSimpleName(), "Adding Chats, there are: " +
+                    mBoundService.getChats().size() + " of them");
             mChatArrayAdapter.addAll(mBoundService.getChats());
             mChatArrayAdapter.sort(Chat.COMPARATOR);
             ListView chatListView = (ListView) findViewById(R.id.chatList);

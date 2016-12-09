@@ -3,7 +3,6 @@ package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
 
 import org.json.JSONObject;
 import org.junit.Test;
@@ -18,7 +17,6 @@ import java.util.UUID;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.ChatParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedChatMap;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -121,7 +119,7 @@ public class ExampleInstrumentedTest {
                             "]" +
                 "}";
 
-        ChatsHolder chatsHolder = new ChatsHolder();
+        ChatsHolder chatsHolder = new ChatsHolder(InstrumentationRegistry.getTargetContext());
         ChatParser chatParser = new ChatParser();
 
         ParsedChatMap result = ChatParser.parseMapOfChats(new JSONObject(input));

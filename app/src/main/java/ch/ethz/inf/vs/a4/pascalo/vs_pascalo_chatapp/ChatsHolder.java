@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.ChatParser;
@@ -28,13 +29,18 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedMessageThr
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.MainActivity;
 
 public class ChatsHolder {
-    final String filename = "address_book";
+    private static final String filename = "address_book";
+    private final Context mContext;
 
     private Map<UUID, Chat> mChats = new HashMap<UUID, Chat>();
     private UUID mOwnId;
     private String mOwnName;
     private PrivateKey mOwnPrivateKey;
     private PublicKey mOwnPublicKey;
+
+    public ChatsHolder(Context mContext) {
+        this.mContext = mContext;
+    }
 
     public void addMessage(UUID id, Message message) {
         if (!mChats.containsKey(id)) {
@@ -44,10 +50,12 @@ public class ChatsHolder {
             addPartner(id, "Unknown user: " + id.toString(), null);
         }
         mChats.get(id).addMessage(message);
+        writeThread(id);
     }
 
     public void markMessageAcknowledged(UUID id, Message message) {
         mChats.get(id).acknowledgeMessage(message);
+        writeThread(id);
     }
 
     // Either makes a new chat or updates an old one
@@ -57,10 +65,12 @@ public class ChatsHolder {
             Chat chat = mChats.get(id);
             chat.setChatPartnerName(username);
             chat.setChatPartnerPublicKey(publicKey);
+            writeAddressBook();
             return 1;
         } else {
             Chat chat = new Chat(id, username, publicKey);
             mChats.put(id, chat);
+            writeAddressBook();
             return 0;
         }
     }
@@ -69,13 +79,46 @@ public class ChatsHolder {
         return mChats.values();
     }
 
-    public Chat getChat(UUID id) {
-        return mChats.get(id);
+    public TreeSet<Message> getMessages(UUID id) {
+        return mChats.get(id).getMessageList();
+    }
+
+    public String getPartnerName(UUID id) {
+        return mChats.get(id).getChatPartnerName();
+    }
+
+    public PublicKey getPartnerKey(UUID id) {
+        return mChats.get(id).getChatPartnerPublicKey();
+    }
+
+    public boolean isKeyKnown(UUID id) {
+        return mChats.get(id).isKeyKnown();
+    }
+
+    public boolean isOpenInActivity(UUID id) {
+        return mChats.get(id).isOpenInActivity();
+    }
+
+    public void setUnreadMessages(UUID id, int unreadMessages) {
+        mChats.get(id).setUnreadMessages(unreadMessages);
+        writeAddressBook();
+    }
+
+    public void setOpenInActivity(UUID id, boolean b) {
+        mChats.get(id).setOpenInActivity(b);
+    }
+
+    public Message constructMessageFromUser(UUID id, String text) {
+        Message message = mChats.get(id).constructMessageFromUser(text);
+        writeThread(id);
+        return message;
     }
 
     public void forget(UUID id) {
         Log.d(ChatsHolder.class.getSimpleName(), "forgetting user: "+ id.toString());
         mChats.remove(id);
+        writeAddressBook();
+        removeThread(id);
     }
 
     public UUID getOwnId() {
@@ -94,18 +137,18 @@ public class ChatsHolder {
         return mOwnPublicKey;
     }
 
-    public void setUpOwnInfo(UUID id, String name, PrivateKey privateKey, PublicKey publicKey, Context context) {
+    public void setUpOwnInfo(UUID id, String name, PrivateKey privateKey, PublicKey publicKey) {
         mOwnId = id;
         mOwnName = name;
         mOwnPrivateKey = privateKey;
         mOwnPublicKey = publicKey;
         // Our identity is so important that we write it to storage immediately
-        writeAddressBook(context);
+        writeAddressBook();
     }
 
     // Writing to filesystem
 
-    public void writeAddressBook(Context context) {
+    public void writeAddressBook() {
         JSONObject addressBook = ChatParser.serializeCollectionOfChats(mChats.values());
         try {
             addressBook.put("ownId", mOwnId.toString());
@@ -118,7 +161,7 @@ public class ChatsHolder {
         FileOutputStream outputStream;
 
         try {
-            outputStream = context.openFileOutput(filename, Context.MODE_PRIVATE);
+            outputStream = mContext.openFileOutput(filename, Context.MODE_PRIVATE);
             outputStream.write(addressBook.toString().getBytes("UTF-8"));
             outputStream.close();
         } catch (Exception e) {
@@ -126,16 +169,16 @@ public class ChatsHolder {
         }
     }
 
-    public void writeAllThreads(Context context) {
+    public void writeAllThreads() {
         for (UUID uuid : mChats.keySet()) {
-            writeThread(context, uuid);
+            writeThread(uuid);
         }
     }
 
-    public void writeThread(Context context, UUID uuid) {
+    public void writeThread(UUID uuid) {
         FileOutputStream outputStream;
         try {
-            outputStream = context.openFileOutput("chat_with_" + uuid.toString(),
+            outputStream = mContext.openFileOutput("chat_with_" + uuid.toString(),
                     Context.MODE_PRIVATE);
             outputStream.write(
                     MessageParser.serializeThreadForStorage(mChats.get(uuid).getMessageList())
@@ -153,9 +196,9 @@ public class ChatsHolder {
 
     // Reading from filesystem
 
-    public void readAddressBook(Context context) {
+    public void readAddressBook() {
         try {
-            File internalAppDir = context.getFilesDir();
+            File internalAppDir = mContext.getFilesDir();
             File addressBookFile = new File(internalAppDir, filename);
             FileInputStream fileInputStream =  new FileInputStream(addressBookFile);
 
@@ -182,16 +225,16 @@ public class ChatsHolder {
 
     }
 
-    public void readAllThreads(Context context) {
+    public void readAllThreads() {
         for (UUID uuid : mChats.keySet()) {
-            readThread(context, uuid);
+            readThread(uuid);
         }
     }
 
-    public void readThread(Context context, UUID uuid) {
+    public void readThread(UUID uuid) {
         FileInputStream inputStream;
         try {
-            File internalAppDir = context.getFilesDir();
+            File internalAppDir = mContext.getFilesDir();
             File threadFile = new File(internalAppDir, "chat_with_" + uuid.toString());
             FileInputStream fileInputStream =  new FileInputStream(threadFile);
 
@@ -211,6 +254,12 @@ public class ChatsHolder {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void removeThread(UUID uuid) {
+        File internalAppDir = mContext.getFilesDir();
+        File threadFile = new File(internalAppDir, "chat_with_" + uuid.toString());
+        threadFile.delete();
     }
 
 }
