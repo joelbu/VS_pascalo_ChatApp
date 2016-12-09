@@ -24,6 +24,8 @@ public class Chat {
 
     private VectorClock latestClock;
 
+    private boolean openInActivity;
+
     // Constructor used for adding new chat partners by user action
     public Chat(UUID cPID, String cPN, PublicKey cPPK) {
         chatPatnerID = cPID;
@@ -63,6 +65,9 @@ public class Chat {
         this.chatPartnerPublicKey = chatPartnerPublicKey;
     }
 
+    public void setOpenInActivity(boolean b){
+        openInActivity = b;
+    }
 
     // getter functions
     public UUID getChatPatnerID() {
@@ -92,6 +97,11 @@ public class Chat {
     public boolean isKeyKnown() {
         return chatPartnerPublicKey != null;
     }
+
+    public boolean isOpenInActivity() {
+        return openInActivity;
+    }
+
 
     public Message constructMessageFromUser(String text) {
 

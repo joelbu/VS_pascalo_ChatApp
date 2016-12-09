@@ -45,6 +45,7 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.MessageParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedAesKey;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedIvKeyPayload;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedMessage;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.ChatActivity;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.ShowKeyActivity;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.QRContentParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ZXing.IntentIntegrator;
@@ -72,6 +73,7 @@ public class ChatService extends Service {
     private boolean mVibrate;
     private boolean mSound;
     private boolean mInAppVibration;
+
 
     // For use in MainActivity only, ChatActivity is only supposed to interact with the current
     // chat through the methods below
@@ -158,6 +160,14 @@ public class ChatService extends Service {
 
             }
         });
+    }
+
+    public void setCurrentChatOpenInfo(boolean b) {
+        mCurrentChat.setOpenInActivity(b);
+    }
+
+    public boolean getCurrentChatOpenInfo() {
+        return mCurrentChat.isOpenInActivity();
     }
 
     // TODO: Signing a message hash and appending it?
@@ -332,11 +342,9 @@ public class ChatService extends Service {
                 prepareAndSendAcknowledgement(ret.sender, ret.message);
 
                 // Only make notification if the chat is not currently open
-                // TODO: not the correct if condition
                     // if the last active chat was the mCurrentChat there will be no notification
-                        // maybe: !(ret.sender.equals(mCurrentChat.getChatPartnerID() && mCurrentChat.isOpen())
-                            // the isOpen() function would have to be defined new
-                if(!ret.sender.equals(mCurrentChat.getChatPatnerID())) { // Chat is not open
+
+                if(!(ret.sender.equals(mCurrentChat.getChatPatnerID()) && getCurrentChatOpenInfo())) { // Chat is not open
 
                     // notification
                     // TODO: modifiy notation content

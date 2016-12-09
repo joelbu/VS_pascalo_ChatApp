@@ -43,7 +43,7 @@ public class ChatActivity extends AppCompatActivity{
     private UUID mChatPartnerID;
     private boolean mServiceIsBound;
     private ListView mMessageListView;
-    private Button mScanButton;
+    private Button mSendButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +64,7 @@ public class ChatActivity extends AppCompatActivity{
                         ChatService.class), mConnection,
                 Context.BIND_AUTO_CREATE);
 
-        mScanButton = (Button) findViewById(R.id.button_send_messege);
+        mSendButton = (Button) findViewById(R.id.button_send_messege);
 
         // register listener on chatList
         ListView messageListView = (ListView) findViewById(R.id.messageList);
@@ -87,7 +87,11 @@ public class ChatActivity extends AppCompatActivity{
         getSupportActionBar().setTitle(mBoundService.getPartnerName());
 
         // Only enable sending if we know their key, which is not guaranteed
-        mScanButton.setEnabled(mBoundService.isKeyKnown());
+        mSendButton.setEnabled(mBoundService.isKeyKnown());
+
+        // set current chat open flag to true
+        mBoundService.setCurrentChatOpenInfo(true);
+
         super.onRestart();
     }
 
@@ -111,7 +115,7 @@ public class ChatActivity extends AppCompatActivity{
             // but this should never happen because the id has to be generated at the first start of app
 
             // Only enable sending if we know their key, which is not guaranteed
-            mScanButton.setEnabled(mBoundService.isKeyKnown());
+            mSendButton.setEnabled(mBoundService.isKeyKnown());
 
             // Set the ActivityTitle to the name
             getSupportActionBar().setTitle(mBoundService.getPartnerName());
@@ -191,6 +195,9 @@ public class ChatActivity extends AppCompatActivity{
                     mBoundService.getPartnerName());
 
             mBoundService.setUnreadMessages(0);
+
+            // set current chat open info flag to true
+            mBoundService.setCurrentChatOpenInfo(true);
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -201,6 +208,9 @@ public class ChatActivity extends AppCompatActivity{
             mBoundService = null;
             Log.d(ChatActivity.class.getSimpleName(), "Service unbound");
             mServiceIsBound = false;
+
+            // set current chat open info to false
+            mBoundService.setCurrentChatOpenInfo(false);
         }
     };
 
@@ -214,6 +224,10 @@ public class ChatActivity extends AppCompatActivity{
             Log.d(ChatActivity.class.getSimpleName(), "unbinding Service");
             unbindService(mConnection);
         }
+
+        // set current chat open info to false
+        mBoundService.setCurrentChatOpenInfo(false);
+
         super.onDestroy();
     }
 
@@ -265,5 +279,6 @@ public class ChatActivity extends AppCompatActivity{
         }
         return true;
     }
+
 
 }
