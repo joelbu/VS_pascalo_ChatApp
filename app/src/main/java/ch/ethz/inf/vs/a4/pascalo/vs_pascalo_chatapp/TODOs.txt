@@ -75,11 +75,18 @@ a little overhead but I think it's a lot easier to store and find them even we
 have more overhead
 
 2016-12-08:
-    - close app and open it again is as slow as possible
-    - vibration is not working
-    - sound is not working :-)
-    - network configuration still missing
-    - store chats when new messages are added to it
-    - notification is not visible
-    - i saw a lifecycle bug earlier but don't remember what it was
-    - perhaps we can avoid trying to read address book on first start, I think the filenotfound exception is rather slow
+    1. close app and open it again is not working --> no chats displayed
+        - the own keys are still there --> maybe the reading of the addressbook is not working
+    2. vibration is not working
+    3. sound is not working :-)
+    4. network configuration still missing
+    5. store chats when new messages are added to it
+    6. notification is not visible and (has once been visible don't know why it is not showed any time)
+        - clicking on it won't lead to the chat app MainActivity
+        - can't be swiped away
+        - symbol is not really well chosen <-- detail
+    7. i saw a lifecycle bug earlier but don't remember what it was
+        - maybe this has something in common with the first point
+    8. perhaps we can avoid trying to read address book on first start, I think the filenotfound exception is rather slow
+        - check if key is generated to know if we have to read the address book
+            but how do we know if our keys are already generated they are stored in the address book, aren't they?

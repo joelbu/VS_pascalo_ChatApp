@@ -56,8 +56,11 @@ public class ChatService extends Service {
 
     public static final int AES_KEY_LENGTH = 192;
     public static final int RSA_KEY_LENGTH = 1024;
-    private static final long VIBRATION_TIME = 500L; //in milliseconds
-    private static final int TIMES_OF_VIBRATION = 2;
+    private static final long VIBRATION_TIME = 300L; //in milliseconds
+    private static final long VIBRATION_SLEEP = 500L; //time to sleep
+    private static final int TIMES_OF_VIBRATION = 1;
+    private static final long [] VIBRATION_PATTERN = {0, VIBRATION_TIME, VIBRATION_SLEEP, VIBRATION_TIME, VIBRATION_SLEEP}; // generate a vibrationPattern
+
 
     private ChatsHolder mChatsHolder;
     private Chat mCurrentChat;
@@ -337,7 +340,7 @@ public class ChatService extends Service {
                                 .setSmallIcon(android.R.drawable.ic_secure)
                                 .setContentTitle("Chat")
                                 .setContentText("You have a new message from " + ret.sender.toString())
-                                .setOngoing(true);
+                                .setOngoing(false);
 
                 //create notification manager
                 NotificationManager notificationManager =
@@ -367,9 +370,7 @@ public class ChatService extends Service {
 
                     Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     // short and esy pattern
-                    for (int i = 0; i < TIMES_OF_VIBRATION; i++) {
-                        v.vibrate(VIBRATION_TIME);
-                    }
+                    v.vibrate(VIBRATION_PATTERN, -1);
                 }
 
                 } else  { // Chat is indeed currently open
@@ -419,6 +420,7 @@ public class ChatService extends Service {
 
         // Now it just loads everything upon starting, we still need lazy initialisation
         // TODO: Lazy initialisation of message threads
+
         mChatsHolder.readAddressBook(this);
         mChatsHolder.readAllThreads(this);
 
@@ -435,6 +437,9 @@ public class ChatService extends Service {
 
         mConnector = new Connector(this, "SuperCoolPrivateChattingApp", this);
         mConnector.connectToWDMF();
+
+        //testingNotification();
+
     }
 
     @Override
@@ -532,5 +537,11 @@ public class ChatService extends Service {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+    }
+
+    private void testingNotification() {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        // short and esy pattern
+        v.vibrate(VIBRATION_PATTERN, -1);
     }
 }
