@@ -81,10 +81,10 @@ have more overhead
     3. sound is not working :-)
     4. network configuration still missing
     5. store chats when new messages are added to it
-    6. notification is not visible and (has once been visible don't know why it is not showed any time)
+    6. notification is not visible at all correct moments
         - clicking on it won't lead to the chat app MainActivity
-        - can't be swiped away
         - symbol is not really well chosen <-- detail
+        - notification does not disappear when the chat is opened
     7. i saw a lifecycle bug earlier but don't remember what it was
         - maybe this has something in common with the first point
     8. perhaps we can avoid trying to read address book on first start, I think the filenotfound exception is rather slow
