@@ -279,4 +279,11 @@ public class ChatActivity extends AppCompatActivity{
         }
         return true;
     }
+
+    @Override
+    protected void onStop() {
+        // set current chat open info to false
+        mBoundService.setCurrentChatOpenInfo(false);
+        super.onStop();
+    }
 }

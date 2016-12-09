@@ -84,7 +84,7 @@
         - notification does not disappear when the chat is opened
             - OK - Pascal - 2016-12-09
         - notifications are not displayed if chat is open and the app is "closed"/freezed with the home button
-            - TODO I think we need somthing like onPause for this
+            - OK - Pascal - 2016-12-09
     7. i saw a lifecycle bug earlier but don't remember what it was
         - maybe this has something in common with the first point
     8. perhaps we can avoid trying to read address book on first start, I think the filenotfound exception is rather slow
