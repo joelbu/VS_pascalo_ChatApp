@@ -39,11 +39,12 @@ public class ChatParser {
             json.put("chatPartnerID", chat.getChatPatnerID().toString());
             json.put("chatPartnerName", chat.getChatPartnerName());
 
-            if(chat.getChatPartnerPublicKey() == null) {
+            PublicKey key = chat.getChatPartnerPublicKey();
+            if(null == key) {
                 json.put("chatPartnerKeyKnown", false);
             } else {
                 json.put("chatPartnerKeyKnown", true);
-                json.put("chatPartnerPublicKey", chat.getChatPartnerPublicKey());
+                json.put("chatPartnerPublicKey", KeyParser.serializePublicKey(key));
             }
             json.put("unreadMessages", chat.getUnreadMessages());
             json.put("recentActivity", chat.getRecentActivity().getTimeInMillis());
