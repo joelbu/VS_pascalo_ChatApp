@@ -3,6 +3,7 @@
     <string name="settings">Settings</string>
     <string name="notification_sound_check_box">Sound</string>
     <string name="notification_vibration_check_box">Vibration</string>
+    <string name="inAppNot_vibration_check_box">InApp Vibration</string>
     <string name="show_key">Show Key</string>
     <string name="add_chat">Add Chat</string>
     <string name="go_offline">Go Offline</string>
@@ -30,4 +31,5 @@
     <string name="error_key_is_null">Key is an empty string. Please enter a valid key.</string>
     <string name="error_chatPartnerName_is_empty">The name of the chat partner is left empty. Please insert a name.</string>
     <string name="error_empty_username">The Username is empty. Please enter a name.</string>
+    <string name="successful_copy_to_cliboard">Content has been copied to the clipboard.</string>
 </resources>

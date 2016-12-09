@@ -71,6 +71,7 @@ public class ChatService extends Service {
     // flags to know if we should play mSound or not resp. mVibrate or not
     private boolean mVibrate;
     private boolean mSound;
+    private boolean mInAppVibration;
 
     // For use in MainActivity only, ChatActivity is only supposed to interact with the current
     // chat through the methods below
@@ -318,6 +319,7 @@ public class ChatService extends Service {
     }
 
     public void onReceiveMessage(byte[] message) {
+        Log.d(ChatService.this.getClass().getSimpleName(), "onReceiveMessage is called");
         try {
             byte[] payload = decryptMessage(message);
 
@@ -330,51 +332,71 @@ public class ChatService extends Service {
                 prepareAndSendAcknowledgement(ret.sender, ret.message);
 
                 // Only make notification if the chat is not currently open
+                // TODO: not the correct if condition
+                    // if the last active chat was the mCurrentChat there will be no notification
+                        // maybe: !(ret.sender.equals(mCurrentChat.getChatPartnerID() && mCurrentChat.isOpen())
+                            // the isOpen() function would have to be defined new
                 if(!ret.sender.equals(mCurrentChat.getChatPatnerID())) { // Chat is not open
 
-                // notification
-                // TODO: add a notification in the status bar
-                //create a notification
-                NotificationCompat.Builder builder =
-                        new NotificationCompat.Builder(this)
-                                .setSmallIcon(android.R.drawable.ic_secure)
-                                .setContentTitle("Chat")
-                                .setContentText("You have a new message from " + ret.sender.toString())
-                                .setOngoing(false);
+                    // notification
+                    // TODO: modifiy notation content
+                    //create a notification
+                    Log.d(ChatService.this.getClass().getSimpleName(), "Before creating notification");
+                    NotificationCompat.Builder builder =
+                            new NotificationCompat.Builder(this)
+                                    .setSmallIcon(android.R.drawable.ic_secure)
+                                    .setContentTitle("Chat")
+                                    .setContentText("You have a new message from " + ret.sender.toString())
+                                    .setOngoing(false);
 
-                //create notification manager
-                NotificationManager notificationManager =
-                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-                //show built notification
-                notificationManager.notify(17, builder.build());
+                    //create notification manager
+                    NotificationManager notificationManager =
+                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-                // play mSound if necessary
-                if (mSound) {
-                    //create media player
-                    AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                    /*
-                    MediaPlayer mp = MediaPlayer.create(
-                            getApplicationContext(),
-                            R.raw.loop TODO:set a file to play
-                            //, new AudioAttributes.Builder().setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED).build(),
-                            //am.generateAudioSessionId()
-                    ); */
-                    // play mSound
-                    //mp.start();
-                }
+                    Log.d(ChatService.this.getClass().getSimpleName(), "before notifying");
 
-                // mVibrate if necessary
-                if (mVibrate) {
-                    // mVibrate
+                    //show built notification
+                    notificationManager.notify(17, builder.build());
 
-                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                    // short and esy pattern
-                    v.vibrate(VIBRATION_PATTERN, -1);
-                }
+                    // play mSound if necessary
+                    if (mSound) {
+
+                        Log.d(ChatService.this.getClass().getSimpleName(), "playing a sound");
+
+                        //create media player
+                        AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                        /*
+                        MediaPlayer mp = MediaPlayer.create(
+                                getApplicationContext(),
+                                R.raw.loop TODO:set a file to play
+                                //, new AudioAttributes.Builder().setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED).build(),
+                                //am.generateAudioSessionId()
+                        ); */
+                        // play mSound
+                        //mp.start();
+                    }
+
+                    // mVibrate if necessary
+                    if (mVibrate) {
+
+                        Log.d(ChatService.this.getClass().getSimpleName(), "vibrate");
+
+                        // mVibrate
+
+                        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                        // short and esy pattern
+                        v.vibrate(VIBRATION_PATTERN, -1);
+                    }
 
                 } else  { // Chat is indeed currently open
                     broadcastViewChange();
+
+                    if (mInAppVibration) {
+                        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                        // vibrate for 200ms
+                        v.vibrate(200L);
+                    }
                 }
 
             } else if (ret.status == 1) { // We just got an ack message
@@ -396,6 +418,7 @@ public class ChatService extends Service {
                 public void onSharedPreferenceChanged(SharedPreferences sP, String s) {
                     mVibrate = sP.getBoolean("check_box_vibrate", true);
                     mSound = sP.getBoolean("check_box_vibrate", true);
+                    mInAppVibration = sP.getBoolean("check_box_inAppVibration", true);
                 }
             };
 
@@ -431,6 +454,7 @@ public class ChatService extends Service {
 
         mVibrate = sharedPreferences.getBoolean("check_box_vibrate", true);
         mSound = sharedPreferences.getBoolean("check_box_vibrate", true);
+        mInAppVibration = sharedPreferences.getBoolean("check_box_inAppVibration", true);
 
 
         mMessageParser = new MessageParser(mChatsHolder.getOwnId());

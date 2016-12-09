@@ -75,6 +75,7 @@ public class ChatActivity extends AppCompatActivity{
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("Message", message.getText());
                 clipboard.setPrimaryClip(clip);
+                Toast.makeText(ChatActivity.this, R.string.successful_copy_to_cliboard, Toast.LENGTH_LONG).show();
                 return true;
             }
         });
@@ -115,8 +116,8 @@ public class ChatActivity extends AppCompatActivity{
             // Set the ActivityTitle to the name
             getSupportActionBar().setTitle(mBoundService.getPartnerName());
 
-            Button scan = (Button) findViewById(R.id.button_send_messege);
-            scan.setOnClickListener(new View.OnClickListener() {
+            Button sendBtn = (Button) findViewById(R.id.button_send_messege);
+            sendBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     EditText editText = (EditText) findViewById(R.id.editMessage);
                     String msg = editText.getText().toString();
