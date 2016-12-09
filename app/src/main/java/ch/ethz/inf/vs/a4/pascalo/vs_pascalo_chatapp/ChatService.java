@@ -2,6 +2,7 @@ package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp;
 
 import android.app.Activity;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -46,6 +47,7 @@ import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedAesKey;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedIvKeyPayload;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ReturnTypes.ParsedMessage;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.ChatActivity;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.MainActivity;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI.ShowKeyActivity;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Parsers.QRContentParser;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ZXing.IntentIntegrator;
@@ -354,9 +356,17 @@ public class ChatService extends Service {
                     NotificationCompat.Builder builder =
                             new NotificationCompat.Builder(this)
                                     .setSmallIcon(android.R.drawable.ic_secure)
-                                    .setContentTitle("Chat")
-                                    .setContentText("You have a new message from " + ret.sender.toString())
-                                    .setOngoing(false);
+                                    .setContentTitle("SecureChat")
+                                    .setContentText("You have a new message from "
+                                            + mCurrentChat.getChatPartnerName())
+                                    .setOngoing(false)
+                                    .setAutoCancel(true)
+                                    .setContentIntent(PendingIntent.getActivity(
+                                            this,
+                                            (int) System.currentTimeMillis(),
+                                            new Intent(this, MainActivity.class),
+                                            0)
+                                    );
 
 
                     //create notification manager
