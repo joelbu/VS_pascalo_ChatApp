@@ -17,7 +17,7 @@
     Go Offline now works - Joel - 2016-11-30
     Show Key now works - Joel - 2016-12-03
     Add Chat now works - Joel - 2016-12-03
-    TODO: Open Network Configuration
+    Open Network Configuration works - Joel - 2016-12-10
 
 5. implement a service that handles message state, address book state, receiving messages
     including decryption and notification handling
@@ -31,7 +31,8 @@
 7. store chat content, address book and own keys in files
     (to store them when the service is shut down)
     OK - Joel - 2016-11-30
-    TODO: Store when something changes, read only once the content is needed
+    Store when something changes, read only once the content is needed
+    OK - Joel - 2016-12-10
 
 8. create ChatActivity that holds the chat window (display messages, write message, send)
     OK - Joel - 2016-12-05
@@ -72,11 +73,14 @@
 2016-12-08:
     1. close app and open it again is not working --> no chats displayed
         - the own keys are still there --> maybe the reading of the addressbook is not working
+        Fixed - Joel - 2016-12-10
     2. vibration is not working
         - OK - Pascal - 2016-12-09
     3. sound is not working :-)
     4. network configuration still missing
+        Fixed - Joel - 2016-12-10
     5. store chats when new messages are added to it
+        Done - Joel - 2016-12-9
     6. notification is not visible at all correct moments
         - clicking on it won't lead to the chat app MainActivity
             - OK - Pascal - 2016-12-09
@@ -87,6 +91,10 @@
             - OK - Pascal - 2016-12-09
     7. i saw a lifecycle bug earlier but don't remember what it was
         - maybe this has something in common with the first point
+        -- Probably, yes. I also found a null pointer exception on forgetting chats, which is fixed too
     8. perhaps we can avoid trying to read address book on first start, I think the filenotfound exception is rather slow
         - check if key is generated to know if we have to read the address book
             but how do we know if our keys are already generated they are stored in the address book, aren't they?
+        -- I just made the File.exists() call instead of reading directly.
+        -- Our own keys are in the address book, but the information about our keys existing is
+             in a separate shared preference because it's read earlier and really just a flag
