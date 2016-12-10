@@ -24,6 +24,7 @@ import java.util.Collection;
 
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Chat;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.ChatService;
+import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.Connector;
 import ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.R;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         ListView chatListView = (ListView) findViewById(R.id.chatList);
         chatListView.setOnItemClickListener(this);
 
-        // overflow menu
+        // Reading default preference file into the apps preferences
         PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.preferences, false);
 
         // First start the service to make it's lifetime independent of the activity, if it's
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     protected void onStart() {
-        boolean keyPairGenerated = PreferenceManager.getDefaultSharedPreferences(this)
+        boolean keyPairGenerated = this.getSharedPreferences("key-value-store", Context.MODE_PRIVATE)
                 .getBoolean("is-key-pair-generated", false);
         Log.d(this.getClass().getSimpleName(), "KeyPairGenerated: " + String.valueOf(keyPairGenerated));
         if(!keyPairGenerated) {
@@ -75,14 +76,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onRestart();
         Log.d(MainActivity.class.getSimpleName(), "onRestart() called");
 
-        if (mBoundService.getChatsChanged()) {
-            mChatArrayAdapter.clear();
-            mChatArrayAdapter.addAll(mBoundService.getChats());
-            mBoundService.resetChatsChanged();
+        // It can happen that we get stopped and restarted before the service has
+        // even finished initialising
+        if(mServiceIsBound) {
+            if (mBoundService.getChatsChanged()) {
+                mChatArrayAdapter.clear();
+                mChatArrayAdapter.addAll(mBoundService.getChats());
+                mBoundService.resetChatsChanged();
+            }
+            mChatArrayAdapter.sort(Chat.COMPARATOR);
         }
-
-        mChatArrayAdapter.sort(Chat.COMPARATOR);
-
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -192,6 +195,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 myIntent = new Intent(getApplicationContext(), ChatService.class);
                 this.stopService(myIntent);
                 finish();
+                break;
+            case R.id.open_network_configuration:
+                Connector.openConfigurationApp(this);
                 break;
             case R.id.generate_new_login :
                 myIntent = new Intent(getApplicationContext(), GenerateKeyActivity.class);

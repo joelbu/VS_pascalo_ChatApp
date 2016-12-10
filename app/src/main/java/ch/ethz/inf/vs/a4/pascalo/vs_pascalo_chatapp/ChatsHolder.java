@@ -51,11 +51,15 @@ public class ChatsHolder {
         }
         mChats.get(id).addMessage(message);
         writeThread(id);
+        writeAddressBook();
     }
 
     public void markMessageAcknowledged(UUID id, Message message) {
-        mChats.get(id).acknowledgeMessage(message);
-        writeThread(id);
+        Chat chat = mChats.get(id);
+        if (chat != null) {
+            chat.acknowledgeMessage(message);
+            writeThread(id);
+        }
     }
 
     // Either makes a new chat or updates an old one
@@ -100,25 +104,37 @@ public class ChatsHolder {
     }
 
     public void setUnreadMessages(UUID id, int unreadMessages) {
-        mChats.get(id).setUnreadMessages(unreadMessages);
-        writeAddressBook();
+        Chat chat = mChats.get(id);
+        if (chat != null) {
+            chat.setUnreadMessages(unreadMessages);
+            writeAddressBook();
+        }
     }
 
     public void setOpenInActivity(UUID id, boolean b) {
-        mChats.get(id).setOpenInActivity(b);
+        Chat chat = mChats.get(id);
+        if (chat != null) {
+            chat.setOpenInActivity(b);
+        }
     }
 
     public Message constructMessageFromUser(UUID id, String text) {
-        Message message = mChats.get(id).constructMessageFromUser(text);
-        writeThread(id);
-        return message;
+        Chat chat = mChats.get(id);
+        if (chat != null) {
+            Message message = chat.constructMessageFromUser(text);
+            writeThread(id);
+            return message;
+        }
+        return null;
     }
 
     public void forget(UUID id) {
         Log.d(ChatsHolder.class.getSimpleName(), "forgetting user: "+ id.toString());
-        mChats.remove(id);
-        writeAddressBook();
-        removeThread(id);
+        if (mChats.containsKey(id)) {
+            mChats.remove(id);
+            writeAddressBook();
+            removeThread(id);
+        }
     }
 
     public UUID getOwnId() {

@@ -32,7 +32,7 @@ public class GenerateKeyActivity extends AppCompatActivity {
     private Button mGenerateButton;
     private EditText mUsernameEditText;
 
-    private static final String TAG = GenerateKeyActivity.class + "generating a key";
+    private static final String TAG = GenerateKeyActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,11 +85,12 @@ public class GenerateKeyActivity extends AppCompatActivity {
 
                             // Setting the flag in the preferences, so on next start of the app we
                             // won't call GenerateKeyActivity again.
-                            SharedPreferences prefs = PreferenceManager
-                                    .getDefaultSharedPreferences(GenerateKeyActivity.this);
+                            SharedPreferences prefs = GenerateKeyActivity.this.
+                                    getSharedPreferences("key-value-store", Context.MODE_PRIVATE);
                             SharedPreferences.Editor edit = prefs.edit();
                             edit.putBoolean("is-key-pair-generated", true);
-                            edit.apply();
+                            edit.commit();
+                            Log.d(TAG, "is-key-pair-generated flag is set in key-value-store");
 
                             mBoundService.generateTestChats();
 
