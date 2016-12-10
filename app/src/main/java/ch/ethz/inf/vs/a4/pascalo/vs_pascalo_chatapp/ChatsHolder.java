@@ -49,7 +49,11 @@ public class ChatsHolder {
             // basic chat object and show their messages
             addPartner(id, "Unknown user: " + id.toString(), null);
         }
-        mChats.get(id).addMessage(message);
+        Chat chat = mChats.get(id);
+        if (!chat.isMessageListInitialised()) {
+            readThread(id);
+        }
+        chat.addMessage(message);
         writeThread(id);
         writeAddressBook();
     }
@@ -57,6 +61,9 @@ public class ChatsHolder {
     public void markMessageAcknowledged(UUID id, Message message) {
         Chat chat = mChats.get(id);
         if (chat != null) {
+            if (!chat.isMessageListInitialised()) {
+                readThread(id);
+            }
             chat.acknowledgeMessage(message);
             writeThread(id);
         }
@@ -75,6 +82,7 @@ public class ChatsHolder {
             Chat chat = new Chat(id, username, publicKey);
             mChats.put(id, chat);
             writeAddressBook();
+            writeThread(id);
             return 0;
         }
     }
@@ -84,23 +92,46 @@ public class ChatsHolder {
     }
 
     public TreeSet<Message> getMessages(UUID id) {
-        return mChats.get(id).getMessageList();
+        Chat chat = mChats.get(id);
+        if (chat != null) {
+            if (!chat.isMessageListInitialised()) {
+                readThread(id);
+            }
+            return chat.getMessageList();
+        }
+        return null;
     }
 
     public String getPartnerName(UUID id) {
-        return mChats.get(id).getChatPartnerName();
+        Chat chat = mChats.get(id);
+        if (chat != null) {
+            return chat.getChatPartnerName();
+        }
+        return null;
     }
 
     public PublicKey getPartnerKey(UUID id) {
-        return mChats.get(id).getChatPartnerPublicKey();
+        Chat chat = mChats.get(id);
+        if (chat != null) {
+            return chat.getChatPartnerPublicKey();
+        }
+        return null;
     }
 
     public boolean isKeyKnown(UUID id) {
-        return mChats.get(id).isKeyKnown();
+        Chat chat = mChats.get(id);
+        if (chat != null) {
+            return chat.isKeyKnown();
+        }
+        return false;
     }
 
     public boolean isOpenInActivity(UUID id) {
-        return mChats.get(id).isOpenInActivity();
+        Chat chat = mChats.get(id);
+        if (chat != null) {
+            return chat.isOpenInActivity();
+        }
+        return false;
     }
 
     public void setUnreadMessages(UUID id, int unreadMessages) {
@@ -121,6 +152,9 @@ public class ChatsHolder {
     public Message constructMessageFromUser(UUID id, String text) {
         Chat chat = mChats.get(id);
         if (chat != null) {
+            if (!chat.isMessageListInitialised()) {
+                readThread(id);
+            }
             Message message = chat.constructMessageFromUser(text);
             writeThread(id);
             return message;
@@ -216,6 +250,9 @@ public class ChatsHolder {
         try {
             File internalAppDir = mContext.getFilesDir();
             File addressBookFile = new File(internalAppDir, filename);
+            if (!addressBookFile.exists()) {
+                return;
+            }
             FileInputStream fileInputStream =  new FileInputStream(addressBookFile);
 
             byte[] data = new byte[(int) addressBookFile.length()];

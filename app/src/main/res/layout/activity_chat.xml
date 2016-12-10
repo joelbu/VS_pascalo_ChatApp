@@ -30,8 +30,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_above="@id/editMessage"
-        android:transcriptMode="alwaysScroll" />
+        android:layout_above="@id/editMessage" />
 
     <Button
         android:text="@string/send_message_button_text"

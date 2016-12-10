@@ -134,7 +134,13 @@ public class ChatActivity extends AppCompatActivity{
 
             // Register a broadcast receiver that allows us to react in the UI when the service says
             LocalBroadcastManager.getInstance(getApplicationContext())
-                    .registerReceiver(mBroadcastReceiver, new IntentFilter("UPDATE_MESSAGE_VIEW"));
+                    .registerReceiver(mBroadcastReceiver,
+                            new IntentFilter("UPDATE_MESSAGE_VIEW"));
+
+            // Register a broadcast receiver that allows us to react in the UI when the service says
+            LocalBroadcastManager.getInstance(getApplicationContext())
+                    .registerReceiver(mBroadcastReceiverNoScroll,
+                            new IntentFilter("UPDATE_MESSAGE_VIEW_NO_SCROLL"));
 
             // Create adapter here directly onto the data structure of the service
             mMessageArrayAdapter = new ArrayAdapter<Message>(ChatActivity.this,
@@ -219,6 +225,8 @@ public class ChatActivity extends AppCompatActivity{
         mBoundService.setUnreadMessages(0);
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .unregisterReceiver(mBroadcastReceiver);
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .unregisterReceiver(mBroadcastReceiverNoScroll);
         Log.d(ChatActivity.class.getSimpleName(), "onDestroy() called");
         if (mServiceIsBound) {
             Log.d(ChatActivity.class.getSimpleName(), "unbinding Service");
@@ -239,6 +247,18 @@ public class ChatActivity extends AppCompatActivity{
             mMessageArrayAdapter.clear();
             mMessageArrayAdapter.addAll(mBoundService.getMessages());
             mMessageListView.smoothScrollToPosition(mMessageArrayAdapter.getCount() - 1);
+        }
+    };
+
+    // This BroadcastReceiver reacts to intents the service broadcasts when it has changed a
+    // message list
+    private BroadcastReceiver mBroadcastReceiverNoScroll = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int scrollPosition = mMessageListView.getVerticalScrollbarPosition();
+            mMessageArrayAdapter.clear();
+            mMessageArrayAdapter.addAll(mBoundService.getMessages());
+            mMessageListView.setVerticalScrollbarPosition(scrollPosition);
         }
     };
 

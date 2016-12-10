@@ -26,6 +26,8 @@ public class Chat {
 
     private boolean openInActivity;
 
+    private boolean messageListInitialised;
+
     // Constructor used for adding new chat partners by user action
     public Chat(UUID cPID, String cPN, PublicKey cPPK) {
         chatPatnerID = cPID;
@@ -33,6 +35,7 @@ public class Chat {
         chatPartnerPublicKey = cPPK;
 
         messageList = new TreeSet<>();
+        messageListInitialised = true;
         unreadMessages = 0;
         recentActivity = GregorianCalendar.getInstance();
         latestClock = new VectorClock(0, 0);
@@ -46,6 +49,7 @@ public class Chat {
         unreadMessages = uM;
         recentActivity = rA;
         latestClock = vC;
+        messageListInitialised = false;
     }
 
     // setter for unread messages
@@ -55,6 +59,7 @@ public class Chat {
 
     public void setMessageList(TreeSet<Message> messageList) {
         this.messageList = messageList;
+        messageListInitialised = true;
     }
 
     public void setChatPartnerName(String chatPartnerName) {
@@ -100,6 +105,10 @@ public class Chat {
 
     public boolean isOpenInActivity() {
         return openInActivity;
+    }
+
+    public boolean isMessageListInitialised() {
+        return messageListInitialised;
     }
 
 

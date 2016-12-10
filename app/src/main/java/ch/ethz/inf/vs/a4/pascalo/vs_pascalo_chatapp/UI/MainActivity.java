@@ -1,12 +1,15 @@
 package ch.ethz.inf.vs.a4.pascalo.vs_pascalo_chatapp.UI;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -79,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // It can happen that we get stopped and restarted before the service has
         // even finished initialising
         if(mServiceIsBound) {
+            mBoundService.setMainActivityOpen(true);
             if (mBoundService.getChatsChanged()) {
                 mChatArrayAdapter.clear();
                 mChatArrayAdapter.addAll(mBoundService.getChats());
@@ -97,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // cast its IBinder to a concrete class and directly access it.
             mBoundService = ((ChatService.LocalBinder)service).getService();
             Log.d(MainActivity.class.getSimpleName(), "Service bound");
+            mBoundService.setMainActivityOpen(true);
             mServiceIsBound = true;
 
             Log.d(MainActivity.class.getSimpleName(), getString(R.string.local_service_connected));
@@ -127,6 +132,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             };
 
+            // Register a broadcast receiver that allows us to react in the UI when the service says
+            LocalBroadcastManager.getInstance(getApplicationContext())
+                    .registerReceiver(mBroadcastReceiver, new IntentFilter("UPDATE_CHATS_VIEW"));
+
             Log.d(MainActivity.class.getSimpleName(), "Adding Chats, there are: " +
                     mBoundService.getChats().size() + " of them");
             mChatArrayAdapter.addAll(mBoundService.getChats());
@@ -148,6 +157,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     };
 
+    // This BroadcastReceiver reacts to intents the service broadcasts when it has changed the
+    // chat list
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(mServiceIsBound) {
+                mChatArrayAdapter.clear();
+                mChatArrayAdapter.addAll(mBoundService.getChats());
+                mBoundService.resetChatsChanged();
+                mChatArrayAdapter.sort(Chat.COMPARATOR);
+            }
+        }
+    };
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id){
@@ -189,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case R.id.go_offline :
                 Log.d(MainActivity.class.getSimpleName(), "Go Offline called");
                 if (mServiceIsBound) {
+                    mBoundService.setMainActivityOpen(true);
                     unbindService(mConnection);
                     mServiceIsBound = false;
                 }
@@ -213,10 +236,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onDestroy() {
         Log.d(MainActivity.class.getSimpleName(), "onDestroy() called");
         if (mServiceIsBound) {
+            mBoundService.setMainActivityOpen(false);
             Log.d(MainActivity.class.getSimpleName(), "unbinding Service");
             unbindService(mConnection);
             mServiceIsBound = false;
         }
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .unregisterReceiver(mBroadcastReceiver);
         super.onDestroy();
     }
 

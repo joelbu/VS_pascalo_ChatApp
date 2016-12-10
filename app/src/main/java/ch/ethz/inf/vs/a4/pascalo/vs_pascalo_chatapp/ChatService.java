@@ -67,6 +67,7 @@ public class ChatService extends Service {
     private ChatsHolder mChatsHolder;
     private UUID mCurrentChatId;
     private boolean mChatsChanged;
+    private boolean mMainActivityOpen;
     private Connector mConnector;
     private MessageParser mMessageParser;
 
@@ -132,6 +133,7 @@ public class ChatService extends Service {
 
     public void setUnreadMessages(int unreadMessages) {
         mChatsHolder.setUnreadMessages(mCurrentChatId, unreadMessages);
+        mChatsChanged = true;
     }
 
     public void shareMyInfo(Activity activity) {
@@ -161,6 +163,10 @@ public class ChatService extends Service {
 
             }
         });
+    }
+
+    public void setMainActivityOpen(boolean b) {
+        mMainActivityOpen = b;
     }
 
     public void setCurrentChatOpenInfo(boolean b) {
@@ -279,7 +285,7 @@ public class ChatService extends Service {
         Message message = mChatsHolder.constructMessageFromUser(mCurrentChatId, text);
 
         // Telling the UI that something has changed
-        broadcastViewChange();
+        broadcastChatViewChange();
 
         mChatsChanged = true;
 
@@ -325,9 +331,19 @@ public class ChatService extends Service {
         }
     }
 
-    private void broadcastViewChange() {
+    private void broadcastChatViewChange() {
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .sendBroadcast(new Intent("UPDATE_MESSAGE_VIEW"));
+    }
+
+    private void broadcastChatViewChangeNoScroll() {
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .sendBroadcast(new Intent("UPDATE_MESSAGE_VIEW_NO_SCROLL"));
+    }
+
+    private void broadcastMainViewChange() {
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .sendBroadcast(new Intent("UPDATE_CHATS_VIEW"));
     }
 
     public void onReceiveMessage(byte[] message) {
@@ -341,6 +357,9 @@ public class ChatService extends Service {
 
                 mChatsHolder.addMessage(ret.sender, ret.message);
                 mChatsChanged = true;
+                if (mMainActivityOpen) {
+                    broadcastMainViewChange();
+                }
                 prepareAndSendAcknowledgement(ret.sender, ret.message);
 
                 // Only make notification if the chat is not currently open
@@ -409,7 +428,7 @@ public class ChatService extends Service {
                     }
 
                 } else  { // Chat is indeed currently open
-                    broadcastViewChange();
+                    broadcastChatViewChange();
 
                     if (mInAppVibration) {
                         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -421,7 +440,7 @@ public class ChatService extends Service {
             } else if (ret.status == 1) { // We just got an ack message
                 mChatsHolder.markMessageAcknowledged(ret.sender, ret.message);
                 if (ret.sender.equals(mCurrentChatId)) {
-                    broadcastViewChange();
+                    broadcastChatViewChangeNoScroll();
                 }
             }
 
@@ -465,7 +484,7 @@ public class ChatService extends Service {
         // TODO: Lazy initialisation of message threads
 
         mChatsHolder.readAddressBook();
-        mChatsHolder.readAllThreads();
+        //mChatsHolder.readAllThreads(); no longer needed hopefully
 
         // Since notifications must come from the service I moved this here
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
