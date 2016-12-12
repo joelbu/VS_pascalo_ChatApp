@@ -98,3 +98,11 @@
         -- I just made the File.exists() call instead of reading directly.
         -- Our own keys are in the address book, but the information about our keys existing is
              in a separate shared preference because it's read earlier and really just a flag
+
+
+already done?
+5. implement a service that handles message state, address book state, receiving messages
+    including decryption and notification handling
+    PARTIALLY - Joel - 2016-12-08
+    DONE: notifications - Pascal - 2016-12-09
+    The rest pretty much done
