@@ -93,12 +93,14 @@
     7. i saw a lifecycle bug earlier but don't remember what it was
         - maybe this has something in common with the first point
         -- Probably, yes. I also found a null pointer exception on forgetting chats, which is fixed too
+        -- DONE
     8. perhaps we can avoid trying to read address book on first start, I think the filenotfound exception is rather slow
         - check if key is generated to know if we have to read the address book
             but how do we know if our keys are already generated they are stored in the address book, aren't they?
         -- I just made the File.exists() call instead of reading directly.
         -- Our own keys are in the address book, but the information about our keys existing is
              in a separate shared preference because it's read earlier and really just a flag
+        -- DONE? I'm not sure.
 
 
 already done?
