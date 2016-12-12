@@ -110,3 +110,4 @@ already done?
 
 - preference changes are not read correctly (only sound and vibration are false, inAppVibration works correctly)
     - found a mistake but this hasn't solved the problem
+    - DONE - Pascal - 2016-12-12

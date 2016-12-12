@@ -443,7 +443,7 @@ public class ChatService extends Service {
             new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences sP, String s) {
-                    mVibrate = sP.getBoolean("check_box_vibrate", true);
+                    mVibrate = sP.getBoolean("check_box_vibration", true);
                     mSound = sP.getBoolean("check_box_sound", true);
                     mInAppVibration = sP.getBoolean("check_box_inAppVibration", true);
                 }
@@ -480,7 +480,7 @@ public class ChatService extends Service {
 
         sharedPreferences.registerOnSharedPreferenceChangeListener(mOnSPChangeListener);
 
-        mVibrate = sharedPreferences.getBoolean("check_box_vibrate", true);
+        mVibrate = sharedPreferences.getBoolean("check_box_vibration", true);
         mSound = sharedPreferences.getBoolean("check_box_sound", true);
         mInAppVibration = sharedPreferences.getBoolean("check_box_inAppVibration", true);
 
