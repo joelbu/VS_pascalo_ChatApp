@@ -77,6 +77,7 @@
     2. vibration is not working
         - OK - Pascal - 2016-12-09
     3. sound is not working :-)
+        - OK - Pascal - 2016-12-12
     4. network configuration still missing
         Fixed - Joel - 2016-12-10
     5. store chats when new messages are added to it
@@ -106,3 +107,6 @@ already done?
     PARTIALLY - Joel - 2016-12-08
     DONE: notifications - Pascal - 2016-12-09
     The rest pretty much done
+
+- preference changes are not read correctly (only sound and vibration are false, inAppVibration works correctly)
+    - found a mistake but this hasn't solved the problem

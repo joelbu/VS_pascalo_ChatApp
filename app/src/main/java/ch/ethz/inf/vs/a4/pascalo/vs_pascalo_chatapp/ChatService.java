@@ -9,6 +9,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -55,6 +58,8 @@ public class ChatService extends Service {
     static {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
     }
+
+    private final String TAG = this.getClass().getSimpleName();
 
     public static final int AES_KEY_LENGTH = 192;
     public static final int RSA_KEY_LENGTH = 1024;
@@ -368,6 +373,9 @@ public class ChatService extends Service {
                 if(!(ret.sender.equals(mCurrentChatId)
                         && getCurrentChatOpenInfo())) { // Chat is not open
 
+
+                    Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
                     // notification
                     // TODO: modifiy notation content
                     //create a notification
@@ -387,6 +395,17 @@ public class ChatService extends Service {
                                             0)
                                     );
 
+                    // set notification sound if necessary
+                    if (mSound) {
+                        Log.d(TAG, "sound is on");
+                        builder.setSound(alarmSound);
+                    }
+
+                    // set vibration pattern if necessary
+                    if (mVibrate) {
+                        Log.d(TAG, "vibration is on");
+                        builder.setVibrate(VIBRATION_PATTERN);
+                    }
 
                     //create notification manager
                     NotificationManager notificationManager =
@@ -396,36 +415,6 @@ public class ChatService extends Service {
 
                     //show built notification
                     notificationManager.notify(17, builder.build());
-
-                    // play mSound if necessary
-                    if (mSound) {
-
-                        Log.d(ChatService.this.getClass().getSimpleName(), "playing a sound");
-
-                        //create media player
-                        AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                        /*
-                        MediaPlayer mp = MediaPlayer.create(
-                                getApplicationContext(),
-                                R.raw.loop TODO:set a file to play
-                                //, new AudioAttributes.Builder().setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED).build(),
-                                //am.generateAudioSessionId()
-                        ); */
-                        // play mSound
-                        //mp.start();
-                    }
-
-                    // mVibrate if necessary
-                    if (mVibrate) {
-
-                        Log.d(ChatService.this.getClass().getSimpleName(), "vibrate");
-
-                        // mVibrate
-
-                        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                        // short and esy pattern
-                        v.vibrate(VIBRATION_PATTERN, -1);
-                    }
 
                 } else  { // Chat is indeed currently open
                     broadcastChatViewChange();
@@ -455,7 +444,7 @@ public class ChatService extends Service {
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences sP, String s) {
                     mVibrate = sP.getBoolean("check_box_vibrate", true);
-                    mSound = sP.getBoolean("check_box_vibrate", true);
+                    mSound = sP.getBoolean("check_box_sound", true);
                     mInAppVibration = sP.getBoolean("check_box_inAppVibration", true);
                 }
             };
@@ -492,7 +481,7 @@ public class ChatService extends Service {
         sharedPreferences.registerOnSharedPreferenceChangeListener(mOnSPChangeListener);
 
         mVibrate = sharedPreferences.getBoolean("check_box_vibrate", true);
-        mSound = sharedPreferences.getBoolean("check_box_vibrate", true);
+        mSound = sharedPreferences.getBoolean("check_box_sound", true);
         mInAppVibration = sharedPreferences.getBoolean("check_box_inAppVibration", true);
 
 
