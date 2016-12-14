@@ -118,3 +118,8 @@ already done?
 
 2016-12-13:
     should we add multithreading for encrypting and decrypting messages? (just worker-threads)
+    
+
+
+2016-12-14:
+    toread latestmessage weneed to scroll down
