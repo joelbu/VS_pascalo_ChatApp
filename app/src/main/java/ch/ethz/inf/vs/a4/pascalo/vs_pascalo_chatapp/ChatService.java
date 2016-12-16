@@ -380,10 +380,10 @@ public class ChatService extends Service {
                     Log.d(ChatService.this.getClass().getSimpleName(), "Before creating notification");
                     NotificationCompat.Builder builder =
                             new NotificationCompat.Builder(this)
-                                    .setSmallIcon(android.R.drawable.sym_action_chat)
-                                    .setContentTitle("You have a new message from "
-                                            + mChatsHolder.getPartnerName(mCurrentChatId) + "!")
-                                    .setContentText("Tap to read.")
+                                    .setSmallIcon(R.mipmap.ic_launcher)
+                                    .setContentTitle("New message")
+                                    .setContentText("From "
+                                            + mChatsHolder.getPartnerName(ret.sender) + "!")
                                     .setOngoing(false)
                                     .setAutoCancel(true)
                                     .setContentIntent(PendingIntent.getActivity(
