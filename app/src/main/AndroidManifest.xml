@@ -15,7 +15,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".UI.ChatActivity" />
+        <activity android:name=".UI.ChatActivity"
+            android:windowSoftInputMode="stateHidden"/>
         <activity android:name=".UI.SettingsActivity" />
 
         <service

@@ -28,9 +28,10 @@ public class ScanKeyActivity extends AppCompatActivity{
     private ChatService mBoundService;
     private boolean mServiceIsBound;
     private UUID mChatPartnerID;
-    EditText mNameEditText;
-    EditText mKeyEditText;
-    EditText mIdEditText;
+    private EditText mNameEditText;
+    private EditText mKeyEditText;
+    private EditText mIdEditText;
+    private Button mAddUser;
 
     String TAG = getClass().toString();
 
@@ -45,6 +46,7 @@ public class ScanKeyActivity extends AppCompatActivity{
         mNameEditText = (EditText) findViewById(R.id.editText_partner_name);
         mKeyEditText = (EditText) findViewById(R.id.editText_public_key);
         mIdEditText = (EditText) findViewById(R.id.editText_partner_id);
+        mAddUser = (Button) findViewById(R.id.button_add_chat_partner);
 
         Log.d(ChatActivity.class.getSimpleName(), "binding Service");
         bindService(new Intent(getApplicationContext(),
@@ -61,6 +63,7 @@ public class ScanKeyActivity extends AppCompatActivity{
             // If we were called with an Id in the intent, that means we are supposed to show
             // what we know already so it can be changed
             if (mChatPartnerID != null) {
+                mAddUser.setText(getString(R.string.edit_user));
                 mBoundService.setChatPartner(mChatPartnerID);
                 mIdEditText.setText(mChatPartnerID.toString());
                 Log.d(TAG, mBoundService.getPartnerName()
@@ -92,7 +95,6 @@ public class ScanKeyActivity extends AppCompatActivity{
                         UUID chatPartnerId = UUID.fromString(mIdEditText.getText().toString());
                         String chatPartnerName = mNameEditText.getText().toString();
                         PublicKey key = KeyParser.parsePublicKey(mKeyEditText.getText().toString());
-                        // TODO: can key be null or is it only empty ("")
                         if(key != null && !chatPartnerName.equals("")) {
                             mBoundService.addPartner(chatPartnerId, chatPartnerName, key);
                             Log.d(TAG, "The name of the chat partner is" + mNameEditText.getText().toString());

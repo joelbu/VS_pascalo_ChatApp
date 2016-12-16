@@ -182,7 +182,6 @@ public class ChatService extends Service {
         return mChatsHolder.isOpenInActivity(mCurrentChatId);
     }
 
-    // TODO: Signing a message hash and appending it?
     // This is going to be slow and vulnerable to malleability attacks, and we don't have any
     // sender authentication but it doesn't really matter for our project
     private byte[] encryptMessage(byte[] payload, UUID receiver) {
@@ -377,7 +376,6 @@ public class ChatService extends Service {
                     Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
                     // notification
-                    // TODO: modifiy notation content
                     //create a notification
                     Log.d(ChatService.this.getClass().getSimpleName(), "Before creating notification");
                     NotificationCompat.Builder builder =
@@ -385,7 +383,7 @@ public class ChatService extends Service {
                                     .setSmallIcon(android.R.drawable.sym_action_chat)
                                     .setContentTitle("You have a new message from "
                                             + mChatsHolder.getPartnerName(mCurrentChatId) + "!")
-                                    .setContentText("Tap to go to read.")
+                                    .setContentText("Tap to read.")
                                     .setOngoing(false)
                                     .setAutoCancel(true)
                                     .setContentIntent(PendingIntent.getActivity(
@@ -469,11 +467,7 @@ public class ChatService extends Service {
         super.onCreate();
         mChatsHolder = new ChatsHolder(getApplicationContext());
 
-        // Now it just loads everything upon starting, we still need lazy initialisation
-        // TODO: Lazy initialisation of message threads
-
         mChatsHolder.readAddressBook();
-        //mChatsHolder.readAllThreads(); no longer needed hopefully
 
         // Since notifications must come from the service I moved this here
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);

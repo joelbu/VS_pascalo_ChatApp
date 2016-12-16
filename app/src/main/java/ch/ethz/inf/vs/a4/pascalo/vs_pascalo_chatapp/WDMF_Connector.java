@@ -15,8 +15,10 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Jakob on 25.11.2016.
@@ -29,15 +31,15 @@ import java.util.Arrays;
 
 public abstract class WDMF_Connector extends Service {
     // Application messages are byte arrays that will be sent to other applications through our API
-    // Use this to send a single application message. Store it in the field with the name obj.
+    // Use this to send a single application message. Store it in the data bundle with the key "data".
     public static final int IPC_MSG_SEND_SINGLE_MESSAGE = 1;
     // Use this to send multiple application messages at once.
-    // Store them in a ArrayList and put it in the field with the name obj.
+    // Store them in a ArrayList and put it in the data bundle with the key "dataList".
     public static final int IPC_MSG_SEND_MESSAGE_LIST = 2;
-    // This is used to receive a single application message. It will be stored in the field with the name obj.
+    // This is used to receive a single application message. It will be stored in the data bundle with the key "data".
     public static final int IPC_MSG_RECV_SINGLE_MESSAGE = 3;
     // This is used to receive multiple application messages at once.
-    // They will be stored in a ArrayList and put it in the field with the name obj.
+    // They will be stored in a ArrayList and put it in the data bundle with the key "dataList".
     public static final int IPC_MSG_RECV_MESSAGE_LIST = 4;
     // Send this to the main Service to start listening to the messages with our appID
     // Make sure to write the Receiving Messenger in the replyTo field of the message
@@ -49,13 +51,18 @@ public abstract class WDMF_Connector extends Service {
     public static final int IPC_MSG_SET_TIMEOUT_ACK = 9;
     public static final int IPC_MSG_SET_BUFFER_SIZE = 10;
     public static final int IPC_MSG_SET_BUFFER_SIZE_ACK = 11;
+
     // This is used to find where exactly the Service resides in the namespace
     private static final String packageName = "ch.ethz.inf.vs.a4.wdmf_api";
-    private static final String serviceName = "ch.ethz.inf.vs.a4.wdmf_api.MainService";
+    private static final String serviceName = "ch.ethz.inf.vs.a4.wdmf_api.service.MainService";
     // Used preference key (Putting them in the string resources xml doesn't really work)
-    static final String networkNamePK = "PK network name";
-    static final String timeoutPK = "PK timeout";
-    static final String bufferSizePK = "PK buffer size";
+    public static final String networkNamePK = "PK network name";
+    public static final String timeoutPK = "PK timeout";
+    public static final String bufferSizePK = "PK buffer size";
+    public static final String maxNoContactTimePK = "PK no contact t";
+    public static final String maxNoContactTimeForeignDevicesPK = "PK foreign devices t";
+    public static final String sleepTimePK = "PK sleep t";
+    public static final String lockPreferencesPK = "PK lock prefs";
     // And for reading the content Provider
     static final String MyPrefsUri = "content://ch.ethz.inf.vs.a4.wdmf_api.provider/any";
     // ABSTRACT PART ( MUST OVERWRITE )
@@ -66,7 +73,12 @@ public abstract class WDMF_Connector extends Service {
 
     // Overwrite this in client application if you want to treat a whole list of messages differently.
     // If this function is not overwritten, each message in the list will cause a onReceiveMessage invocation.
-    public void onReceiveMessageList(ArrayList<byte[]> list) { throw new UnsupportedOperationException("Not implemented"); };
+    public void onReceiveMessageList(ArrayList<byte[]> list) { throw new UnsupportedOperationException("Not implemented"); }
+
+    // Overwrite if you want to be notified about unsuccessful preference change attempts
+    // This usually happens when the user has locked the preferences
+    // The argument is the IPC_MSG_SET_****_ACK which was received as negative ACK
+    public void onPreferenceChangeRefused(int ipc_msg_ack) {}
 
     // IMPLEMENTATION
 
@@ -109,20 +121,44 @@ public abstract class WDMF_Connector extends Service {
     }
 
     // Returns false in case something went wrong
+    // It is in the users responsibility to send the message again if it didn't succeed
     public boolean broadcastMessage(byte[] data) {
         if (!bound) {
-            Log.d("WDMF_Connector", "Error: The WDMF is not bound but a message wants to be broadcasted.");
-            // TODO: retry
+            Log.d("WDMF_Connector", "Error: The WDMF is not bound but a message wants to be broadcast.");
             return false;
         }
         Log.d("WDMF_Connector", "broadcast message.");
-        // Copy data
-        byte[] dataCopy = Arrays.copyOfRange(data, 0, data.length);
+        // Copy data // unnecessary since it will be serialized anyway
+        //byte[] dataCopy = Arrays.copyOfRange(data, 0, data.length);
 
         // Create and send a message to the service
         Message msg = Message.obtain(null, IPC_MSG_SEND_SINGLE_MESSAGE, appID, 0);
         Bundle b = new Bundle();
-        b.putByteArray("data", dataCopy);
+        b.putByteArray("data", data);
+        msg.setData(b);
+
+        try {
+            sendingMessenger.send(msg);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    // Returns false in case something went wrong
+    // It is in the users responsibility to send the messages again if it didn't succeed
+    public boolean broadcastMessages(ArrayList<byte[]> data) {
+        if (!bound) {
+            Log.d("WDMF_Connector", "Error: The WDMF is not bound but messages want to be broadcast.");
+            return false;
+        }
+        Log.d("WDMF_Connector", "broadcast message list.");
+
+        // Create and send a message to the service
+        Message msg = Message.obtain(null, IPC_MSG_SEND_SINGLE_MESSAGE, appID, 0);
+        Bundle b = new Bundle();
+        b.putSerializable("dataList", data);
         msg.setData(b);
 
         try {
@@ -293,16 +329,15 @@ public abstract class WDMF_Connector extends Service {
                     }
                     break;
                 case WDMF_Connector.IPC_MSG_RECV_MESSAGE_LIST:
-                    // type check ArraList
-                    if( (msg.obj instanceof ArrayList<?>)) {
-                        ArrayList<byte[]> list = (ArrayList<byte[]>)msg.obj;
+                    bnd = msg.getData();
+                    Serializable obj = bnd.getSerializable("dataList");
+                    if( (obj instanceof ArrayList<?>)) {
+                        ArrayList<byte[]> list = (ArrayList<byte[]>)obj;
                         // type check inner type of ArrayList
                         if(!list.isEmpty() && list.get(0) instanceof byte[]){
-
                             // send data to application
-
                             try {
-                                // hand over as list if implmented by client
+                                // hand over as list if implemented by client
                                 onReceiveMessageList(list);
                             }
                             catch (UnsupportedOperationException e) {
@@ -311,7 +346,6 @@ public abstract class WDMF_Connector extends Service {
                                     onReceiveMessage(appMsg);
                                 }
                             }
-
                         }
                         else {
                             Log.d("WDMF Connector", "Error: we got a messenger message of type IPC_MSG_RECV_MESSAGE_LIST but the list was corrupted.");
@@ -321,6 +355,12 @@ public abstract class WDMF_Connector extends Service {
                     else {
                         Log.d("WDMF Connector", "Error: we got a messenger message of type IPC_MSG_RECV_MESSAGE_LIST but no list of application messages was provided.");
                     }
+                    break;
+                case WDMF_Connector.IPC_MSG_SET_BUFFER_SIZE_ACK:
+                case WDMF_Connector.IPC_MSG_SET_TAG_ACK:
+                case WDMF_Connector.IPC_MSG_SET_TIMEOUT_ACK:
+                    if(msg.arg1 == 0)
+                        onPreferenceChangeRefused(msg.what);
                     break;
                 default:
                     super.handleMessage(msg);

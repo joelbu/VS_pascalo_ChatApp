@@ -75,7 +75,7 @@ public class ChatActivity extends AppCompatActivity{
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("Message", message.getText());
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(ChatActivity.this, R.string.successful_copy_to_cliboard, Toast.LENGTH_LONG).show();
+                Toast.makeText(ChatActivity.this, R.string.successful_copy_to_clipboard, Toast.LENGTH_LONG).show();
                 return true;
             }
         });
@@ -110,9 +110,6 @@ public class ChatActivity extends AppCompatActivity{
             // call the functions
             Log.d(ChatActivity.class.getSimpleName(), "Setting chat partner");
             mBoundService.setChatPartner(mChatPartnerID);
-
-            // TODO: and only enable if our key is correctly generated
-            // but this should never happen because the id has to be generated at the first start of app
 
             // Only enable sending if we know their key, which is not guaranteed
             mSendButton.setEnabled(mBoundService.isKeyKnown());
@@ -195,6 +192,7 @@ public class ChatActivity extends AppCompatActivity{
 
             mMessageListView = (ListView) findViewById(R.id.messageList);
             mMessageListView.setAdapter(mMessageArrayAdapter);
+            mMessageListView.setSelection(mMessageArrayAdapter.getCount() - 1);
 
 
             Log.d(ChatActivity.class.getSimpleName(), "Chat partners name is: " +
@@ -246,7 +244,7 @@ public class ChatActivity extends AppCompatActivity{
         public void onReceive(Context context, Intent intent) {
             mMessageArrayAdapter.clear();
             mMessageArrayAdapter.addAll(mBoundService.getMessages());
-            mMessageListView.smoothScrollToPosition(mMessageArrayAdapter.getCount() - 1);
+            mMessageListView.setSelection(mMessageArrayAdapter.getCount() - 1);
         }
     };
 
@@ -255,10 +253,16 @@ public class ChatActivity extends AppCompatActivity{
     private BroadcastReceiver mBroadcastReceiverNoScroll = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int scrollPosition = mMessageListView.getVerticalScrollbarPosition();
+            // Save exact scroll position
+            int index = mMessageListView.getFirstVisiblePosition();
+            View v = mMessageListView.getChildAt(0);
+            int top = (v == null) ? 0 : (v.getTop() - mMessageListView.getPaddingTop());
+
             mMessageArrayAdapter.clear();
             mMessageArrayAdapter.addAll(mBoundService.getMessages());
-            mMessageListView.setVerticalScrollbarPosition(scrollPosition);
+
+            // Restore scroll position
+            mMessageListView.setSelectionFromTop(index, top);
         }
     };
 

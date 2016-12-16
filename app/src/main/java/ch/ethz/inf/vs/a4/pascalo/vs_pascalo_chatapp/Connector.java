@@ -32,7 +32,7 @@ public class Connector extends WDMF_Connector {
 
     public static void openConfigurationApp(Activity currentActivity) {
         Intent configIntent = new Intent();
-        configIntent.setComponent(new ComponentName("ch.ethz.inf.vs.a4.wdmf_api", "ch.ethz.inf.vs.a4.wdmf_api.MainActivity"));
+        configIntent.setComponent(new ComponentName("ch.ethz.inf.vs.a4.wdmf_api", "ch.ethz.inf.vs.a4.wdmf_api.ui.MainActivity"));
         configIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         currentActivity.startActivity(configIntent);
     }
