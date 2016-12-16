@@ -100,7 +100,7 @@
         -- I just made the File.exists() call instead of reading directly.
         -- Our own keys are in the address book, but the information about our keys existing is
              in a separate shared preference because it's read earlier and really just a flag
-        -- DONE? I'm not sure.
+        -- DONE - Joel - 2016-12-16
 
 
 - preference changes are not read correctly (only sound and vibration are false, inAppVibration works correctly)
